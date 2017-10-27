@@ -3,11 +3,11 @@ import java.util.HashMap;
 // This class represents Fibonacci Heap data structure and is implemented using 
 // pseudo code provided in the book Introduction to Algorithms by Cormen, Thomas H.
 // which is available in NU library or online
-public class FibHeap {
+public class FibHeap<T> {
 
-	private static class FibNode {
+	private static class FibNode<K> {
 
-		private Object obj;
+		private K obj;
 		private int key;
 		private FibNode parent;
 		private FibNode child;
@@ -21,7 +21,7 @@ public class FibHeap {
 		private int degree; // degree of this node. Represents how many child nodes 
 		                    // are connected to this node
 
-		public FibNode(Object object, int key) {
+		public FibNode(K object, int key) {
 			this.obj = object;
 			this.key = key;
 
@@ -40,7 +40,7 @@ public class FibHeap {
 	// represents mapping of object to a Node(in turn key in the node) contains every node.
 	// Not just the root list from the book.
 	// Please note that Node itself has object and key but this is also maintained explicitly
-	private HashMap<Object, FibNode> objectToNode;
+	private HashMap<T, FibNode> objectToNode;
 	
 	// number of nodes in this heap. H.n from the book
 	private int noOfNodes;
@@ -48,22 +48,22 @@ public class FibHeap {
 	public FibHeap(int maxSize) {
 		min = null;
 		noOfNodes = 0;
-		objectToNode = new HashMap<Object, FibNode>(maxSize);
+		objectToNode = new HashMap<T, FibNode>(maxSize);
 
 	}
 	
 	// following method extracts the minimum node and consolidates the trees
-	public Object extractMin() {
+	public T extractMin() {
 		return null;
 	}
 	
 	// following method makes a node using given object and key and inserts into this heap
-	public void insert(Object obj, int key) {
+	public void insert(T obj, int key) {
 		
 	}
 	
 	// following method removes a node with given object and key mapping from this heap
-	public void decreaseKey(Object obj, int key) {
+	public void decreaseKey(T obj, int key) {
 		
 	}
 
