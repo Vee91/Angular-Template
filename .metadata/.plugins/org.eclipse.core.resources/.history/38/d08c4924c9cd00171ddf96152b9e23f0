@@ -1,0 +1,50 @@
+
+ 
+<div id="todoList" align="center" ng-style="myStyle()">
+     <table align="center">
+	<tr>
+    	<th><h2>List of Todos</h2></th>
+	</tr>
+	</table>
+	<table border="1" align="center">
+	<thead>
+		<tr>
+			<th>Todo_title</th>
+			<th>Todo_Description</th>
+			<th>Action</th>
+		</tr>
+	</thead>
+	<tfoot >
+           <td colspan="6">
+                  <div class="pagination pull-right" >
+                            <ul>
+                                <li ng-class="{disabled: currentPage == 0}">
+                                    <a href ng-click="prevPage()">&lt&lt Prev</a>
+                                </li>
+                                <li ng-repeat="n in range(pagedItems.length)"
+                                    ng-class="{active: n == currentPage}"
+                                ng-click="setPage()">
+                                    <a href ng-bind="n + 1">1</a>
+                                </li>
+                                <li ng-class="{disabled: currentPage == pagedItems.length - 1}">
+                                    <a href ng-click="nextPage()">Next &gt&gt</a>
+                                </li>
+                            </ul>
+                  </div>
+            </td>
+    </tfoot>
+	<tbody>
+    <tr ng-repeat="todo in pagedItems[currentPage]">
+            <td style="width:100px;" class="todoTitle">{{todo.title}}</td>
+            <td style="width:100px;" class="todoDescription">{{todo.description | filter:ellipsis:20}}</td>
+            <td style="width:80px;"><button class="button" ng-click="deleteTodo(todo)">Delete</button></td>
+    </tr>
+	</tbody>
+	</table>
+    <hr/>
+
+    <button ng-click="gotoTodoNewPage()" class="button">Add</button>
+    <form action="rest/ExportToExcel">
+   	 <input type="submit" id = "submit" value="Export to Excel" class="button">
+	</form>
+</div>

@@ -1,0 +1,256 @@
+define([ 'angular', 'app', 'LeaveServices', 'LeaveCommonDirectives' ,'onBehalfRequestServices','moment', 'displayMenu', 'jqueryui', 'utils',
+		'bootstrap' ], function(angular, app, moment, jqueryui, bootstrap) {
+	app.controller('cmnLerfReqDtlsCtrl', [
+			'$scope',
+			'levReqList',
+			'$http',
+			'$compile',
+			'$routeParams',
+			'$location',
+			'$q',
+			'onBehalfRequestServices',
+			function($scope, levReqList,$http, $compile, $routeParams,$location, $q,onBehalfRequestService) {
+
+				$scope.lerfObj = {};
+				$scope.lerfObj.i94Checked = false;
+				$scope.lerfObj.i94Sec = false;
+
+				$scope.lerfObj.lerfData = [];
+
+				$scope.lerfObj.lerfCallService = '/leaverest/rest/getLERFDetails/';
+				
+				$scope.i94DtlsAvailable=false;
+				
+				$scope.lerfObj.lerfReqNo=undefined;
+				
+				$scope.msgAvailable=false;
+				
+				$scope.lerfObj.selctedReq=undefined;
+				
+				$scope.lerfObj.workFlowData=[];
+				
+				$scope.lerfObj.workFlowDetail="/leaverest/rest/levWorkflow";
+				
+				$scope.lerfObj.basicWorkFlowData = [];
+				
+				$scope.wrkflowDivCount = 0;
+				
+				var index = 0;
+
+				$http.post($scope.lerfObj.lerfCallService + $routeParams.requestNo).success(
+						function(data) {
+							$scope.lerfObj.lerfReqNo=$routeParams.requestNo;
+							$scope.lerfObj.lerfData = data;
+							
+							if($scope.lerfObj.lerfData.LERFDetails.i94Number!=null){
+								$scope.i94DtlsAvailable=true;
+							}
+							$scope.lerfObj.selctedReq=$scope.lerfObj.lerfData.LERFDetails.lerfLeaveDTO[0].requestNo;
+							
+							$scope.getWorkFlowdtls($scope.lerfObj.selctedReq,$scope.lerfObj.lerfData.LERFDetails.lerfLeaveDTO[0].parentReqNo);
+
+						}).error(function(data) {
+					alert("Error in getting Lerf Data");
+				});
+				
+				$scope.backToRequestList = function() {
+					if ($scope.isReqLerfReqDetails) {
+						$location.path("/levReqList/");
+					}else if($scope.isReAssignLevReqList){
+						$location.path("/onBehalfReassignLeave/");
+						levReqList
+								.backToRequestList($routeParams.employeeNo);
+					}else if($scope.isDeleteLevReqList){
+						$location.path("/onBehalfDeleteLeave/");
+						levReqList
+								.backToRequestList($routeParams.employeeNo);
+					}else if ($scope.isEmpLerfReqDetails) {
+						$location.path("/empReqList/");
+						levReqList.backToRequestList($routeParams.employeeNo);
+					}
+					
+					
+				};
+				
+				$scope.redirectToDtls=function(parentReq){
+					if ($scope.isReqLerfReqDetails) {
+						$location.path("/levReqDetails/"+parentReq);
+					} else if ($scope.isEmpLerfReqDetails) {
+						$location.path("/empReqDetails/" + parentReq + "/" +$routeParams.employeeNo);
+						levReqList.backToRequestList($routeParams.employeeNo);
+					}
+				};
+				
+				$scope.getWorkFlowdtls=function(val,empNo){
+					
+					
+					
+					$scope.lerfObj.lerfData.workflowData = [];
+					$scope.lerfObj.basicWorkFlowData=[];
+					
+					++$scope.wrkflowDivCount;
+					$http.post($scope.lerfObj.workFlowDetail+ '/'+ empNo+ '?levRequestNo='+ val)
+					.success(function(data) {
+
+					$scope.lerfObj.workFlowData[0] = data;
+
+								for ( var i = 0; i < $scope.lerfObj.workFlowData[0].length; i++) {
+									$scope.tracker = {};
+
+									$scope.tracker.htmlTextBox = "<p class='nodeNameText leftAlign'>"
+											+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].employeeRole
+											+ "</p>"
+											+ "<p class='nodeNameText leftAlign'>"
+											+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].appliedDate
+											+ "</p><br/>"
+											+ "<p class='nodeNameTextDetails leftAlign'>"
+											+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].fullName
+											+ " | "
+											+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].employeeNo
+											+ "</p>"
+											+ "<p class='nodeNameTextEmail leftAlign'>"
+											+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].contactDTO.emailId
+											+ "</p>"
+											+ "<p class='nodeNameTextDetails leftAlign'>"
+											+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].contactDTO.contactNumberCell
+											+ "</p>"
+											+ "<p class='nodeNameTextDetails leftAlign'> Status: "
+											+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].leaveStatus.name
+											+ "</p>";
+
+									if ($scope.lerfObj.workFlowData[0][i].levWorkflow[0].approvalComment !== undefined) {
+										$scope.tracker.htmlTextBox += "<p class='nodeNameTextDetails leftAlign'> Comment: "
+												+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].approvalComment
+												+ "</p>";
+									}
+									;
+
+									if (i === $scope.lerfObj.workFlowData[0].length - 1 && $scope.lerfObj.workFlowData[0][i].levWorkflow.length > 1) {
+										$scope.workFlowPush = [];
+										$scope.workFlowPush.push($scope.lerfObj.workFlowData[0][i].levWorkflow.slice(1,$scope.lerfObj.workFlowData[0][i].levWorkflow.length));
+
+										$scope.tracker.htmlTextBox += "<a class='leftAlign testNidhi' onclick='showFaltuDtls();' style='cursor: pointer;'>Others +"
+												+ parseInt($scope.lerfObj.workFlowData[0][i].levWorkflow.length - 1)
+												+ "</a>";
+										$scope.tracker.htmlTextBox += "<div id='faltuID' class='tempTestDiv' >";
+										for ( var c = 0; c < $scope.workFlowPush[0].length; c++) {
+
+											$scope.tracker.htmlTextBox += "<p class='testP'>"
+													+ $scope.workFlowPush[0][c].employeeRole
+													+ " | "
+													+ $scope.workFlowPush[0][c].fullName
+													+ " | "
+													+ $scope.workFlowPush[0][c].employeeNo
+													+ " | "
+													+ $scope.workFlowPush[0][c].contactDTO.emailId
+													+ " | "
+													+ $scope.workFlowPush[0][c].contactDTO.contactNumberCell
+													+ "</p>";
+
+										}
+										$scope.tracker.htmlTextBox += "</div>";
+										$compile($scope.tracker.htmlTextBox)($scope);
+
+									}
+
+									if (i === $scope.lerfObj.workFlowData[0].length - 1) {
+										if ($scope.lerfObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 14) {
+											$scope.tracker.status = "ACTED";
+										} else if ($scope.lerfObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 15) {
+											$scope.tracker.status = "REJECTED";
+										} else {
+											$scope.tracker.status = "PENDING";
+										}
+
+									} else {
+										$scope.tracker.status = "ACTED";
+									}
+
+									$scope.lerfObj.basicWorkFlowData.push($scope.tracker);
+
+								}
+							})
+					.error(
+							function(data) {
+							
+								$location.path("/cmnError");
+							});
+					
+				};
+					
+				$scope.isReAssignLevReqList=onBehalfRequestService.getReassignLERF();
+				$scope.isDeleteLevReqList=onBehalfRequestService.getDeleteLERF();
+				
+				$scope.onBehalfReassignLERF=function(){
+					$('#reassignModal').modal('show');
+				};
+				
+				$scope.reassignEmpSearch=function(){
+					$scope.reassignEmpSearchFlag=false;
+					var reassignEmpId=$('#reassignEmpIdBox').val();
+					$scope.reassignEmpData= {
+							1:reassignEmpId
+					};
+				
+					if(null!=reassignEmpId && undefined!=reassignEmpId && ""!=reassignEmpId){
+						$http.post("/leaverest/rest/searchEmployee?start=1&pageSize=10",$scope.reassignEmpData)
+						.success(function(data){
+							$scope.reassignEmpData.details=data;
+							$scope.reassignEmpSearchFlag=true;
+						});
+					}
+					
+				};
+				
+				$scope.onBehalfReassign=function(){
+					$scope.isReassigned=false;
+					var reassignEmpId=$('#reassignEmpIdBox').val();
+					$scope.reassignData=[];
+					$scope.reassignData
+					.push({
+						levRequestNo : $scope.detailsList[0].subRequest,
+						parentReqNo : $scope.detailsList[0].masterRequest,
+						//employeeNo :searchData,
+						
+					});
+					if(null!=reassignEmpId && undefined!=reassignEmpId && ""!=reassignEmpId){
+						
+						$http.post("/leaverest/rest/reassignOnBehalfLeave?reassignTo="+reassignEmpId,$scope.reassignData)
+						.success(function(data){
+							$scope.isReassigned=true;
+							$('#reassignModal').modal('hide');
+						
+							
+							
+						});
+					}
+					
+				};
+				
+				$scope.onBehalfDeleteLERF=function(){
+					$scope.isDeleted=false;
+					$scope.deleteData=[];
+					$scope.deleteData
+					.push({
+						childReqNo : $scope.detailsList[0].subRequest,
+						parentReqNo : $scope.detailsList[0].masterRequest,												
+					});											
+					$http.post("/leaverest/rest/deleteLeaveOnBehalf",$scope.deleteData)
+					.success(function(data){
+						if(null!=data && undefined!=data && ""!=data){
+							if(data[0].fieldErrors[0].code==200){
+								notAllowedMessage =data[0].fieldErrors[0].message;
+								$scope.outMsg
+										.push(notAllowedMessage);
+								$("#messageModal")
+										.modal('show');
+								$scope.isDeleted=true;
+							}
+						}
+					});
+				};
+				
+
+			} ]);
+	return app;
+});

@@ -1,0 +1,78 @@
+
+<div class="row-fluid">
+	
+	<div data-ng-show='leaveLopDeatils.length>0 && showbalReportStatus'>
+
+		<div class="container-fluid col-md-6 col-xs-12"
+			style="margin-left: 0px; margin-right: 0px; padding-top: 30px;">
+			<table class="table" style="text-align: left; border: rgb(190, 190, 190) 1px solid; padding-bottom: 14px; margin-bottom: 0px;">
+				<tr style="color: #ffffff; background-color: #4f81b1; padding-left: 5px; font-size: 12px; font-weight: bold;">
+					<th class="col-md-4">LOP Type</th>
+					<th class="col-md-4">Outstanding</th>
+					<th class="col-md-4">Recovered</th>
+				</tr>
+				<tr data-ng-repeat="data in leaveLopDeatils"style="font-size: 12px; color: #555555; padding-left: 5px;">
+					<td>{{data.lopType}}</td>
+					<td>{{data.outstanding}}</td>
+					<td>{{data.recovered}}</td>
+				</tr>
+			</table>
+		</div>
+		
+		<div class="col-md-6 col-xs-0" style="padding-top: 99px;"></div>
+		
+		<div class="container-fluid col-md-6 col-xs-12"
+							style="margin-left: 0px;margin-top: 15px; text-align: right;">
+			<a data-ng-click="showSummaryReport();">
+			<span class="glyphicon glyphicon-list-alt" style="font-size: 15px;vertical-align: top;"></span>
+			<span style="font-weight: bold;font-size: 12px;vertical-align: super;" >VIEW SUMMARY</span>
+			</a>
+		</div>		
+						
+	</div>
+
+	<div class="container-fluid col-md-6 col-xs-12"
+		style="text-align: left; margin-left: 0px; margin-right: 0px; padding-top: 30px; color: #454545; font-size: 18px;"
+		data-ng-show='leaveLopDeatils.length==0 && showbalReportStatus'>No
+		LOP Records Exists</div>
+
+</div>
+
+
+		
+
+		<div ng-show="sumaryshow" class="container-fluid col-md-12 col-xs-12" style="overflow-x: auto; margin-left: 0px; margin-right: 0px; padding-top: 30px;">
+<!-- 
+			<div class="row-fluid">
+				<b><span class="span6 pull-left" style="margin-top: -2%;">Lop
+						Recovery Summary Report</span> </b><span class="span6 pull-right"
+					style="font-size: 20px; margin-top: -3%; margin-right: 29%;">
+					<a class="glyphicon glyphicon-remove" ng-click="hideLopsumary()"></a>
+				</span>
+			</div>
+ -->
+ <div
+							style="text-align: left; padding-bottom: 12px; color: #555555; font-size: 15px; font-weight: bold;">LOP
+							Recovery Summary Report</div>
+		<table class="table" style="text-align: left; border: rgb(190, 190, 190) 1px solid; padding-bottom: 14px; margin-bottom: 0px;">
+		<tr style="color: #ffffff; background-color: #4f81b1; padding-left: 5px; font-size: 11px; font-weight: bold;">
+			<th class="col-md-2">LOP Record</th>
+								<th class="col-md-2">Leave Type</th>
+								<th class="col-md-2">Start Date</th>
+								<th class="col-md-2">End Date</th>
+								<th class="col-md-2">No Of LOP Days Recovered</th>
+								<th class="col-md-2">Month Of Recovery</th>
+
+				</tr>
+				<tr data-ng-repeat="data in leaveLopSumaryDeatils" style="font-size: 11px; color: #555555; padding-left: 5px;">
+					<td>{{data.lopRecords}}</td>
+					<td>{{data.leaveType}}</td>
+					<td>{{data.startDate}}</td>
+					<td>{{data.endDate}}</td>
+					<td>{{data.noOfDaysOfLopRecovered}}</td>
+					<td>{{data.monthOfRecovery}}</td>
+				</tr>
+			</table>
+		</div>
+
+	</div>

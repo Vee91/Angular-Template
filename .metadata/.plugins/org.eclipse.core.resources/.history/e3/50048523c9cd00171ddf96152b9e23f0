@@ -1,0 +1,92 @@
+.reassignBtn{
+	font-size: 10px;
+	font-weight: 500;
+	color: black;
+	background-color: #eeeeee;
+	border-color: #eeeeee;
+	
+}
+.disableAction{
+	pointer-events: none;
+  	cursor: default;
+}
+
+.empSearchLabel{
+	text-align:left;
+	font-weight:bold;
+	font-size:12px;
+	font-family: Segoe UI;
+}
+.empSearchBtn{
+	font-size: 12px;
+    color: white;
+    background-color: #1F84C8;
+    border-color: #1F84C8;
+    border-radius: 0px;
+    box-shadow: 5px 10px 0 2px #FFF;
+}
+
+.empHeadBar{
+	background-color:#BCCCD8;
+	height:30px;
+	text-align: left;
+	font-size: 11px;
+	font-weight:bold;
+	padding:7px 0;
+	font-family:Segoe UI;
+	
+}
+
+.empSearchDtls{
+	
+	height:30px;
+	text-align: left;
+	font-size: 12px;
+	font-family:Segoe UI;
+}
+
+.radioMod input[type='radio'] {
+    -webkit-appearance:none;
+    width:20px;
+    height:20px;
+    border:1px solid darkgray;
+    border-radius:10%;
+    outline:none;
+    box-shadow:0 0 3px 0px #428bca inset;
+}
+.radioMod input[type='radio']:hover {
+    box-shadow:0 0 5px 0px #428bca inset;
+    cursor:pointer;
+}
+.radioMod input[type='radio']:before {
+    content:'';
+    display:block;
+    width:65%;
+    height:65%;
+    margin: 18%;    
+    border-radius:10%;    
+}
+.radioMod input[type='radio']:checked:before {
+    background:#428bca;
+}
+
+.whiteBarHeading{
+	font-size:11px;
+	font-weight:bold;
+	color:#555555;
+	font-family:Segoe UI;
+	padding: 10px 0px 8px;
+}
+
+.whiteBarDetails{
+	font-size:12px;
+	color:#555555;
+	font-family:Segoe UI;	
+}
+
+.bgColorRow{
+	background-color:#F5F8FD;
+}
+.bgColorRow:nth-child(odd){
+	background-color:#FFF;
+}

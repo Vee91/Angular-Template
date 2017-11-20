@@ -1,0 +1,327 @@
+
+.backgroundstyleSM {
+	display: none;
+	position: fixed;
+	top: 0%;
+	left: 0%;
+	width: 100%;
+	height: 100%;
+	background: url(../images/overlay.png) repeat scroll 19px center
+		transparent;
+	z-index: 1001;
+	-moz-opacity: 0.8;
+	opacity: .80;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity = 80);
+}
+
+.popuptextstyleSM {
+	display: none;
+position: absolute;
+top: 25%;
+left: 35%;
+width: 455px;
+height: 235px;
+	background: url("../images/Roundedrectangle.png") repeat scroll 0 center
+		transparent;
+	z-index:1002;
+overflow: hidden;
+-moz-border-radius: 15px;
+-webkit-border-radius: 15px;
+border-radius: 15px;
+border-width:5px;
+}
+
+.popupbuttonTextSM {
+	height:28px;
+	color: white;
+	font-family: Arial;
+	font-size: 13px;
+	font-style: normal;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	background: url(../images/enabled.png) repeat scroll 19px center
+		transparent;
+	border: 0px ridge;
+	border-radius: 5px;
+	width: 95px;
+	padding: 2px 2px 4px 2px;
+}
+
+.popupbuttonTextSM:hover {
+	color: black;
+	font-family: Arial;
+	font-size: 13px;;
+	font-style: normal;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	background: url(../images/disabled.png) repeat scroll 19px center
+		transparent;
+	border: 1px ridge;
+	border-radius: 5px;
+	width: 95px;
+	padding: 2px 2px 4px 2px;
+}
+
+
+.bea-portal-body-footer {
+color: #FFFFFF;
+font-size: 11px;
+background: #083A6F;
+}
+
+.bea-portal-book-primary {
+padding: 0px;
+margin: 0px;
+}
+
+.footer_tata_branding {
+background-image: url("../images/tcs_logo.png");
+margin: 11px 0px 0px 20px;
+background-repeat: no-repeat;
+height: 11px;
+width: 218px;
+float: left;
+}
+
+#uxFooterContainer {
+height: 50px;
+}
+
+.footer_tcs_branding {
+background-image: url("../images/tata_logo.png");
+background-repeat: no-repeat;
+float: right;
+height: 14px;
+margin: 11px 20px 0px 0px;
+width: 71px;
+}
+
+.copyright_text {
+padding: 7px 0px 7px 20px;
+}
+
+.release_text {
+text-align: right;
+padding: 0px 20px 0px 0px;
+}
+
+/*New Branding CSS*/
+
+ 
+ .BodyFontNormal {
+	color: black;
+	font-family: Arial;
+	font-size: small;
+	font-style: normal;
+	font-weight: normal;
+	text-align: left;
+	text-decoration: none;
+}
+.ultimatix_branding 
+{	
+/*background:url(../images/ultimatix_logo.png) no-repeat center center;*/
+background-color:#1365b3;
+height:60px;
+width:110px;
+
+}
+
+
+ .middle_section {
+	height: 60px;
+   	width: 483px;
+	background-color:#1365b3;
+    margin-left: 5px;
+} 
+
+ .header_right_section {
+width: 235px;
+background-color:#1365b3;
+}
+
+.theme_logo {
+background-repeat: no-repeat;
+height: 60px;
+margin: 0px 0px 0px 0px;
+float: left;
+} 
+
+
+.employeeDetails_new {
+float: left;
+margin-right: 10px;
+width: 200px;
+padding: 0px 0px 0px 0px;
+}
+
+.arrow_img_down {
+background: url("../images/down_arrow.png") no-repeat;
+float: left;
+padding: 0px 19px 0px 0px;
+height: 17px;
+margin:3px 0px 0px 15px;
+}
+
+.welcome_text {
+text-align: left;
+font-size: 12px;
+font-family: Arial;
+font-weight: bold;
+color: #ffffff;
+display:inline-block;
+}
+
+.welcome_name {
+font-size: 12px;
+font-family: Arial;
+font-weight: bold;
+color: #ffffff; 
+ white-space: nowrap;
+ overflow: hidden;
+ text-overflow: ellipsis;
+ max-width: 123px	;
+ display:inline-block; 
+}
+
+.welcome_id {
+text-align: left;
+font-size: 12px;
+font-family: Arial;
+font-weight: bold;
+color: #ffffff;
+/*padding: 0px 0px 0px 30px;*/
+/* display: inline; */
+}
+
+.designation {
+text-align: left;
+font-size: 11px;
+font-family: Arial;
+font-weight: bold;
+color: #ffffff;
+float: left;
+padding: 8px 0px 0px 31px;
+width: 212px;
+text-shadow: #222222;
+word-wrap: break-word;
+}
+
+
+.user_details_hidden {
+/*background: url("/public/themes/desk/images/header/detailsBoxMiddle.png") repeat scroll 0 0 transparent;*/
+left: 678px;
+margin: -3px 18px 0 296px;
+position: absolute;
+width: 330px;
+background: #083A6F;
+border-left: 1px solid #ffffff;
+border-right: 1px solid #ffffff;
+/*border:1px solid #ffffff;*/
+
+ }
+
+.panel_top {
+background: url("../images/detailsBoxTop.png") no-repeat scroll 0 0 transparent;
+height: 13px;
+left: -1px;
+position: relative;
+top: -1px;
+width: 331px;
+}
+
+.employeeDetails_new_hidden {
+float: left;
+}
+
+.arrow_img_up {
+background: url("../images/up_arrow.png") no-repeat;
+float: right;
+padding: 0 30px 0 0;
+height: 17px;
+margin: 0px 48px 0px 0px;
+}
+
+.additional_details {
+font-family: Arial;
+padding: 1px 0 0 36px;
+}
+
+.panel_bottom {
+background: url("../images/detailsBoxBottom.png") no-repeat scroll 0 0 transparent;
+bottom: -13px;
+height: 13px;
+left: 0;
+position: relative;
+width: 330px;
+}
+
+.welcome_text_hidden {
+text-align: left;
+font-size: 12px;
+font-family: Arial;
+font-weight: bold;
+color: #ffffff;
+display: table-caption;
+padding: 0px 0px 0px 30px;
+width: 222px;
+word-wrap: break-word;
+}
+
+.designation_hidden {
+text-align: left;
+font-size: 11px;
+font-family: Arial;
+font-weight: bold;
+color: #ffffff;
+float: left;
+padding: 8px 0px 0px 31px;
+width: 210px;
+text-shadow: #222222;
+word-wrap: break-word;
+}
+
+.additional_details {
+font-family: Arial;
+padding: 1px 0 0 36px;
+}
+
+.user_details_label {
+font-family: Arial;
+font-size: 11px;
+color: #ffffff;
+float: right;
+white-space: nowrap;
+font-weight: bold;
+}
+
+.user_details_value {
+font-size: 11px;
+font-family: Arial;
+color: #ffffff;
+float: left;
+padding: 0px 0px 0px 4px;
+width: 170px;
+word-wrap: break-word;
+text-transform: capitalize;
+}
+
+.ApplicationName{
+	color: #FFFFFF;
+	font-family: Myriad Pro;
+	font-size: 18px;	
+	font-weight: bold;
+	text-shadow: 1px 1px #222222;
+	padding-top: 19px;
+display: table-cell;	
+}
+
+
+.userDisplayPhoto {
+height: 42px;
+width: 42px;
+float: left;
+padding: 0px 0px 0px 20px;
+}

@@ -1,0 +1,36 @@
+define([ 'angular', 'app', 'moment' ], function(angular, app, moment) {
+	app
+	.service('onBehalfReassign', function() {
+
+		this.reassignData=[{
+				'parentReqNo':undefined,
+				'reqDetails':[{
+					'levReqNo':undefined
+				}]
+		}];
+		
+		this.setReassignData = function(parentReqNo,ChildReqNo,id) {
+			var data = {};
+			sample = angular.copy(this.data);
+			if (angular.isDefined(approvalComment)) {
+				data['parentReqNo'] = parentReqNo;
+				data['levRequestNo'] = this.requestDetails[id]['levRequestNo'];
+				var levRequestNo = data['levRequestNo'];
+				var index = this.submitData
+						.indexOf(levRequestNo);
+				if (index < 0) {
+					this.modifiedData.push(sample);
+					this.submitData.push(levRequestNo);
+				}
+			}
+
+			console
+					.log("setApprove ID "
+							+ JSON
+									.stringify(this.modifiedData));
+		};
+	
+	});
+
+	return app;
+});

@@ -1,0 +1,1026 @@
+define(
+		[ 'angular', 'app', 'moment', 'fyaService', 'displayMenu',
+				'LeaveCommonDirectives', 'jqueryui', 'utils', 'bootstrap',
+				'dragDropController' ],
+		function(angular, app, moment, jqueryui, bootstrap) {
+			app
+					.controller(
+							'LeaveApproverController',
+							[
+									'$scope',
+									'$http',
+									'$compile',
+									'$routeParams',
+									'$location',
+									'$rootScope',
+									'$q',
+									'leaveApprovalService',
+									'dragDropServices',
+									function($scope, $http, $compile,
+											$routeParams, $location, $rootScope, $q,
+											leaveApprovalService,
+											dragDropService) {
+
+										console
+												.log("Inside LeaveApproverController,,,");
+
+										$scope.leaveApprObj = {};
+										$scope.redirectURL = "https://gess.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+										$scope.backupURL= "https://gess.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+										//$scope.leaveApprObj.apprServiceURL = '/leaverest/rest/fyaLeaveDetail/';
+										$scope.leaveApprObj.apprServiceURL = '/leaverest/rest/fyaDetailPage/';
+										$scope.leaveApprObj.fyaData = [];
+										$scope.leaveApprObj.histDataShow = false;
+										$scope.leaveApprObj.simLeaveDataShow = true;
+										$scope.leaveApprObj.clarifyHistDataShow = true;
+										$scope.leaveApprObj.amendmentDataShow = true;
+
+										$scope.leaveApprObj.approverComment = undefined;
+
+										$scope.leaveApprObj.successData = {
+											'successMsg' : undefined,
+											'msgFlag' : false
+										};
+
+										$scope.leaveApprObj.leaveHistService = '/leaverest/rest/leaveHistory/';
+										$scope.leaveApprObj.leaveHistData = {};
+
+										$scope.leaveApprObj.teamLeaveService = "/leaverest/rest/teamLeaves/";
+										$scope.leaveApprObj.teamLeaveData = {};
+
+										$scope.leaveApprObj.workFlowDetail = "/leaverest/rest/levWorkflow";
+										$scope.leaveApprObj.workFlowData = {};
+
+										$scope.leaveApprObj.moreWorkflowDetails = [];
+
+										$scope.leaveApprObj.showApproverCmntSec = false;
+										$scope.leaveApprObj.showreassignSec = false;
+
+										$scope.leaveApprObj.empSearchService = "/leaverest/rest/findEmployee?";
+										$scope.leaveApprObj.empSearchData = [];
+
+										$scope.leaveApprObj.noOfRecords = 100;
+										$scope.leaveApprObj.reqPerPage = 10;
+
+										$scope.leaveApprObj.startIndex = 0;
+										$scope.leaveApprObj.endIndex = 0;
+										$scope.leaveApprObj.totSearchCount = 0;
+										$scope.leaveApprObj.tempSearchData = {};
+
+										$scope.leaveApprObj.empSearchService1 = "/leaverest/rest/searchEmployee";
+										$scope.leaveApprObj.nominationService = "/leaverest/rest/nominationDetail";
+										$scope.leaveApprObj.nominationData = [];
+
+										$scope.leaveApprObj.reassignReqNo = null;
+										$scope.leaveApprObj.selEmpNo = undefined;
+										$scope.months = [];
+
+										$scope.leaveApprObj.reassignSuccessData = [];
+
+										$scope.allClick = false;
+
+										// For Demo
+
+										$scope.leaveApprObj.parentReqNo = undefined;
+
+										$scope.leaveApprObj.commentAll = undefined;
+
+										$scope.outputMesg = undefined;
+
+										$scope.showActionBar = false;
+
+										$scope.tracker = {};
+
+										$scope.leaveApprObj.basicWorkFlowData = [];
+
+										$scope.errorShow = false;
+
+										$scope.leaveApprObj.successData.successMsg = undefined;
+
+										$scope.showFYADtls = true;
+
+										$scope.leaveApprObj.isBackup = "N";
+										$scope.leaveApprObj.isFYA = false;
+
+										$scope.uploadSec = false;
+										$scope.teamLeaveSec = false;
+										$scope.workFlowPush = [];
+
+										$scope.childReqNo = undefined;
+										$scope.ifNominee = false;
+
+										$scope.isBtnClicked = true;
+										$rootScope.processing=false;
+										$scope.leaveApprObj.flmaChecked=true;
+										
+										$scope.leaveApprObj.changedVal=true;
+										$scope.documentCount=0;
+										
+										//For iEvolve
+										$scope.iEvolveVal="No";
+										
+										$scope.iEvolveSel="No";
+										
+										//for Dragdrop
+										
+										$scope.isApproverPage=true;
+										
+										$scope.iEvolveWorkflow=[];
+										$scope.iEvolveSelationFlag=false;
+										
+										$scope.iEvolveChange=function(val){
+											$scope.iEvolveSel=val;
+											console.log("Changed Value ", val);
+										};
+										
+										
+										/*Functions*/
+										
+										$scope.submitParentReq = function() {
+
+											leaveApprovalService
+													.setParentReqNo($scope.leaveApprObj.parentReqNo);
+											$routeParams.parentReqNo = leaveApprovalService
+													.getParentReqNo();
+											$routeParams.isBackup = $scope.leaveApprObj.isBackup;
+											$location.path("/approveleave/"
+													+ $routeParams.parentReqNo
+													+ "/N"
+													);
+											$scope.leaveApprObj.successData.msgFlag = false;
+
+										};
+
+										$scope.reset = function() {
+
+											$('#parentReqNo').val("");
+										};
+
+										$scope.leaveApprObj.parentReq = $routeParams.parentReqNo;
+										$scope.leaveApprObj.isBackup = $routeParams.isBackup;
+										
+										if ($scope.leaveApprObj.parentReq !== undefined) {
+
+											if ($scope.leaveApprObj.isBackup === 'Y'
+													|| $scope.leaveApprObj.isBackup === 'N') {
+												$scope.leaveApprObj.apprServiceURL = "/leaverest/rest/fyaDetailPage/";
+												$scope.leaveApprObj.isFYA = true;
+											}
+											if ($scope.leaveApprObj.isBackup === 'T') {
+												$scope.leaveApprObj.apprServiceURL = "/leaverest/rest/trackReq/";
+												$scope.leaveApprObj.isFYA = false;
+											}
+
+											console
+													.log("Parent Req No : "
+															+ $scope.leaveApprObj.parentReq);
+											$http
+													.post(
+															$scope.leaveApprObj.apprServiceURL
+																	+ $scope.leaveApprObj.parentReq
+																	+ "/"
+																	+ $scope.leaveApprObj.isBackup)
+													.success(
+															function(data) {
+
+																$scope.leaveApprObj.fyaData = data;
+																console
+																		.log("Error Data : "
+																				+ JSON
+																						.stringify(data));
+
+																if ($scope.leaveApprObj.fyaData[0].code === '200') {
+																	$scope.leaveApprObj.successData.successMsg = undefined;
+																	$scope.leaveApprObj.successData.msgFlag = false;
+																	leaveApprovalService
+																			.setSuccessMsg("");
+																	var fyaList = [];
+																	fyaList
+																			.push(data[0]['success']['fyaList']);
+																	$scope.leaveApprObj.fyaData = fyaList;
+																	console
+																			.log("data from java service  NEW DATA: "
+																					+ data
+																					+ " "
+																					+ JSON
+																							.stringify($scope.leaveApprObj.fyaData));
+																	leaveApprovalService
+																			.setRequestDetails($scope.leaveApprObj.fyaData);
+																	$scope.childReqNo = $scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].levRequestNo;
+																	var empNo = $scope.leaveApprObj.fyaData[0].employeeNo;
+																	var maternityLeave = $scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].maternityLeave;
+
+																	console
+																			.log("URL: "
+																					+ $scope.childReqNo);
+
+																	if (angular
+																			.isDefined($scope.childReqNo)) {
+
+																		getReqDataOfEmp(
+																				$scope.childReqNo,
+																				empNo,
+																				maternityLeave);
+																		
+																		$scope.getUploadedDocCount($scope.childReqNo);
+																		console
+																				.log("getWorkflow called.. ");
+
+																	}
+
+																	/*$scope.leaveApprObj.successData = leaveApprovalService
+																			.getSuccessMsg();
+																	$scope.leaveApprObj.successData.msgFlag = false;*/
+
+																} else {
+																	leaveApprovalService
+																			.setSuccessMsg($scope.leaveApprObj.fyaData[0].message);
+																	$scope.leaveApprObj.successData = leaveApprovalService
+																			.getSuccessMsg();
+																	$scope.showFYADtls = false;
+																}
+
+																console
+																		.log("data from java service : "
+																				+ data
+																				+ " "
+																				+ JSON
+																						.stringify(data));
+
+															})
+													.error(
+															function(data) {
+																alert("Error in getting FYA Deta"
+																		+ JSON
+																				.stringify(data));
+																$location
+																		.path("/cmnError");
+															});
+
+										}
+										;
+
+										// get Req Details for employee
+										function getReqDataOfEmp(childReqNo,
+												empNo, maternityFlag) {
+											if (maternityFlag === true) {
+
+												$http
+														.post(
+																$scope.leaveApprObj.nominationService
+																		+ '?levRequestNo='
+																		+ childReqNo)
+														.success(
+																function(data) {
+
+																	$scope.leaveApprObj.nominationData
+																			.push(data);
+																	console
+																			.log("NOMINATION DATA from java service : "
+																					+ data
+																					+ "             "
+																					+ JSON
+																							.stringify($scope.leaveApprObj.nominationData));
+
+																	if ($scope.leaveApprObj.nominationData[0].levRequestNo !== null) {
+																		$scope.ifNominee = true;
+																	}
+																	;
+
+																})
+														.error(
+																function(data) {
+																	alert("Error in getting NOMINATION DATA");
+																});
+											}
+
+											$http
+													.post(
+															$scope.leaveApprObj.workFlowDetail
+																	+ '/'
+																	+ empNo
+																	+ '?levRequestNo='
+																	+ childReqNo)
+													.success(
+															function(data) {
+
+																$scope.leaveApprObj.workFlowData[0] = data;
+																console
+																		.log("data from java service : "
+																				+ data
+																				+ "             "
+																				+ JSON
+																						.stringify($scope.leaveApprObj.workFlowData));
+
+																console
+																		.log("Size of Array : "
+																				+ data.length);
+
+																for ( var i = 0; i < $scope.leaveApprObj.workFlowData[0].length; i++) {
+																	$scope.tracker = {};
+																	$scope.iWorkFlow={};
+																	$scope.iWorkFlow['level']=$scope.leaveApprObj.workFlowData[0][i].level;
+																	$scope.iWorkFlow['status']=$scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id;
+																	$scope.iEvolveWorkflow.push($scope.iWorkFlow);
+
+																	$scope.tracker.htmlTextBox = "<p class='nodeNameText leftAlign'>"
+																			+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].employeeRole
+																			+ "</p>"
+																			+ "<p class='nodeNameText leftAlign'>"
+																			+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].appliedDate
+																			+ "</p><br/>"
+																			+ "<p class='nodeNameTextDetails leftAlign'>"
+																			+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].fullName
+																			+ " | "
+																			+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].employeeNo
+																			+ "</p>"
+																			+ "<p class='nodeNameTextEmail leftAlign'>"
+																			+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].contactDTO.emailId
+																			+ "</p>"
+																			+ "<p class='nodeNameTextDetails leftAlign'>"
+																			+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].contactDTO.contactNumberCell
+																			+ "</p>"
+																			+ "<p class='nodeNameTextDetails leftAlign'> Status: "
+																			+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].leaveStatus.name
+																			+ "</p>";
+
+																	if ($scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].approvalComment !== undefined) {
+																		$scope.tracker.htmlTextBox += "<p class='nodeNameTextDetails leftAlign'> Comment: "
+																				+ $scope.leaveApprObj.workFlowData[0][i].levWorkflow[0].approvalComment
+																				+ "</p>";
+																	}
+																	;
+
+																	if (i === $scope.leaveApprObj.workFlowData[0].length - 1 && $scope.leaveApprObj.workFlowData[0][i].levWorkflow.length > 1) {
+																		$scope.workFlowPush = [];
+																		console
+																				.log($scope.leaveApprObj.workFlowData[0][i].levWorkflow);
+																		$scope.workFlowPush
+																				.push($scope.leaveApprObj.workFlowData[0][i].levWorkflow
+																						.slice(
+																								1,
+																								$scope.leaveApprObj.workFlowData[0][i].levWorkflow.length));
+
+																		$scope.tracker.htmlTextBox += "<a class='leftAlign testNidhi' onclick='showFaltuDtls();' style='cursor: pointer;'>Others +"
+																				+ parseInt($scope.leaveApprObj.workFlowData[0][i].levWorkflow.length - 1)
+																				+ "</a>";
+																		$scope.tracker.htmlTextBox += "<div id='faltuID' class='tempTestDiv' >";
+																		for ( var c = 0; c < $scope.workFlowPush[0].length; c++) {
+
+																			$scope.tracker.htmlTextBox += "<p class='testP'>"
+																					+ $scope.workFlowPush[0][c].employeeRole
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].fullName
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].employeeNo
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].contactDTO.emailId
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].contactDTO.contactNumberCell
+																					+ "</p>";
+
+																		}
+																		$scope.tracker.htmlTextBox += "</div>";
+																		$compile(
+																				$scope.tracker.htmlTextBox)
+																				(
+																						$scope);
+
+																	}
+
+																	if (i === $scope.leaveApprObj.workFlowData[0].length - 1) {
+																		$scope.tracker.status = "PENDING";
+																	} else {
+																		$scope.tracker.status = "ACTED";
+																	}
+
+																	$scope.leaveApprObj.basicWorkFlowData
+																			.push($scope.tracker);
+
+																}
+																console
+																		.log("iEvolve WORKFLOW BASIC DATA : "
+																				+ JSON
+																						.stringify($scope.iEvolveWorkflow));
+																
+																console.log("Size of iEvolve -------------->"+$scope.iEvolveWorkflow.lenght);
+																
+																for(var e=0; e<$scope.iEvolveWorkflow.length; e++){
+																	
+																	console.log("Nidhi iEvolve ----------------------------->" + $scope.iEvolveWorkflow[e].status)
+																	
+																	if(2==$scope.iEvolveWorkflow[e].status){
+																		$scope.iEvolveSelationFlag=true;
+																	}
+																}
+
+															})
+													.error(
+															function(data) {
+																alert("Error in getting workflow Data");
+																$location
+																		.path("/cmnError");
+															});
+
+										}
+
+										// LEAVE HISTORY
+
+										$scope.getLeaveHistory = function(empNo) {
+
+											$scope.uploadSec = false;
+											$('#add_delete_tab').css({
+												"display" : "none"
+											});
+											console
+													.log("getLeaveHistory called.. ");
+											console
+													.log("URL: "
+															+ $scope.leaveApprObj.leaveHistService
+															+ empNo);
+											$http
+													.post(
+															$scope.leaveApprObj.leaveHistService
+																	+ empNo)
+													.success(
+															function(data) {
+																// handleResponse($scope,data,teamCalendar);
+																$scope.leaveApprObj.leaveHistData = data;
+																console
+																		.log("data from java service : "
+																				+ data
+																				+ "             "
+																				+ JSON
+																						.stringify($scope.leaveApprObj.leaveHistData));
+																$scope.teamLeaveSec = true;
+															})
+													.error(
+															function(data) {
+																alert("Error in getting Team Leave Data");
+																$location
+																		.path("/cmnError");
+															});
+
+										};
+
+										$scope.empSearch = function(firstName,
+												lastName, empNo) {
+
+											var fullName = undefined;
+											$scope.leaveApprObj.empSearchData = null;
+
+											$scope.leaveApprObj.startIndex = 0;
+
+											console
+													.log("After click on next : Start Index   "
+															+ $scope.leaveApprObj.startIndex);
+
+											$scope.leaveApprObj.tempSearchData = {
+												1 : empNo,
+												2 : firstName,
+												3 : lastName,
+												4 : fullName
+											};
+
+											var empSearchArr = [];
+
+											empSearchArr
+													.push($http
+															.post(
+																	$scope.leaveApprObj.empSearchService1
+																			+ "?start="
+																			+ $scope.leaveApprObj.startIndex
+																			+ "&pageSize=10",
+																	$scope.leaveApprObj.tempSearchData));
+											empSearchArr
+													.push($http
+															.post(
+																	"/leaverest/rest/searchEmployeeCount",
+																	$scope.leaveApprObj.tempSearchData));
+
+											console
+													.log(
+															"Emp Search URL : "
+																	+ $scope.leaveApprObj.empSearchService1
+																	+ "start="
+																	+ $scope.leaveApprObj.startIndex
+																	+ "&pageSize=10",
+															$scope.leaveApprObj.tempSearchData);
+											var resultData = [];
+											$q
+													.all(empSearchArr)
+													.then(
+															function(result) {
+
+																angular
+																		.forEach(
+																				result,
+																				function(
+																						response) {
+																					resultData
+																							.push(response.data);
+																				});
+																$scope.leaveApprObj.empSearchData = resultData[0];
+																$scope.leaveApprObj.totSearchCount = resultData[1];
+																console
+																		.log("Data from q.all Employee Count : "
+																				+ resultData[1]
+																				+ "JSON : "
+																				+ JSON
+																						.stringify(resultData[1]));
+
+																console
+																		.log("Employee Search Result: "
+																				+ $scope.leaveApprObj.empSearchData);
+																$scope.leaveApprObj.endIndex = $scope.leaveApprObj.empSearchData.length;
+															},
+															function(result) {
+																console
+																		.log("ERROR IN EMP SEARCH");
+
+															});
+
+											console
+													.log("data from java service for Emp Search  : "
+															+ $scope.leaveApprObj.empSearchData
+															+ " "
+															+ JSON
+																	.stringify($scope.leaveApprObj.empSearchData));
+											// console.log("Data from q.all
+											// Employee Count : " +
+											// resultData[1] + "JSON : " +
+											// JSON.stringify(resultData[1]));
+
+										};
+
+										$scope.nextClick = function(firstName,
+												lastName, empNo, fullName) {
+
+											$scope.leaveApprObj.empSearchData = [];
+
+											$scope.leaveApprObj.startIndex = $scope.leaveApprObj.startIndex + 10;
+
+											console
+													.log("After click on next : Start Index   "
+															+ $scope.leaveApprObj.startIndex);
+
+											$scope.leaveApprObj.tempSearchData = {
+												1 : empNo,
+												2 : firstName,
+												3 : lastName,
+												4 : fullName
+											};
+
+											console
+													.log(
+															"Emp Search URL : "
+																	+ $scope.leaveApprObj.empSearchService1
+																	+ "start="
+																	+ $scope.leaveApprObj.startIndex
+																	+ "&pageSize=10",
+															$scope.leaveApprObj.tempSearchData);
+											$http
+													.post(
+															$scope.leaveApprObj.empSearchService1
+																	+ "?start="
+																	+ $scope.leaveApprObj.startIndex
+																	+ "&pageSize=10",
+															$scope.leaveApprObj.tempSearchData)
+													.success(
+															function(data) {
+
+																$scope.leaveApprObj.empSearchData = data;
+																$scope.leaveApprObj.endIndex = ($scope.leaveApprObj.startIndex + $scope.leaveApprObj.empSearchData.length) - 1;
+																console
+																		.log("data from java service for Emp Search  : "
+																				+ data
+																				+ " "
+																				+ JSON
+																						.stringify(data));
+															})
+													.error(
+															function(data) {
+																alert("Error in getting Emp Search Deta");
+																$location
+																		.path("/cmnError");
+															});
+										};
+
+										$scope.prevClick = function(firstName,
+												lastName, empNo) {
+
+											$scope.leaveApprObj.startIndex = $scope.leaveApprObj.startIndex - 10;
+											console
+													.log("After click on Prev : Start Index   "
+															+ $scope.leaveApprObj.startIndex);
+
+										};
+
+										$scope.getChangedVal=function(val){
+											$scope.leaveApprObj.changedVal=val;
+											
+										};
+										$scope.approveReqPhase1 = function() {
+											
+											if ($scope.leaveApprObj.commentAll === null
+													|| $scope.leaveApprObj.commentAll === undefined ||
+													$scope.leaveApprObj.commentAll === "") {
+												$scope.errorShow = true;
+												$('#appCmnts').css({
+													"border-color" : "red"
+												});
+											} else {
+												$scope.errorShow = false;
+												$scope.isBtnClicked = true;
+												$('#messageModal')
+														.modal('show');
+											}
+
+										};
+										
+										$scope.setRedirectURL = function(value) {
+											if(angular.isArray(value)) {
+												if(angular.isObject(value[0].success) && angular.isDefined(value[0].success['WORKLIST_URL'])) {
+													$scope.redirectURL = value[0].success['WORKLIST_URL'];
+												}
+											} else {
+												$scope.redirectURL = $scope.backupURL;
+											}
+										};
+
+										$scope.approvePopup = function() {
+
+											var approveData = {};
+											$rootScope.processing=true;
+											approveData['approvalComment'] = $scope.leaveApprObj.commentAll;
+											approveData.leaveAppStatus = 'A';
+											approveData['levRequestNo'] = $scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].levRequestNo;
+											approveData['backupEmpId'] = $routeParams.isBackup;
+											//added by 742954 for FMLA !$scope.flmaChecked
+											if($scope.leaveApprObj.changedVal === false)
+											approveData['fmlaDeTag']=true;
+											else
+												approveData['fmlaDeTag']=false;
+											
+											//added for iEvolve
+											
+											if('Leave Without Pay'===$scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].leaveType.name &&
+													'New'===$scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].leaveRequestStatus.name){
+												if('No'===$scope.iEvolveSel){
+													approveData['iEvolveSel']='false';
+												}
+												else{
+													approveData['iEvolveSel']='true';
+												}
+											}
+											var submitData = [];
+											submitData.push(approveData);
+											console
+													.log("Approve Data : "
+															+ JSON
+																	.stringify(submitData));
+
+											$http
+													.post(
+															"/leaverest/rest/leaveRequests/"
+																	+ $scope.leaveApprObj.fyaData[0].leaveDetails[0].levParentId,
+															submitData)
+													.success(
+															function(data) {
+																// leaveApprovalService.setSuccessMsg("Request
+																// approved
+																// succeessfully;");
+																$scope.setRedirectURL(data);
+																console
+																		.log("SUCCESS DATA ");
+																$scope.leaveApprObj.approveSuccessData = data;
+																console
+																		.log("SUCCESS DATA : "
+																				+ JSON
+																						.stringify(data));
+																$rootScope.processing=false;
+																if ($scope.leaveApprObj.approveSuccessData[0].code === '200') {
+																	// alert($scope.leaveApprObj.approveSuccessData[0].message);
+
+																	$scope.outputMesg = $scope.leaveApprObj.approveSuccessData[0].message;
+																	leaveApprovalService
+																			.setSuccessMsg($scope.leaveApprObj.approveSuccessData[0].message);
+																	$scope.leaveApprObj.successData = leaveApprovalService
+																			.getSuccessMsg();
+
+																	redirectToWorklist(
+																			$scope.leaveApprObj.approveSuccessData[0].success.a,
+																			$scope.leaveApprObj.approveSuccessData[0].success.c);
+																} else {
+																	if(angular.isDefined($scope.leaveApprObj.approveSuccessData[0].fieldErrors)) {
+																		leaveApprovalService
+																				.setSuccessMsg($scope.leaveApprObj.approveSuccessData[0].fieldErrors[0].message);
+																		$scope.leaveApprObj.successData.successMsg=$scope.leaveApprObj.approveSuccessData[0].fieldErrors[0].message;
+																	} else {
+																		leaveApprovalService
+																		.setSuccessMsg($scope.leaveApprObj.approveSuccessData[0].errors['levRequestNo']);
+																		$scope.leaveApprObj.successData.successMsg=$scope.leaveApprObj.approveSuccessData[0].errors['levRequestNo'];
+																	}
+																	$scope.leaveApprObj.successData.msgFlag=true;
+																}
+																
+															})
+													.error(
+															function() {
+																console
+																		.log("ERROR ");
+																$rootScope.processing=false;
+																$location
+																		.path("/cmnError");
+															});
+
+										};
+
+										$scope.rejectReqPhase1 = function() {
+
+											if ($scope.leaveApprObj.commentAll === null
+													|| $scope.leaveApprObj.commentAll === undefined ||
+													$scope.leaveApprObj.commentAll === "") {
+												$scope.errorShow = true;
+												$('#appCmnts').css({
+													"border-color" : "red"
+												});
+											} else {
+												$scope.errorShow = false;
+												$scope.isBtnClicked = true;
+												$('#messageModalR').modal(
+														'show');
+											}
+
+										};
+
+										$scope.rejectPopup = function() {
+											$rootScope.processing=true;
+											var rejectData = {};
+											rejectData['approvalComment'] = $scope.leaveApprObj.commentAll;
+											rejectData.leaveAppStatus = 'R';
+											rejectData['levRequestNo'] = $scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].levRequestNo;
+											rejectData['backupEmpId'] = $routeParams.isBackup;
+
+											var submitData = [];
+											submitData.push(rejectData);
+
+											$http.post("/leaverest/rest/leaveRequests/"+ $scope.leaveApprObj.fyaData[0].leaveDetails[0].levParentId,
+													submitData).success(function(data) {
+																// leaveApprovalService.setSuccessMsg("Request
+																// approved
+																// succeessfully;");
+																$scope.setRedirectURL(data);
+																$scope.leaveApprObj.approveSuccessData = data;
+																$rootScope.processing=false;
+																if ($scope.leaveApprObj.approveSuccessData[0].code === '200') {
+																	// alert($scope.leaveApprObj.approveSuccessData[0].message);
+																	// $('#messageModal').show();
+																	$scope.outputMesg = $scope.leaveApprObj.approveSuccessData[0].message;
+																	leaveApprovalService
+																			.setSuccessMsg($scope.leaveApprObj.approveSuccessData[0].message);
+																	$scope.leaveApprObj.successData = leaveApprovalService
+																			.getSuccessMsg();
+																	redirectToWorklist(
+																			$scope.leaveApprObj.approveSuccessData[0].success.a,
+																			$scope.leaveApprObj.approveSuccessData[0].success.c);
+																	// window.location="https://15.gessdocker.ultimatix.net/gess/pages/commonWorkListHome.jsf?a="+$scope.leaveApprObj.approveSuccessData[0].uniqueId+"&b="+$scope.leaveApprObj.approveSuccessData[0].message+"&c=R";
+																} else {
+																	leaveApprovalService
+																			.setSuccessMsg($scope.leaveApprObj.approveSuccessData[0].fieldErrors[0].message);
+																}
+															})
+													.error(
+															function() {
+																console
+																		.log("ERROR ");
+																$location
+																		.path("/cmnError");
+															});
+
+										};
+
+										$scope.reassignReqPhase1 = function() {
+											leaveApprovalService.setParentReqNo($scope.leaveApprObj.fyaData[0].leaveDetails[0].levParentId);
+											leaveApprovalService.setReassignReqNo(
+															$scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].levRequestNo,
+															1,$scope.leaveApprObj.commentAll,$routeParams.isBackup);
+											leaveApprovalService.setMethod($scope.reAssignPopup);
+											$location.path("/empSearch");
+										};
+
+										$scope.reassignFromEmpPage = function() {
+											var selEmpno = leaveApprovalService
+											.getEmpNo();
+
+											if (selEmpno !== undefined
+													|| selEmpno !== null) {
+												$scope.isBtnClicked = true;
+												$('#messageModalReassign')
+														.modal('show');
+											}
+										};
+										
+										$scope.test=function(){
+											leaveApprovalService.getMethod()();
+										};
+
+										$scope.reAssignPopup = (function() {
+												submitReq();
+											
+										});
+
+										function submitReq() {
+											$rootScope.processing=true;
+											var reAssignedData = {};
+											reAssignedData=leaveApprovalService.reassignData;
+											
+											
+											var selEmpno = leaveApprovalService
+													.getEmpNo();
+											if (selEmpno !== undefined
+													|| selEmpno !== null) {
+
+												$scope.isBtnClicked = true;
+												$http.post("/leaverest/rest/reassignLeave/"+ leaveApprovalService.parentRequestNo
+																		+ "?reassignTo="+ selEmpno,reAssignedData)
+														.success(function(data) {
+																	$scope.setRedirectURL(data);
+																	$scope.leaveApprObj.reassignSuccessData = data;
+																	if ($scope.leaveApprObj.reassignSuccessData[0].code === '200') {
+																		leaveApprovalService
+																				.setSuccessMsg("Request reassigned succeessfully..");
+																		/*
+																		 * window.location="https://15.gessdocker.ultimatix.net/gess/pages/commonWorkListHome.jsf?a="+$scope.leaveApprObj.reassignSuccessData[0].uniqueId+"&b="+$scope.leaveApprObj.reassignSuccessData[0].message+"&c=RA";
+																		 * $location.path('/approveleave/'+leaveApprovalService.getParentReqNo()+"/N");
+																		 */
+																		redirectToWorklist(
+																				$scope.leaveApprObj.reassignSuccessData[0].success.a,
+																				$scope.leaveApprObj.reassignSuccessData[0].success.c);
+																	} else {
+																		leaveApprovalService
+																				.setSuccessMsg($scope.leaveApprObj.reassignSuccessData[0].fieldErrors[0].message);
+																		$scope.leaveApprObj.successData.msgFlag=true;
+																		$location
+																				.path('/approveleave/'
+																						+ leaveApprovalService
+																								.getParentReqNo()
+																						+ "/N");
+																		$rootScope.processing=false;
+																	}
+
+																})
+														.error(
+																function() {
+																	console
+																			.log("SOME ERROR OCCURED WHILE REASSIGNING REQ... ");
+																	$scope.loading=false;
+																	redirectToWorklist($scope.leaveApprObj.reassignSuccessData[0].uniqueId);
+																});
+											}
+
+										};
+
+										$scope.reset = function() {
+											// location.reload(true);
+											$scope.env='docker';
+											if($scope.env==='prod') {
+												window.location = $scope.redirectURL;
+											} else if($scope.env==='docker') {
+												window.location = "https://15.gessdocker.ultimatix.net/gess/pages/commonWorkListHome.jsf";
+											}
+
+										};
+
+										function redirectToWorklist(reqNo,
+												actionVal) {
+
+											var postFormStr = "<form method='POST' action='"+$scope.redirectURL+"'>\n";
+											postFormStr += "<input type='hidden' name='a' value='"
+													+ reqNo + "'></input>";
+											postFormStr += "<input type='hidden' name='c' value='"
+													+ actionVal + "'</input>";
+											postFormStr += "</form>";
+
+											var formElement = $(postFormStr);
+
+											$('body').append(formElement);
+											$(formElement).submit();
+
+										}
+
+										// uploaded doc
+										var uploadClickedFlag=true;
+										$scope.uploadClick = function() {
+											if(uploadClickedFlag){
+												
+												$('#team_leave_tab').css({
+													"display" : "none"
+												});
+												dragDropService
+														.fetchAllLeaveDocs($scope.childReqNo,$scope.isApproverPage);
+												uploadClickedFlag=false;
+											}
+											$scope.uploadSec = true;
+											$scope.teamLeaveSec = false;
+
+										};
+
+										$scope.cancelReAssign = function() {
+											$location.path("/approveleave/"
+													+ leaveApprovalService
+															.getParentReqNo()
+													+ "/N");
+										};
+
+										$scope.canceldd = function() {
+
+											$scope.uploadSec = false;
+											$('#add_delete_tab').css({
+												"display" : "none"
+											});
+										};
+
+										$scope.closeHistory = function() {
+											$scope.teamLeaveSec = false;
+											$('#team_leave_tab').css({
+												"display" : "none"
+											});
+										};
+
+										$scope.trackReqBack = function() {
+											window.location = "https://15.gessdocker.ultimatix.net/gess/pages/trackRequestWorkflowDetailsHome.jsf";
+										};
+
+										// Added for Redis
+
+										$scope.addRedis = function() {
+
+											$http
+													.post(
+															"/leaverest/rest/testDTO?levParentNo=Lev_109410922")
+													.error(
+															function(data) {
+																console
+																		.log("ERROR "
+																				+ data);
+															})
+													.success(
+															function(data) {
+																console
+																		.log("SUCCESS \n"
+																				+ JSON
+																						.stringify(data));
+															});
+										};
+
+										function addExtraField() {
+
+											$('#addFieldsDiv').append(
+													$scope.attibuteFields);
+										}
+										;
+
+										$scope.cancelDragDrop = function() {
+											$scope.uploadSec = false;
+											uploadClickedFlag=true;
+											$('#add_delete_tab').css({
+												"display" : "none"
+											});
+											dragDropService.cancelDragDrop();
+										};
+										
+										$scope.UploadFiles = function() {
+											dragDropService.uploadReqFiles(
+													$scope.leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].levRequestNo,
+													$scope.leaveApprObj.fyaData[0].employeeNo,
+													"Y","FYA",
+													$scope.leaveApprObj.parentReq);
+											
+										};
+										
+										$scope.changedText=function(){
+											$('#appCmnts').css({'border-color':'#2084c9'});
+											if ($scope.leaveApprObj.commentAll !== null
+													|| $scope.leaveApprObj.commentAll !== undefined ||
+													$scope.leaveApprObj.commentAll !== ""){
+												$scope.errorShow = false;
+											}
+											
+											
+										};
+										
+										$scope.getUploadedDocCount=function(childReqNo){
+											var docCount = "/leaverest/rest/fetchUploadedDocCount";
+											$http.post(docCount,{"requestId":childReqNo}).success(function(data){
+												if(null!=data && undefined!=data && ""!=data){
+													$scope.documentCount = data.count;
+													console.log("UPLOADED DOC COUNT : " + data.count);
+												}
+											});
+										};
+
+										
+									} ]);
+			return app;
+		});

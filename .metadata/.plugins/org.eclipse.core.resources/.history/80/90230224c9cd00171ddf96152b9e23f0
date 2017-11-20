@@ -1,0 +1,310 @@
+define(['angular', 'routes','angularIntro', 'uibootstrap', 'angularRoute', 'angularResource','gettext','tmhDynamicLocale','angular-datepicker'], function(angular, routesConfig) {
+
+'use strict';
+var app=angular.module('myApp', ['ngRoute','ui.bootstrap','720kb.datepicker','gettext', 'tmh.dynamicLocale','angular-intro']);
+
+
+app.factory('httpInterceptor', function($q, $log, $location) {
+    return {
+
+      // optional method
+      'response': function(response) {
+    	  if (response.data == 'SM_USER_CHANGE' || response.data == 'SESSION_EXPIRED') {
+              location.href = "index.html";
+            } else if (response.data == 'SM_USER_NULL' || response.data == 'INVALID_HEADER' || response.data == 'NO_ROLES_FOUND') {
+              location.href = "SMconfigErrorPage";
+            } else if (response.data == 'JAR_TYPE_PERFORMANCE') {
+              location.href = "/login";
+            } else if (response.ERROR_MSG && respnse.ERROR_MSG == 'HEAVY_LOAD') {
+              location.href = "/error/error.html?code=SystemOverload";
+            }
+        return response;
+      },
+
+      /*'request': function(config) {
+
+        if (config.url.indexOf("rest/") > -1) {
+          config.url = config.url + "?cd=" + ((new Date()).getTime());
+        }
+        return config;
+      },*/
+
+      // optional method
+      'responseError': function(rejection) {
+        var status = rejection.status;
+        var jsonStr = rejection.data;
+        if (jsonStr.ERROR_URI != null) {
+          $location.path(jsonStr.ERROR_URI);
+        } else {
+         // $log.error('Response status: ' + status + '. ' + rejection);
+          if(status==403 || status==500)
+        	    location.href = "/error/error.html?code=E"+status;
+          else
+        	location.href = "/error/error.html?code=CommonError";
+        	  /*$location.path("/errorPage");*/
+        }
+      }
+    };
+  });
+
+app.config(['$routeProvider', '$locationProvider', '$controllerProvider', '$compileProvider', '$filterProvider', '$provide', '$httpProvider','tmhDynamicLocaleProvider', function($routeProvider, $locationProvider, $controllerProvider, $compileProvider, $filterProvider, $provide, $httpProvider,tmhDynamicLocaleProvider) {
+
+    app.controller = $controllerProvider.register;
+    app.directive = $compileProvider.directive;
+    app.filter = $filterProvider.register;
+    app.factory = $provide.factory;
+    app.service = $provide.service
+    tmhDynamicLocaleProvider.localeLocationPattern('extResources/angular/i18n/angular-locale_{{locale}}.js'); 
+    function resolver(dependencies) {
+      var definition = {
+        resolver: ['$q', '$rootScope', function($q, $rootScope) {
+          var deferred = $q.defer();
+
+          require(dependencies, function() {
+           // console.log("dependencies loaded " + dependencies);
+            $rootScope.$apply(function() {
+              deferred.resolve();
+            });
+          });
+
+          return deferred.promise;
+        }]
+      }
+
+      return definition;
+    }
+
+    if (!(routesConfig.routes == undefined)) {
+      angular.forEach(routesConfig.routes, function(route, path) {
+        $routeProvider.when(path, {
+          templateUrl: route.templateUrl + '?cd=' + (new Date()).getTime(),
+          resolve: resolver(route.dependencies)
+        });
+      });
+    }
+
+    if (!(routesConfig.defaultRoutePaths == undefined)) {
+      $routeProvider.otherwise({
+        redirectTo: config.defaultRoutePaths
+      });
+    }
+
+    $httpProvider.interceptors.push('httpInterceptor');
+
+  }]);
+
+
+app.run(['$rootScope', '$location','gettextCatalog', 'tmhDynamicLocale', function($rootScope, $location,gettextCatalog, tmhDynamicLocale) {
+    // clear messages on route change
+		var lang = 'en';
+	    gettextCatalog.setCurrentLanguage(lang);
+	    gettextCatalog.loadRemote("/leaverest/rest/getI18n?locale=" + lang + "&");
+	    tmhDynamicLocale.set(lang.toLowerCase().replace("_", "-"));
+	    
+  /*  $rootScope.$on("$locationChangeStart", function(event, next, current) {
+      console.log("MessageHandler on route change::", MessageHandler.messages);
+      $rootScope.apploading = false;
+      for ( var key in MessageHandler.messages)
+        delete MessageHandler.messages[key];
+    });*/
+    
+    
+    
+    $rootScope.$on('$routeChangeSuccess', function(ev, data) {
+       // console.log("$routeChangeSuccess", data);
+        if(data.$$route){
+          $rootScope.route = data.$$route.originalPath.replace("/", "");
+        };
+      });
+    
+  }]);
+
+//Function to support Internationalization.
+function setlanguage(lang) {
+  $.i18n.properties({
+    name: 'messages',
+    path: 'appResources/i18n/',
+    mode: 'map',
+    language: lang
+  });
+}
+
+//Directive to implement Resource Bundle based Internationalization.
+app.directive('msg', function() {
+  return {
+    restrict: 'EA',
+    link: function(scope, element, attrss) {
+      var key = attrss.key;
+
+      if (attrss.keyExpr) {
+
+        scope.$watch(attrss.keyExpr, function(value) {
+          key = value;
+          element.text($.i18n.prop(value));
+        });
+      }
+      scope.$watch('language', function(value) {
+        element.text($.i18n.prop(key));
+      });
+    }
+  };
+});
+
+// directive for autosuggest
+app.directive('autoComplete', function($timeout) {
+  return function(scope, iElement, iAttrs) {
+    var autocomplete = iElement.typeahead();
+    scope.$watch(iAttrs.uiItems, function(values) {
+      if (values != null && values.length != 0) {
+        autocomplete.data('typeahead').source = values;
+        autocomplete.data('typeahead').render(values).show();
+      }
+
+    });
+  };
+});
+
+app.filter("textSizeCheck", function() {
+
+  return function(text, maxLength) {
+    if (text) {
+      var newText = "";
+      if (text.length > maxLength)
+        newText = text.substring(0, maxLength) + "...";
+      else
+        newText = text.substring(0);
+
+      return newText;
+    }
+
+    return "";
+  };
+});
+app.directive("ratingstar", function() {
+  return {
+    restrict: 'A',
+    scope: {},
+    template: "<div id=\"ratestar\"><span><i data-ng-repeat=\"r in maxstar\" data-ng-mouseenter=\"hoverstar($index)\" data-ng-mouseleave=\"resetstar()\" data-ng-click=\"setstar($index)\" style='cursor:pointer;padding-left: 26px;padding-bottom: 10px;margin-right: 4px;' class=\"defaultStar\"></i></span></div>",
+    transclude: true,
+    controller: function($scope) {
+      $scope.maxstar = [];
+    },
+    link: function(scope, element, attribute, controller) {
+      var starcount = parseInt(attribute.starcount);
+      for (var i = 0; i < starcount; i++) {
+        scope.maxstar.push(i);
+
+      }
+      var rateElement = "#" + attribute.modalid + " #ratestar";
+      scope.hoverstar = function(index) {
+        index = index + 1;
+        if (undefined == attribute.minvalue || attribute.minvalue >= attribute.starcount) {
+        } else {
+          if (!$(rateElement).hasClass("set")) {
+            if (0 <= index && index < attribute.minvalue) {
+              scope.fillColor(index, attribute.smallclass);
+            }
+            if (attribute.minvalue <= index && index < attribute.starcount) {
+              scope.fillColor(index, attribute.mediumclass);
+            }
+            if (attribute.minvalue < index) {
+              scope.fillColor(index, attribute.largeclass);
+            }
+          }
+        }
+      };
+      scope.resetstar = function() {
+        if (!$(rateElement).hasClass("set")) {
+          $(rateElement + " span i").removeClass(attribute.smallclass + " " + attribute.mediumclass + " " + attribute.largeclass);
+        }
+      };
+      scope.setstar = function(index) {
+        var modalname = attribute.modalname;
+        var objectname = attribute.objectname;
+        var elementId = attribute.modalid;
+        if (undefined != attribute.objectname) {
+          scope.$parent[objectname][modalname] = index + 1;
+        } else {
+          scope.$parent[modalname] = index + 1;
+        }
+
+        $("#" + elementId + " #ratestar").addClass("set");
+        index = index + 1;
+        if (undefined == attribute.minvalue || attribute.minvalue >= attribute.starcount) {
+        } else {
+          if (0 <= index && index < attribute.minvalue) {
+            scope.fillColor(index, attribute.smallclass);
+          }
+          if (attribute.minvalue <= index && index < attribute.starcount) {
+            scope.fillColor(index, attribute.mediumclass);
+          }
+          if (attribute.minvalue < index) {
+            scope.fillColor(index, attribute.largeclass);
+          }
+        }
+
+      };
+      scope.fillColor = function(index, color) {
+        $(rateElement + " span i").removeClass("redStar orangeStar greenStar");
+        $(rateElement + " span i").addClass("defaultStar");
+        for (var i = 1; i <= index; i++) {
+          $(rateElement + " span i:nth-child(" + i + ")").addClass(color);
+        }
+      };
+    }
+
+  };
+
+});
+
+app.directive('keyref', function() {
+  return {
+    // Adding the values to the component directive
+    restrict: 'A',
+    link: function(scope, element, attrs) {
+      var keyref = attrs.keyref;
+      scope.$watch(function() {
+        // element.text(bundle[key]);
+        element.attr("href", bundle[keyref]);
+      });
+    }
+  };
+});
+
+app.directive('onFinishRender', function($timeout) {
+  return {
+    priority: Number.MIN_SAFE_INTEGER, // execute last, after all other directives if any.
+    restrict: 'A',
+    link: function(scope, element, attr) {
+      if (scope.$last === true) {
+        $timeout(function() {
+          scope.$emit('ngRepeatFinished');
+        });
+      }
+    }
+  };
+});
+
+
+app.filter("lengthCheckRole", function() {
+
+  return function(text) {
+    if (text) {
+      var newText = "";
+      var check = text.charAt(0);
+      if (check == 0) {
+        if (text.length > 40)
+          newText = text.substring(1, 40) + "...";
+        else
+          newText = text.substring(1);
+      } else if (check == 1) newText = text.substring(1);
+      return newText;
+    }
+
+    return "";
+  };
+});
+
+return app;
+
+});

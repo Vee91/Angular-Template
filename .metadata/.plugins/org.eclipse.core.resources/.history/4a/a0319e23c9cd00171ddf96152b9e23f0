@@ -1,0 +1,25 @@
+<!--Variables used to print everything in English language -->
+
+#Keys for Todo---Start
+newTodoLabel=New Todo
+todoTitle=Title
+todoDescription=Description
+successTodo=Add new Todo Successful
+#Keys for Todo---End
+
+
+
+#Keys for Menus----Start
+TodoSample=Todo Sample
+MenuAdmin Utility=Menu Admin Utility
+MenuAdminUtiltyChild=Menu AdminUtiltyChild
+AddNewTodo=Add New Todo
+ViewallTodo=View all Todo
+LoadMonitorUtility=Load Monitor Utility
+#Keys for Menus----End
+
+#apply Leave
+LeaveType= Leave Type:
+startDate=Start Date:
+endDate=End Date:
+reason=Reason:

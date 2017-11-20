@@ -1,0 +1,620 @@
+define(
+		[ 'angular', 'app', 'LeaveServices', 'LeaveFilters',
+				'LeaveCommonDirectives', 'displayMenu', 'jqueryui', 'utils',
+				'bootstrap' ],
+		function(angular, app, jqueryui) {
+
+			app
+					.controller(
+							'DeleteLeaveCtrl',
+							[
+									'$scope',
+									'$rootScope',
+									'levReqList',
+									'reqListValidations',
+									'$routeParams',
+									'$location',
+									'$filter',
+									'$http',
+									'$q',
+									'$compile',
+									function($scope, $rootScope, levReqList,
+											reqListValidations, $routeParams,
+											$location, $filter, $http, $q,
+											$compile) {
+										$scope.subReqStatusList = [];
+										$scope.filter = {};
+										$scope.detailsList = [];
+										$scope.masterList = {};
+										$scope.filteredList = [];
+										$scope.leaveTypes = [];
+										$scope.distinctTypes = {};
+										$scope.filter.subReqStatus = null;
+										$scope.filter.leaveType = null;
+										$scope.isCollapsed = false;
+										$scope.isSorted = false;
+										$scope.isFiltered = false;
+										$scope.predicateSelected = null;
+										$scope.reverse = false;
+										$scope.filter.leaveStartDate = null;
+										$scope.filter.leaveEndDate = null;
+										$scope.filter.submissionStartDate = null;
+										$scope.filter.submissionEndDate = null;
+										$scope.masterStatusColor = null;
+										$scope.data = null;
+										$scope.notPristine = false;
+										$scope.errMessage = null;
+										$scope.recentFlag = true;
+										$scope.outputMesg = null;
+										$scope.myReqListAppURL = "/leave/leaverest/rest//leaverest/rest/fetchSingleRequestStatus";
+										var serviceArray = [];
+										$scope.masterChk = null;
+										$scope.childChk = null;
+
+										$scope.empNoForDel = null;
+
+										/* cmn part starts */
+										$scope.pageName = 'Leave - Delete Leave';
+
+										$scope.isdeleteLeave = true;
+										/* cmn part ends */
+
+										$rootScope.showbalReportStatus = false;
+										/* $scope.archievedFlag = 'Y'; */
+										var noOfReqPerPage = 4;
+										var prefix = "/leaverest/rest/";
+										console
+												.log("inside reqlist controller");
+
+										/* Search emplyoee by no */
+										$scope.searchByEmpNo = function(
+												searchData) {
+											$scope.empNoForDel = searchData;
+											$scope.disableSearchButton = "True";
+											$scope.empSearchDataStatus = 'Pending';
+
+											var fetchEmployeeDetails = prefix
+													+ "fetchEmployeeDetails";
+											$http
+													.post(
+															fetchEmployeeDetails,
+															{
+																"empId" : $scope.empNoForDel
+															})
+													.success(
+															function(data) {
+																if (data !== null
+																		|| data !== undefined
+																		|| data == "") {
+																	$rootScope.employeeDetails = data.EmployeeDetails[0];
+																	$rootScope.showbalReportStatus = true;
+																	$scope.empSearchDataStatus = 'Complete';
+																	callOnPageLoad();
+																}
+
+															});
+										};
+
+										function callOnPageLoad() {
+											if ($scope.empNoForDel !== null
+													|| $scope.empNoForDel !== undefined) {
+
+												var dataToPass = [];
+												dataToPass
+														.push({
+															"employeeNo" : $scope.empNoForDel
+														});
+
+												$http
+														.post(
+																prefix
+																		+ "deleteLeaveOnBehalfList",
+																dataToPass)
+														.success(
+																function(data) {
+
+																	$scope.masterList = data.masterList;
+																	$scope.detailsList = data.detailsList;
+
+																	console
+																			.log("delete master List : "
+																					+ JSON
+																							.stringify(data.masterList));
+																	console
+																			.log("delete details List : "
+																					+ JSON
+																							.stringify(data.detailsList));
+
+																	$scope.filteredList = data.detailsList;
+
+																	$scope.masterList = $filter(
+																			'orderBy')
+																			(
+																					$scope.masterList,
+																					'submitDate',
+																					true);
+																	applyPagination($scope.masterList);
+
+																	console
+																			.log("Paged itesm : "
+																					+ JSON
+																							.stringify($scope.pagedItems));
+
+																	$scope.distinctTypes = levReqList
+																			.getDistinctTypes($scope.detailsList);
+
+																	console
+																			.log("leave types : "
+																					+ JSON
+																							.stringify($scope.distinctTypes));
+
+																	$scope.leaveTypes = $scope.distinctTypes.leaveTypes;
+																	$scope.subReqStatusList = $scope.distinctTypes.subReqTypes;
+
+																})
+														.error(
+																function(data) {
+																	alert("Error in getting my request list");
+																});
+
+											}
+										}
+
+										$scope.getFilteredMasterStatus = function(
+												masterRequest, index) {
+											return $filter(
+													'masterRequestStatus')(
+													masterRequest,
+													$scope.masterList, index);
+										};
+
+										function clearSelects() {
+											$scope.masterChk = 'NO';
+											$scope.wsReqSelected = [];
+											for (j in $scope.pagedItems) {
+												for (k in $scope.pagedItems[j]) {
+													$scope.pagedItems[j][k].childChk = 'NO';
+												}
+											}
+										}
+										;
+
+										$scope.setStatusColor = function(status) {
+											return levReqList
+													.setStatusColor(status);
+										};
+
+										$scope.setMasterStatusColor = function(
+												leaveStatus) {
+											return levReqList
+													.setMasterStatusColor(leaveStatus);
+										};
+
+										$scope.removeBorderBottom = function(
+												parent, index, count) {
+											for ( var i = 0; i < count - 1; i++) {
+												$(
+														'#subReqDiv_' + parent
+																+ '_' + i)
+														.addClass('subReqLine');
+											}
+
+										};
+
+										$scope.reqDetailsRedirect = function(
+												key) {
+											var tmpDetailsList = $filter(
+													'myRequestFilter')(
+													$scope.detailsList, key);
+											var tmpMasterList = $filter(
+													'myRequestMasterFilter')(
+													$scope.masterList, key);
+											for ( var i = 0; i < tmpDetailsList.length; i++) {
+												serviceArray
+														.push($http
+																.post($scope.myReqListAppURL
+																		+ "?levRequestNo="
+																		+ tmpDetailsList[i].subRequest));
+
+											}
+											var workFlowList = [];
+											$q
+													.all(serviceArray)
+													.then(
+															function(result) {
+
+																angular
+																		.forEach(
+																				result,
+																				function(
+																						response) {
+																					workFlowList
+																							.push(response.data);
+																				});
+																levReqList
+																		.setReqListData(
+																				tmpMasterList,
+																				tmpDetailsList,
+																				workFlowList);
+																$routeParams.parentReqNo = key;
+																$routeParams.employeeNo = $scope.empNoForDel;
+																$location
+																		.path("/delReqDetails/"
+																				+ $routeParams.parentReqNo+"/"+$routeParams.employeeNo);
+															});
+										};
+
+										$scope.sortList = function(predicate) {
+
+											if (predicate === 'DEFAULT') {
+
+												$scope.predicateSelected = null;
+												$scope.masterList = $filter(
+														'orderBy')(
+														$scope.masterList,
+														'submitDate', true);
+												applyPagination($scope.masterList);
+												$compile(
+														angular
+																.element($('defaultSorting')))
+														($scope);
+												$scope.isSorted = false;
+											} else {
+
+												$scope.reverse = ($scope.predicateSelected === predicate) ? !$scope.reverse
+														: false;
+												$scope.predicateSelected = predicate;
+												$scope.detailsList = $filter(
+														'orderBy')
+														(
+																$scope.detailsList,
+																$scope.predicateSelected,
+																$scope.reverse);
+												applyPagination($scope.detailsList);
+												$compile(
+														angular
+																.element($('afterSorting')))
+														($scope);
+												$scope.isSorted = true;
+											}
+											console
+													.log("sorting list : "
+															+ JSON
+																	.stringify($scope.pagedItems));
+											clearSelects();
+
+										};
+
+										$scope.applyFilter = function() {
+											if (($scope.filter.subReqStatus === undefined || $scope.filter.subReqStatus === null)
+													&& ($scope.filter.submissionStartDate === undefined || $scope.filter.submissionStartDate === null)
+													&& ($scope.filter.submissionEndDate === undefined || $scope.filter.submissionEndDate === null)
+													&& ($scope.filter.leaveType === undefined || $scope.filter.leaveType === null)
+													&& ($scope.filter.leaveStartDate === undefined || $scope.filter.leaveStartDate === null)
+													&& ($scope.filter.leaveEndDate === undefined || $scope.filter.leaveEndDate === null)) {
+												$scope.errMessage = 'Please select at least one filter type';
+												handleErrSettings();
+											} else if (reqListValidations
+													.dateSelect(
+															$scope.filter.submissionStartDate,
+															$scope.filter.submissionEndDate)) {
+												$scope.errMessage = 'Please select both the submission start and end date';
+												handleErrSettings();
+											} else if (reqListValidations
+													.checkDateRange(
+															$scope.filter.submissionStartDate,
+															$scope.filter.submissionEndDate)) {
+												$scope.errMessage = 'Submission start date cannot be greater than end date';
+												handleErrSettings();
+											} else if (reqListValidations
+													.dateSelect(
+															$scope.filter.leaveStartDate,
+															$scope.filter.leaveEndDate)) {
+												$scope.errMessage = 'Please select both the leave duration start and end date';
+												handleErrSettings();
+											} else if (reqListValidations
+													.checkDateRange(
+															$scope.filter.leaveStartDate,
+															$scope.filter.leaveEndDate)) {
+												$scope.errMessage = 'Leave duration start date cannot be greater than end date';
+												handleErrSettings();
+											} else {
+												$scope.notPristine = false;
+												$scope.isFiltered = true;
+												if (!$scope.isSorted) {
+													$scope.detailsList = angular
+															.copy($scope.filteredList);
+												}
+
+												$scope.detailsList = $filter(
+														'myReqListFilterAll')
+														(
+																$scope.detailsList,
+																$scope.filter.subReqStatus,
+																$scope.filter.submissionStartDate,
+																$scope.filter.submissionEndDate,
+																$scope.filter.leaveType,
+																$scope.filter.leaveStartDate,
+																$scope.filter.leaveEndDate);
+												console
+														.log("after apply filter : "
+																+ $scope.detailsList);
+												$scope.detailsList = $filter(
+														'orderBy')
+														(
+																$scope.detailsList,
+																$scope.predicateSelected,
+																$scope.reverse);
+												applyPagination($scope.detailsList);
+												console
+														.log("after filtering : "
+																+ JSON
+																		.stringify($scope.detailsList));
+												clearSelects();
+											}
+
+										};
+
+										$scope.resetFilter = function() {
+											console
+													.log("called reset filter!!!");
+											$scope.filter.leaveStartDate = null;
+											$scope.filter.leaveEndDate = null;
+											$scope.filter.submissionStartDate = null;
+											$scope.filter.submissionEndDate = null;
+											$scope.isFiltered = false;
+											$scope.isSorted = false;
+											$scope.notPristine = false;
+											$scope.detailsList = $scope.filteredList
+													.slice();
+											console.log("after reset filter : "
+													+ $scope.detailsList);
+											$scope.masterList = $filter(
+													'orderBy')(
+													$scope.masterList,
+													'submitDate', true);
+											applyPagination($scope.masterList);
+										};
+
+										$scope
+												.$on(
+														'reqList.setDivHoverStyle',
+														function(event, index,
+																div, action) {
+															levReqList
+																	.handleMouseEventForBackColor(
+																			div
+																					+ index,
+																			action);
+														});
+
+										function handleErrSettings() {
+											$scope.notPristine = true;
+											$scope.isFiltered = false;
+											$scope.isSorted = false;
+											$scope.detailsList = $scope.filteredList
+													.slice();
+											console.log("after reset filter : "
+													+ $scope.detailsList);
+											$scope.masterList = $filter(
+													'orderBy')(
+													$scope.masterList,
+													'submitDate', true);
+											applyPagination($scope.masterList);
+										}
+										;
+
+										function handleFlags() {
+											$scope.isFiltered = false;
+											$scope.isSorted = false;
+											$scope.notPristine = false;
+											$scope.predicateSelected = false;
+										}
+										;
+
+										function applyPagination(list) {
+											$rootScope.pagination(list,
+													noOfReqPerPage,
+													'paginationSelect', 0);
+										}
+										;
+
+										$scope.deleteLeave = function() {
+											/*
+											 * if
+											 * (validateRequestStatus($scope.wsReqSelected,
+											 * 'cancel')) { $scope.operation =
+											 * 'cancel';
+											 * $scope.requestOperation(); }
+											 */
+											if (validateRequestStatus(
+													$scope.wsReqSelected,
+													'cancel')) {
+												$scope.operation = 'cancel';
+												$scope.requestOperation();
+											}
+										};
+
+										$scope.requestOperation = function() {
+											if ($scope.operation === 'cancel')
+												$scope.requestCancel();
+										};
+
+										$scope.requestCancel = function() {
+
+											var deleteLeave = prefix
+													+ "deleteLeaveOnBehalf";
+											$http
+													.post(
+															deleteLeave,
+															$scope.wsReqSelected)
+													.success(
+															function(data) {
+																callOnPageLoad();
+																$scope.outputMesg = data[0].fieldErrors[0].message;
+																$(
+																		"#messageModal")
+																		.modal(
+																				'show');
+																console
+																		.log("archive request : "
+																				+ $scope.outMsg);
+																$scope.wsReqSelected = [];
+																clearSelects();
+															});
+
+										};
+
+										$scope.wsReqSelected = [];
+										$scope.selectMasterRequest = function(
+												request, value) {
+											if (value === "YES") {
+												for (i in $scope.detailsList) {
+													var reqDetails = $scope.detailsList[i];
+													if (request.masterRequest === reqDetails.masterRequest) {
+														$scope.wsReqSelected
+																.push({
+																	childReqNo : reqDetails.subRequest,
+																	parentReqNo : request.masterRequest,
+																	status : reqDetails.status,
+																	// request.status,
+																	comments : "test comments"
+																});
+													}
+												}
+												;
+											} else {
+												for (i in $scope.detailsList) {
+													var reqDetails = $scope.detailsList[i];
+													if (request.masterRequest === reqDetails.masterRequest) {
+														$scope
+																.remove(request.masterRequest);
+													}
+												}
+												;
+												$rootScope.requestIdStatus = null;
+
+											}
+											console
+													.log("single click chkbox : "
+															+ JSON
+																	.stringify($scope.wsReqSelected));
+										};
+
+										$scope.selectAllMasterRequest = function(
+												value) {
+											$scope.wsReqSelected = [];
+											if (value === "YES") {
+												/*
+												 * var tmpList =
+												 * handlePageLoadDataPaginate($scope.detailsList,
+												 * $scope.recentFlag ? 'N' :
+												 * 'Y', 0);
+												 */
+												for (i in $scope.detailsList) {
+													var reqDetails = $scope.detailsList[i];
+													reqDetails.childChk = 'YES';
+													$scope.wsReqSelected
+															.push({
+																childReqNo : reqDetails.subRequest,
+																parentReqNo : reqDetails.masterRequest,
+																status : reqDetails.status,
+																/*
+																 * $filter(
+																 * 'masterRequestStatus') (
+																 * reqDetails.masterRequest,
+																 * $scope.masterList,
+																 * 0),
+																 */
+																comments : "test comments"
+															});
+												}
+												;
+												for (j in $scope.pagedItems) {
+													for (k in $scope.pagedItems[j]) {
+														$scope.pagedItems[j][k].childChk = 'YES';
+													}
+												}
+											} else {
+												clearSelects();
+											}
+											console
+													.log("All master request : "
+															+ JSON
+																	.stringify($scope.wsReqSelected));
+										};
+
+										$scope.remove = function(index) {
+											var countIndex = 0;
+											while ($scope.wsReqSelected[countIndex].childReqNo !== index) {
+												countIndex++;
+											}
+											$scope.wsReqSelected.splice(
+													countIndex, 1);
+										};
+
+										function validateRequestStatus(
+												selectedArray, calledFrom) {
+											if (validateListSize(selectedArray)) {
+												notAllowedMessage = "Please select atleast one request";
+												$scope.outputMesg = notAllowedMessage;
+												$("#messageModal")
+														.modal('show');
+												return false;
+											}
+											return true;
+										}
+
+										function validateListSize(list) {
+											return list.length === 0 ? true
+													: false;
+										}
+
+										$scope.applyDivBorder = function(
+												parent, subRequest) {
+
+											var length = ($filter('myRequestFilter')
+													($scope.detailsList,
+															subRequest)).length;
+
+											if (length > 1) {
+												$(
+														"#"
+																+ parent
+																+ " .dynLeftBorder")
+														.css("border-left",
+																"1px solid #dadada");
+												$(
+														"#"
+																+ parent
+																+ " .dynRightBorder")
+														.css("border-right",
+																"none");
+											} else {
+												$(
+														"#"
+																+ parent
+																+ " .dynRightBorder")
+														.css("border-right",
+																"1px solid #dadada");
+												$(
+														"#"
+																+ parent
+																+ " .dynLeftBorder")
+														.css("border-left",
+																"none");
+											}
+										};
+
+										$scope.setPredicateIcon = function() {
+											return $scope.reverse ? 'glyphicon glyphicon glyphicon-sort-by-alphabet-alt'
+													: 'glyphicon glyphicon glyphicon-sort-by-alphabet';
+										};
+										$scope.closeAlert = function(index) {
+											$scope.showErrorMsg = false;
+											$scope.alerts.splice(index, 1);
+										};
+
+									} ]);
+			return app;
+		});

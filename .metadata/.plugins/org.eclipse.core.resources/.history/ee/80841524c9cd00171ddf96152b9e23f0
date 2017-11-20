@@ -1,0 +1,29 @@
+define([ 'angular', 'app', 'moment', 'LeaveServices', 'displayMenu',
+		'jqueryui', 'utils', 'bootstrap' ], function(angular, app, moment,
+		jqueryui, bootstrap) {
+	app.controller('seekclarifyController', [
+			'$scope',
+			'$http',
+			'$compile',
+			'$routeParams',
+			'$location',
+			'$q',
+			'leaveApprovalService',
+			function($scope, $http, $compile, $routeParams, $location, $q,
+					leaveApprovalService) {
+				
+					$scope.clarifyClick=function(pid,id){
+						//$('#leaveHead'+id).remove();
+					if(!$('#updateDetails'+id).hasClass('in')){
+						$('#leaveHead'+id).removeClass("in").addClass("collapse");
+						$('#headClass'+id).append('<div class="leaveHeadClass" id="test'+id+'">Test Div Added</div>');
+					}
+					else{
+						$('#leaveHead'+id).removeClass("collapse").addClass("in");
+						$('#test'+id).remove();
+					}
+					
+					};
+			}]);
+	return app;
+});

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="GessLeave">
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <dependent-module archiveName="commons-beanutils.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/commons-beanutils.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="aspectjweaver-1.8.7.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/aspectjweaver-1.8.7.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="axis-1.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/axis-1.4.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="iText-2.1.7.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/iText-2.1.7.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-collections.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/commons-collections.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="SSOlib.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/SSOlib.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="axis-wsdl4j-1.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/axis-wsdl4j-1.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="gson-2.2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/gson-2.2.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-jms-3.2.4.release.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-jms-3.2.4.release.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-config-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-security-config-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="globalESSRedisUtility.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/globalESSRedisUtility.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="esapi-2.1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/esapi-2.1.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-io-1.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/commons-io-1.4.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-web-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-web-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-fileupload-1.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/commons-fileupload-1.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="cglib-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/cglib-2.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="wsdl4j-1.6.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/wsdl4j-1.6.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="ojdbc6.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/ojdbc6.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-webmvc-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-webmvc-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-databind-2.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/jackson-databind-2.0.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jxl.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/jxl.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-annotations-2.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/jackson-annotations-2.0.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="GlobalESSCommonUtility.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/GlobalESSCommonUtility.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="alfresco-repository-3.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/alfresco-repository-3.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-core-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-core-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="java-reflection-1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/java-reflection-1.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="SymJavaAPI.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/SymJavaAPI.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-security-web-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-security-web-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jdt-compiler-3.1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/jdt-compiler-3.1.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="javax.jms.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/javax.jms.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-discovery-0.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/commons-discovery-0.4.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-beans-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-beans-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="LMC.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/LMC.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-logging-1.1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/commons-logging-1.1.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="servlet-api-3.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/servlet-api-3.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="UltxTouchRedisConnectivity.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/UltxTouchRedisConnectivity.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-tx-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-tx-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-expression-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-expression-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="alfresco-web-service-client-3.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/alfresco-web-service-client-3.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="com.springsource.org.objectweb.asm-3.2.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/com.springsource.org.objectweb.asm-3.2.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-digester.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/commons-digester.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-orm-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-orm-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-test-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/spring-test-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jasperreports-6.1.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/gessRevampLib/jasperreports-6.1.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="java-output-path" value="/GessLeave/build/classes"/>
+        <property name="context-root" value="leave"/>
+    </wb-module>
+</project-modules>

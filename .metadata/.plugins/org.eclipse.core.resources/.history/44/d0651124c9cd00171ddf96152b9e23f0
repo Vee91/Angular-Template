@@ -1,0 +1,1117 @@
+define(
+		[ 'angular', 'app', 'LeaveServices', 'LeaveFilters',
+				'LeaveCommonDirectives', 'applyLevServices', 'uibootstrap',
+				'displayMenu', 'jqueryui', 'utils', 'bootstrap',
+				'applyLevController' ],
+		function(angular, app, jqueryui) {
+
+			app
+					.controller(
+							'LeaveReqListCtrl',
+							[
+									'$scope',
+									'$rootScope',
+									'levReqList',
+									'reqListValidations',
+									'$routeParams',
+									'$location',
+									'$filter',
+									'$http',
+									'$q',
+									'$compile',
+									'levCommonServices',
+									'commonAppLevService',
+									function($scope, $rootScope, levReqList,
+											reqListValidations, $routeParams,
+											$location, $filter, $http, $q,
+											$compile, levCommonServices,
+											commonAppLevService) {
+										$rootScope.processing = true;
+										$scope.filterArhiceveObj = {};
+										$scope.subReqStatusList = [];
+										$scope.filter = {};
+										$scope.detailsList = [];
+										$scope.masterList = {};
+										$scope.filteredList = [];
+										$scope.archList = [];
+										$scope.leaveTypes = [];
+										$scope.sysArchList = [];
+										$scope.distinctTypes = {};
+										$scope.filter.subReqStatus = null;
+										$scope.filter.leaveType = null;
+										$scope.isCollapsed = false;
+										$scope.isSorted = false;
+										$scope.isFiltered = false;
+										$scope.predicateSelected = null;
+										$scope.reverse = false;
+										$scope.filter.leaveStartDate = null;
+										$scope.filter.leaveEndDate = null;
+										$scope.filter.submissionStartDate = null;
+										$scope.filter.submissionEndDate = null;
+										$scope.masterStatusColor = null;
+										$scope.data = null;
+										$scope.notPristine = false;
+										$scope.errMessage = null;
+										$scope.recentFlag = true;
+										$scope.archievedFlag = false;
+										$scope.outputMesg = [];
+										var serviceArray = [];
+										$scope.masterChk = null;
+										$scope.childChk = null;
+										$scope.showErrorMsg = false;
+										$scope.alerts = [];
+										$scope.cancelComments = null;
+										var copyToNewList = [];
+										$scope.errorList = [];
+										$scope.dateMinLimit = new Date();
+										$scope.dateMaxLimit = new Date();
+										$scope.wsReqSelected = [];
+
+										/* get calendar date limits */
+										$scope.dateMinLimit = $filter('date')(
+												new Date($scope.dateMinLimit
+														.getFullYear() - 1, 0,
+														1), 'yyyy-MM-dd');
+										$scope.dateMaxLimit = $filter('date')(
+												new Date($scope.dateMaxLimit
+														.getFullYear() + 1, 11,
+														31), 'yyyy-MM-dd');
+
+										/* cmn part starts */
+										$scope.pageName = 'Leave - My Request List';
+
+										$scope.isLevReqList = true;
+										/* cmn part ends */
+										/**/
+
+										// routeParam
+										var noOfReqPerPage = 10; /*
+																	 * default
+																	 * value
+																	 */
+										var prefix = "/leaverest/rest/";
+
+										callOnPageLoad();
+
+										$http
+												.post(prefix + 'getValue')
+												.success(
+														function(result) {
+															noOfReqPerPage = result.value;
+
+														})
+												.error(
+														function() {
+															console
+																	.log("Error in fetching value");
+														});
+
+										function callOnPageLoad() {
+											$http
+													.post(
+															prefix
+																	+ "fetchLeaveAllRequestDetails")
+													.success(
+															function(data) {
+																if (!$
+																		.isEmptyObject(data)
+																		&& data.detailsList.length > 0
+																		&& data.masterList.length > 0) {
+																	$rootScope.processing = false;
+																	$scope.archList = data.masterList;
+																	$scope.detailsList = data.detailsList;
+																	$scope.filteredList = data.detailsList;
+																	$scope.sysArchList = data.sysArchList;
+
+																	$scope.masterList = handlePageLoadDataPaginate(
+																			$scope.archList,
+																			$scope.recentFlag ? 'N'
+																					: 'Y',
+																			$scope.reqPerPageUnsort);
+																	sortMasterList();
+																	applyPagination($scope.masterList);
+																	getDistinctTypesFilter();
+
+																} else {
+																	$rootScope.processing = false;
+																}
+															})
+													.error(
+															function(data) {
+																$rootScope.processing = false;
+																alert("Error in getting my request list");
+															});
+										}
+
+										function getDistinctTypesFilter() {
+											$scope.leaveTypes = [];
+											$scope.subReqStatusList = [];
+											$scope.distinctTypes = levReqList
+													.getDistinctTypes($scope.detailsList);
+
+											$scope.leaveTypes = $scope.distinctTypes.leaveTypes;
+											$scope.subReqStatusList = $scope.distinctTypes.subReqTypes;
+										}
+
+										$scope.getFilteredMasterStatus = function(
+												masterRequest, index) {
+											return $filter(
+													'masterRequestStatus')(
+													masterRequest,
+													$scope.masterList, index);
+										};
+
+										function clearSelects() {
+											copyToNewList = [];
+											$scope.cancelComments = "";
+											$scope.closeFilterSection();
+										}
+										
+										function clearCheckBox(){
+											$scope.masterChk = 'NO';
+											for (j in $scope.pagedItems) {
+												for (k in $scope.pagedItems[j]) {
+													$scope.pagedItems[j][k].childChk = 'NO';
+												}
+											}
+											$scope.wsReqSelected = [];
+										}
+
+										$scope.showRecentRequests = function() {
+											/*
+											 * $("#recentRequests").show();
+											 * $("#archievedRequests").hide();
+											 */
+
+											$("#archReq").parent().removeClass(
+													"active");
+											$("#sysArchReq").parent()
+													.removeClass("active");
+											$("#recentReq").parent().addClass(
+													"active");
+											$scope.recentFlag = true;
+											$scope.archievedFlag = false;
+											handleFlags();
+											$scope.detailsList = $scope.filteredList
+													.slice();
+											getDistinctTypesFilter();
+											$scope.masterList = handlePageLoadDataPaginate(
+													$scope.archList, 'N',
+													$scope.reqPerPageUnsort);
+											sortMasterList();
+											applyPagination($scope.masterList);
+											clearSelects();
+										};
+
+										$scope.showArchievedRequests = function() {
+											/*
+											 * $("#archievedRequests").show();
+											 * $("#recentRequests").hide();
+											 */
+											$("#recentReq").parent()
+													.removeClass("active");
+											$("#sysArchReq").parent()
+													.removeClass("active");
+											$("#archReq").parent().addClass(
+													"active");
+											$scope.recentFlag = false;
+											$scope.archievedFlag = true;
+											handleFlags();
+											$scope.detailsList = $scope.filteredList
+													.slice();
+											getDistinctTypesFilter();
+											$scope.masterList = handlePageLoadDataPaginate(
+													$scope.archList, 'Y',
+													$scope.reqPerPageUnsort);
+											sortMasterList();
+											applyPagination($scope.masterList);
+											clearSelects();
+										};
+
+										$scope.showSysArchievedRequests = function() {
+											$scope.recentFlag = false;
+											$scope.archievedFlag = false;
+											$scope.closeFilterSection();
+											$("#recentReq").parent()
+													.removeClass("active");
+											$("#archReq").parent().removeClass(
+													"active");
+											$("#sysArchReq").parent().addClass(
+													"active");
+											applyPagination($scope.sysArchList);
+										};
+
+										$scope.setStatusColor = function(status) {
+											return levReqList
+													.setStatusColor(status);
+										};
+
+										$scope.setMasterStatusColor = function(
+												leaveStatus) {
+											return levReqList
+													.setMasterStatusColor(leaveStatus);
+										};
+
+										$scope.removeBorderBottom = function(
+												parent, index, count) {
+											for ( var i = 0; i < count - 1; i++) {
+												$(
+														'#subReqDiv_' + parent
+																+ '_' + i)
+														.addClass('subReqLine');
+											}
+											/*
+											 * if(count ==== 1){ $('#subReqDiv_' +
+											 * parent + '_0')
+											 * .addClass('verticalCenterAlign'); }
+											 */
+										};
+
+										$scope.reqDetailsRedirect = function(
+												key) {
+											$rootScope.processing = true;
+											$routeParams.parentReqNo = key;
+											var tmpDetailsList = $filter(
+													'myRequestFilter')(
+													$scope.detailsList, key);
+											var tmpMasterList = $filter(
+													'myRequestMasterFilter')(
+													$scope.masterList, key);
+
+											if (tmpDetailsList[0].subRequest
+													.toLowerCase().indexOf(
+															"lerf") > -1) {
+												$routeParams.requestNo = tmpDetailsList[0].subRequest;
+												$rootScope.processing = false;
+												$location
+														.path("/reqLerfReqDetails/"
+																+ $routeParams.requestNo);
+
+											} else if (tmpDetailsList[0].startDate === null || tmpDetailsList[0].endDate === null) {
+												$routeParams.requestNo = tmpDetailsList[0].subRequest;
+												$location
+														.path("/postponementDetails/"
+																+ $routeParams.requestNo);
+											} else if (tmpDetailsList[0]
+													.reqType.toLowerCase() === 'draft') {
+												var listToPushToNew = [];
+												var obj = tmpDetailsList[0];
+												listToPushToNew
+														.push({
+															newLeave : {
+																id : 0,
+																leaveTypeName : obj.leaveType,
+																countryLeaveTypeId : obj.countryLeaveTypeId,
+																reason : obj.remarks,
+																startDate : $filter(
+																		'istDateFormat')
+																		(
+																				obj.startDate),
+																endDate : $filter(
+																		'istDateFormat')
+																		(
+																				obj.endDate),
+																noOfDays : obj.numOfDays,
+																isDisabled : false,
+																address : obj.contactAddress,
+																cellNo : obj.contactNumCell
+															}
+														});
+
+												$location.path("/applyleave");
+												commonAppLevService
+														.copyToNew(listToPushToNew);
+											} else{
+												for ( var i = 0; i < tmpDetailsList.length; i++) {
+													serviceArray
+															.push($http
+																	.post(prefix
+																			+ "fetchSingleRequestStatus"
+																			+ "?levRequestNo="
+																			+ tmpDetailsList[i].subRequest));
+
+												}
+												var workFlowList = [];
+												$q
+														.all(serviceArray)
+														.then(
+																function(result) {
+																	$rootScope.processing = false;
+																	angular
+																			.forEach(
+																					result,
+																					function(
+																							response) {
+																						workFlowList
+																								.push(response.data);
+																					});
+																	levReqList
+																			.setReqListData(
+																					tmpMasterList,
+																					tmpDetailsList,
+																					workFlowList);
+
+																	$routeParams.parentReqNo = key;
+																	$location
+																			.path("/levReqDetails/"
+																					+ $routeParams.parentReqNo);
+																});
+											}
+										};
+
+										$scope.sortList = function(predicate) {
+											if (!$scope.isFiltered) {
+												$scope.detailsList = handlePageLoadDataPaginate(
+														$scope.filteredList,
+														$scope.recentFlag ? 'N'
+																: 'Y',
+														$scope.reqPerPageUnsort);
+											}
+
+											if (predicate === 'DEFAULT') {
+												resetFields();
+												$scope.predicateSelected = null;
+												sortMasterList();
+												$scope.detailsList = handlePageLoadDataPaginate(
+														$scope.filteredList,
+														$scope.recentFlag ? 'N'
+																: 'Y',
+														$scope.reqPerPageUnsort);
+
+												applyPagination($scope.masterList);
+												$compile(
+														angular
+																.element($('defaultSorting')))
+														($scope);
+
+											} else {
+
+												$scope.reverse = ($scope.predicateSelected === predicate) ? !$scope.reverse
+														: false;
+												$scope.predicateSelected = predicate;
+												$scope.detailsList = $filter(
+														'orderBy')
+														(
+																$scope.detailsList,
+																$scope.predicateSelected,
+																$scope.reverse);
+												applyPagination($scope.detailsList);
+												$compile(
+														angular
+																.element($('afterSorting')))
+														($scope);
+												$scope.isSorted = true;
+											}
+
+											clearSelects();
+
+										};
+
+										$scope.applyFilter = function() {
+											$scope.errMessage = null;
+											if (($scope.filter.subReqStatus === undefined || $scope.filter.subReqStatus === null)
+													&& ($scope.filter.submissionStartDate === undefined || $scope.filter.submissionStartDate === null)
+													&& ($scope.filter.submissionEndDate === undefined || $scope.filter.submissionEndDate === null)
+													&& ($scope.filter.leaveType === undefined || $scope.filter.leaveType === null)
+													&& ($scope.filter.leaveStartDate === undefined || $scope.filter.leaveStartDate === null)
+													&& ($scope.filter.leaveEndDate === undefined || $scope.filter.leaveEndDate === null)) {
+												$scope.errMessage = 'Please select at least one filter type';
+												handleErrSettings();
+											} else if (reqListValidations
+													.dateSelect(
+															$scope.filter.submissionStartDate,
+															$scope.filter.submissionEndDate)) {
+												handleErrSettings();
+												addElementError(
+														'Please select both the submission start and end date',
+														0);
+
+											} else if (reqListValidations
+													.checkDateRange(
+															$scope.filter.submissionStartDate,
+															$scope.filter.submissionEndDate)) {
+												handleErrSettings();
+												addElementError(
+														'Submission start date cannot be greater than end date',
+														0);
+											} else if (reqListValidations
+													.dateSelect(
+															$scope.filter.leaveStartDate,
+															$scope.filter.leaveEndDate)) {
+												handleErrSettings();
+												addElementError(
+														'Please select both the leave duration start and end date',
+														1);
+
+											} else if (reqListValidations
+													.checkDateRange(
+															$scope.filter.leaveStartDate,
+															$scope.filter.leaveEndDate)) {
+												handleErrSettings();
+												addElementError(
+														'Leave duration start date cannot be greater than end date',
+														1);
+
+											} else {
+												$scope.notPristine = false;
+												$scope.isFiltered = true;
+												$scope.detailsList = handlePageLoadDataPaginate(
+														$scope.filteredList,
+														$scope.recentFlag ? 'N'
+																: 'Y',
+														$scope.reqPerPageUnsort);
+
+												$scope.detailsList = $filter(
+														'myReqListFilterAll')
+														(
+																$scope.detailsList,
+																$scope.filter.subReqStatus,
+																$scope.filter.submissionStartDate,
+																$scope.filter.submissionEndDate,
+																$scope.filter.leaveType,
+																$scope.filter.leaveStartDate,
+																$scope.filter.leaveEndDate);
+
+												$scope.detailsList = $filter(
+														'orderBy')
+														(
+																$scope.detailsList,
+																$scope.predicateSelected,
+																$scope.reverse);
+												applyPagination($scope.detailsList);
+												clearSelects();
+											}
+
+										};
+
+										$scope.resetFilter = function() {
+											resetFields();
+											$scope.detailsList = $scope.filteredList
+													.slice();
+
+											sortMasterList();
+											applyPagination($scope.masterList);
+										};
+
+										function resetFields() {
+											$scope.filter.leaveStartDate = null;
+											$scope.filter.leaveEndDate = null;
+											$scope.filter.submissionStartDate = null;
+											$scope.filter.submissionEndDate = null;
+											$scope.filter.subReqStatus = undefined;
+											$scope.filter.leaveType = undefined;
+											$scope.isFiltered = false;
+											$scope.isSorted = false;
+											$scope.notPristine = false;
+										}
+										;
+
+										$scope
+												.$on(
+														'reqList.setDivHoverStyle',
+														function(event, index,
+																div, action) {
+															levReqList
+																	.handleMouseEventForBackColor(
+																			div
+																					+ index,
+																			action);
+														});
+
+										function handlePageLoadDataPaginate(
+												list, archieveFlag, noOfReq) {
+											$scope.filterArhiceveObj = $filter(
+													'archieveFilter')(list,
+													archieveFlag);
+											return $scope.filterArhiceveObj.returnList;
+										}
+
+										function handleErrSettings() {
+											$scope.errorList = [];
+											$scope.notPristine = true;
+											$scope.isFiltered = false;
+											$scope.isSorted = false;
+											$scope.detailsList = $scope.filteredList
+													.slice();
+
+											sortMasterList();
+											applyPagination($scope.masterList);
+										}
+
+										function handleFlags() {
+											$scope.isFiltered = false;
+											$scope.isSorted = false;
+											$scope.notPristine = false;
+											$scope.predicateSelected = false;
+										}
+
+										function applyPagination(list) {
+											$rootScope.pagination(list,
+													parseInt(noOfReqPerPage),
+													'paginationSelect', 0);
+										}
+
+										/* Buttons */
+										$scope.archiveRequest = function() {
+											if (validateRequestStatus(
+													$scope.wsReqSelected,
+													'archive')) {
+												$scope.operation = 'archive';
+												$scope.requestOperation();
+											}
+										};
+
+										$scope.unarchiveRequest = function() {
+											if (validateRequestStatus(
+													$scope.wsReqSelected,
+													'unarchive')) {
+												$scope.operation = 'unarchive';
+												$scope.requestOperation();
+											}
+										};
+
+										$scope.deleteDraftReq = function() {
+											if (validateRequestStatus(
+													$scope.wsReqSelected,
+													'draft')) {
+
+												$scope.operation = 'draft';
+												$scope.requestOperation();
+											}
+										};
+
+										$scope.copyToNew = function() {
+											if (validateRequestStatus(
+													$scope.wsReqSelected,
+													'copyToNew')) {
+
+												$scope.operation = 'copyToNew';
+												$scope.requestOperation();
+											}
+
+										};
+
+										$scope.deleteRequest = function() {
+											/*
+											 * if
+											 * (validateRequestStatus($scope.wsReqSelected,
+											 * 'cancel')) { $scope.operation =
+											 * 'cancel';
+											 * $scope.requestOperation(); }
+											 */
+											if (validateRequestStatus(
+													$scope.wsReqSelected,
+													'cancel')) {
+												$scope.operation = 'cancel';
+												$("#commentsModal").modal(
+														'show');
+												$("#commentsBox").val("");
+											}
+										};
+
+										$scope.putCommentsCancel = function(tmp) {
+											$("#commentsModal").modal('hide');
+											$rootScope.processing = true;
+											for (req in $scope.wsReqSelected) {
+												$scope.wsReqSelected[req]['comments'] = tmp;
+											}
+											$scope.requestOperation();
+										};
+
+										$scope.requestOperation = function() {
+
+											if ($scope.operation === 'cancel')
+												$scope.requestCancel();
+											else if ($scope.operation === 'archive')
+												$scope.requestArchive();
+											else if ($scope.operation === 'unarchive')
+												$scope.requestUnarchive();
+											else if ($scope.operation === 'draft')
+												$scope.requestDraftDelete();
+											else if ($scope.operation === 'copyToNew')
+												$scope.requestCopyToNew();
+										};
+
+										$scope.requestArchive = function() {
+											var archiveUnRequest = prefix
+													+ "archiveUnRequest";
+											$http
+													.post(
+															archiveUnRequest,
+															{
+																"selectedRecords" : $scope.wsReqSelected,
+																"archiveFlag" : 'Y'
+															})
+													.success(
+															function(data) {
+																$scope.outputMesg = [];
+																$scope.outMsg = data.message;
+																callOnPageLoad();
+																$("#archReq")
+																		.parent()
+																		.removeClass(
+																				"active");
+																$("#recentReq")
+																		.parent()
+																		.addClass(
+																				"active");
+																$scope.recentFlag = true;
+																$scope.archievedFlag = false;
+																handleFlags();
+																$scope.outputMesg
+																		.push($scope.outMsg === 'Y' ? ($scope.wsReqSelected.length > 1 ? "Requests"
+																				: "Request")
+																				+ " archived successfully"
+																				: "Request archival failed");
+																$(
+																		"#messageModal")
+																		.modal(
+																				'show');
+
+																clearSelects();
+																clearCheckBox();
+															}).error(
+															function() {
+
+															});
+
+										};
+
+										$scope.requestUnarchive = function() {
+											var archiveUnRequest = prefix
+													+ "archiveUnRequest";
+											$http
+													.post(
+															archiveUnRequest,
+															{
+																"selectedRecords" : $scope.wsReqSelected,
+																"archiveFlag" : 'N'
+															})
+													.success(
+															function(data) {
+																$scope.outputMesg = [];
+																$scope.outMsg = data.message;
+																callOnPageLoad();
+																$("#archReq")
+																		.parent()
+																		.removeClass(
+																				"active");
+																$("#recentReq")
+																		.parent()
+																		.addClass(
+																				"active");
+																$scope.recentFlag = true;
+																$scope.archievedFlag = false;
+																handleFlags();
+																$scope.outputMesg
+																		.push($scope.outMsg === 'Y' ? ($scope.wsReqSelected.length > 1 ? "Requests"
+																				: "Request")
+																				+ " unarchived successfully"
+																				: "Request unarchival failed");
+																$(
+																		"#messageModal")
+																		.modal(
+																				'show');
+
+																clearSelects();
+																clearCheckBox();
+															});
+
+										};
+
+										$scope.requestDraftDelete = function() {
+
+											var deleteDraft = prefix
+													+ "deleteDraftRequest";
+											$http
+													.post(
+															deleteDraft,
+															{
+																"selectedRecords" : $scope.wsReqSelected
+															})
+													.success(
+															function(data) {
+																$scope.outputMesg = [];
+																$scope.outMsg = data.message;
+																callOnPageLoad();
+																$scope.outputMesg
+																		.push($scope.outMsg === 'Y' ? "Draft deleted successfully"
+																				: "Draft deletion failed");
+																$(
+																		"#messageModal")
+																		.modal(
+																				'show');
+
+																clearSelects();
+																clearCheckBox();
+															});
+
+										};
+
+										$scope.requestCancel = function() {
+
+											var cancelRequest = prefix
+													+ "cancelLeave";
+											$http
+													.post(
+															cancelRequest,
+															$scope.wsReqSelected)
+													.success(
+															function(data) {
+																$rootScope.processing = false;
+																$scope.outputMesg = [];
+																callOnPageLoad();
+																data
+																		.forEach(function(
+																				entry) {
+																			if (entry.code === '200') {
+																				$scope.outputMesg
+																						.push(entry.message);
+																			} else if (entry.code === '422' || entry.fieldErrors[0].code === '422') {
+																				$scope.outputMesg
+																						.push(entry.fieldErrors[0].message);
+																			}
+																		});
+
+																$(
+																		"#messageModal")
+																		.modal(
+																				'show');
+
+																clearSelects();
+																clearCheckBox();
+															});
+										};
+
+										$scope.requestCopyToNew = function() {
+											var id = 0;
+											var listToPushToNew = [];
+											for ( var i = 0; i < copyToNewList.length; i++) {
+												var obj = copyToNewList[i];
+												listToPushToNew
+														.push({
+															newLeave : {
+																id : id++,
+																leaveTypeName : obj.leaveType,
+																countryLeaveTypeId : obj.countryLeaveTypeId,
+																reason : obj.remarks,
+																startDate : $filter(
+																		'istDateFormat')
+																		(
+																				obj.startDate),
+																endDate : $filter(
+																		'istDateFormat')
+																		(
+																				obj.endDate),
+																noOfDays : obj.numOfDays,
+																isDisabled : false,
+																address : obj.contactAddress,
+																cellNo : obj.contactNumCell
+															}
+														});
+
+											}
+
+											$location.path("/applyleave");
+											commonAppLevService
+													.copyToNew(listToPushToNew);
+
+										};
+
+										$scope.wsReqSelected = [];
+										$scope.selectMasterRequest = function(
+												request, value) {
+											if (value === "YES") {
+												for (i in $scope.detailsList) {
+													var reqDetails = $scope.detailsList[i];
+
+													if (request.masterRequest === reqDetails.masterRequest) {
+														copyToNewList
+																.push(reqDetails);
+														$scope.wsReqSelected
+																.push({
+																	childReqNo : reqDetails.subRequest,
+																	parentReqNo : request.masterRequest,
+																	status : request.status,
+																	reqStatus : reqDetails.status,
+																	reqType : reqDetails.reqType
+																});
+													}
+												}
+											} else {
+												for (i in $scope.detailsList) {
+													var reqDetails = $scope.detailsList[i];
+													if (request.masterRequest === reqDetails.masterRequest) {
+														$scope
+																.remove(request.masterRequest);
+													}
+												}
+												;
+												$rootScope.requestIdStatus = null;
+
+											}
+										};
+
+										$scope.selectAllMasterRequest = function(
+												value) {
+											if (value === "YES") {
+												var tmpList = handlePageLoadDataPaginate(
+														$scope.detailsList,
+														$scope.recentFlag ? 'N'
+																: 'Y', 0);
+												for (i in tmpList) {
+													var reqDetails = tmpList[i];
+													copyToNewList
+															.push(reqDetails);
+													$scope.detailsList[i].childChk = 'YES';
+													$scope.wsReqSelected
+															.push({
+																childReqNo : reqDetails.subRequest,
+																parentReqNo : reqDetails.masterRequest,
+																status : $filter(
+																		'masterRequestStatus')
+																		(
+																				reqDetails.masterRequest,
+																				$scope.masterList,
+																				0),
+																reqStatus : reqDetails.status,
+																reqType : reqDetails.reqType
+															});
+												}
+
+												for (j in $scope.pagedItems) {
+													for (k in $scope.pagedItems[j]) {
+														$scope.pagedItems[j][k].childChk = 'YES';
+													}
+												}
+											} else {
+												clearSelects();
+												clearCheckBox();
+											}
+										};
+
+										$scope.remove = function(index) {
+											var countIndex = 0;
+											/*
+											 * $scope.wsReqSelected[countIndex].childReqNo
+											 * !== index
+											 */
+											while ($scope.wsReqSelected[countIndex].parentReqNo !== index) {
+												countIndex++;
+											}
+											$scope.wsReqSelected.splice(
+													countIndex, 1);
+											copyToNewList.splice(countIndex, 1);
+										};
+
+										function validateRequestStatus(
+												selectedArray, calledFrom) {
+											var flag = true;
+											$scope.outputMesg = [];
+											if (validateListSize(selectedArray)) {
+												notAllowedMessage = "Please select atleast one request";
+												$scope.outputMesg
+														.push(notAllowedMessage);
+												$("#messageModal")
+														.modal('show');
+												flag = false;
+											} else if (calledFrom === 'copyToNew') {
+												if (copyToNewList.length > 1) {
+
+													var tmpPushList = [];
+													if ($scope.isSorted
+															|| $scope.isFiltered) {
+														$scope.outputMesg
+																.push("Select only one request at a time for copy to new");
+														$("#messageModal")
+																.modal('show');
+														flag = false;
+													}
+
+													for ( var i = 0; i < copyToNewList.length; i++) {
+														if (tmpPushList
+																.indexOf(copyToNewList[i].masterRequest) < 0) {
+															tmpPushList
+																	.push(copyToNewList[i].masterRequest);
+														}
+													}
+													if (tmpPushList.length > 1) {
+														notAllowedMessage = "Select only one request at a time for copy to new";
+														$scope.outputMesg
+																.push(notAllowedMessage);
+														$("#messageModal")
+																.modal('show');
+														clearSelects();
+														flag = false;
+													}
+												} else {
+													copyToNewList
+															.forEach(function(
+																	entry) {
+																if (entry.leaveType
+																		.toLowerCase() === 'timesheet leave') {
+																	$scope.outputMesg
+																			.push("Timesheet leave cannot be copied to a new request");
+																	$(
+																			"#messageModal")
+																			.modal(
+																					'show');
+																	clearSelects();
+																	flag = false;
+																	return flag;
+																}
+															});
+												}
+											} else if (calledFrom === 'archive') {
+												for ( var i = 0; i < selectedArray.length; i++) {
+													if (selectedArray[i].reqStatus
+															.toLowerCase()
+															.indexOf("pending") > -1) {
+														$scope.outputMesg
+																.push("Pending request cannot be archived");
+														$("#messageModal")
+																.modal('show');
+														clearSelects();
+														flag = false;
+														break;
+													} else if (selectedArray[i].reqStatus
+															.toLowerCase()
+															.indexOf("draft") > -1) {
+														$scope.outputMesg
+																.push("Draft request cannot be archived");
+														$("#messageModal")
+																.modal('show');
+														clearSelects();
+														flag = false;
+														break;
+													}
+												}
+											} else if (calledFrom === 'cancel') {
+												for ( var i = 0; i < selectedArray.length; i++) {
+													if (selectedArray[i].reqType
+															.toLowerCase() === 'cancelled') {
+														$scope.outputMesg
+																.push("Requests which are already cancelled cannot be cancelled again");
+														$("#messageModal")
+																.modal('show');
+														clearSelects();
+														flag = false;
+														break;
+													}
+												}
+											} else if (calledFrom === 'draft') {
+												for ( var i = 0; i < selectedArray.length; i++) {
+													if (selectedArray[i].reqType
+															.toLowerCase() !== 'draft') {
+														$scope.outputMesg
+																.push("Only request having request type 'Draft' can be deleted");
+														$("#messageModal")
+																.modal('show');
+														clearSelects();
+														flag = false;
+														break;
+													}
+												}
+											}
+											return flag;
+										}
+
+										function validateListSize(list) {
+											return list.length === 0 ? true
+													: false;
+										}
+
+										$scope.applyDivBorder = function(
+												parent, subRequest) {
+
+											var length = ($filter('myRequestFilter')
+													($scope.detailsList,
+															subRequest)).length;
+
+											if (length > 1) {
+												$(
+														"#"
+																+ parent
+																+ " .dynLeftBorder")
+														.css("border-left",
+																"1px solid #dadada");
+												$(
+														"#"
+																+ parent
+																+ " .dynRightBorder")
+														.css("border-right",
+																"none");
+											} else {
+												$(
+														"#"
+																+ parent
+																+ " .dynRightBorder")
+														.css("border-right",
+																"1px solid #dadada");
+												$(
+														"#"
+																+ parent
+																+ " .dynLeftBorder")
+														.css("border-left",
+																"none");
+											}
+										};
+
+										$scope.setPredicateIcon = function() {
+											return $scope.reverse ? 'glyphicon glyphicon glyphicon-sort-by-alphabet-alt'
+													: 'glyphicon glyphicon glyphicon-sort-by-alphabet';
+										};
+
+										$scope.calcHeight = function() {
+
+											/*
+											 * var ah =
+											 * $('.verticalalign').height(); var
+											 * ph =
+											 * $('.verticalalign').parent().height();
+											 * var mh = Math.ceil((ph - ah) /
+											 * 2); console.log("computed margin : " +
+											 * ah + " : " + ph + " : " + mh);
+											 * $('.verticalalign').css('margin-top',
+											 * mh);
+											 */
+										};
+
+										$scope.closeAlert = function(index) {
+											$scope.showErrorMsg = false;
+											$scope.alerts.splice(index, 1);
+										};
+
+										function sortMasterList() {
+											$scope.masterList = $filter(
+													'orderBy')(
+													$scope.masterList,
+													[ 'submitDate',
+															'masterRequest' ],
+													true);
+										}
+
+										function addElementError(msg, index) {
+											$scope.errorList[index] = msg;
+										}
+
+										$scope.exportSysArch = function() {
+											window
+													.open(prefix
+															+ "exportSysArch",
+															'_blank');
+										};
+
+										$scope.chkFilterCollapse = function() {
+											$scope.isCollapsed = !$scope.isCollapsed;
+											$scope.notPristine = false;
+										};
+
+										$scope.closeFilterSection = function() {
+											$scope.isCollapsed = false;
+											$scope.notPristine = false;
+										};
+
+									} ]);
+			return app;
+		});

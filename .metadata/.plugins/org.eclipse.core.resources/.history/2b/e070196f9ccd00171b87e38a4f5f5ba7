@@ -1,0 +1,224 @@
+package com.plagiarism.sessionbean;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+
+public class UserDetailsSessionBean {
+
+	private String employeeNo;
+	private int personId;
+    private String employeeRole;
+    private String employeeGrade;
+    private String employeeType;
+    private String employmentStatus;
+    private String employeeServiceType;
+    private String emailAddress;
+    private String  hostCountry;
+    private String homeCountryCode;
+    private String   homeCountry;
+    private String  hostCountryCode;
+    private String  employeeName ;
+    private String homeCurrency;
+    private String  hostCurrency;
+    private long  projectNumber;
+    private List leaveList = new ArrayList();
+    private String category;
+    //these parameters are set during onloadvalidation
+    private String onBehalfEmpNo;
+    private String onBehalfPersonId;
+    private int homefinBranchId;
+    private int homefinDcId;
+    private int homePaymentLoc;
+    
+    private int hostfinBranchId;
+    private int hostfinDcId;
+    private int hostPaymentLoc;
+    
+  
+    
+    private int homeSobId;
+    private int hostSobid;
+	
+    private boolean rloFlag;
+    
+    
+    
+	public String getCategory() {
+		return category;
+	}
+	public void setCategory(String category) {
+		this.category = category;
+	}
+	public List getLeaveList() {
+		return leaveList;
+	}
+	public void setLeaveList(List leaveList) {
+		this.leaveList = leaveList;
+	}
+	public int getHomeSobId() {
+		return homeSobId;
+	}
+	public void setHomeSobId(int homeSobId) {
+		this.homeSobId = homeSobId;
+	}
+	public int getHostSobid() {
+		return hostSobid;
+	}
+	public void setHostSobid(int hostSobid) {
+		this.hostSobid = hostSobid;
+	}
+	public int getHomefinBranchId() {
+		return homefinBranchId;
+	}
+	public void setHomefinBranchId(int homefinBranchId) {
+		this.homefinBranchId = homefinBranchId;
+	}
+	public int getHomefinDcId() {
+		return homefinDcId;
+	}
+	public void setHomefinDcId(int homefinDcId) {
+		this.homefinDcId = homefinDcId;
+	}
+	public int getHomePaymentLoc() {
+		return homePaymentLoc;
+	}
+	public void setHomePaymentLoc(int homePaymentLoc) {
+		this.homePaymentLoc = homePaymentLoc;
+	}
+	public int getHostfinBranchId() {
+		return hostfinBranchId;
+	}
+	public void setHostfinBranchId(int hostfinBranchId) {
+		this.hostfinBranchId = hostfinBranchId;
+	}
+	public int getHostfinDcId() {
+		return hostfinDcId;
+	}
+	public void setHostfinDcId(int hostfinDcId) {
+		this.hostfinDcId = hostfinDcId;
+	}
+	public int getHostPaymentLoc() {
+		return hostPaymentLoc;
+	}
+	public void setHostPaymentLoc(int hostPaymentLoc) {
+		this.hostPaymentLoc = hostPaymentLoc;
+	}
+	public String getEmployeeNo() {
+		return employeeNo;
+	}
+	public void setEmployeeNo(String employeeNo) {
+		this.employeeNo = employeeNo;
+	}
+	public int getPersonId() {
+		return personId;
+	}
+	public void setPersonId(int personId) {
+		this.personId = personId;
+	}
+	public String getEmployeeRole() {
+		return employeeRole;
+	}
+	public void setEmployeeRole(String employeeRole) {
+		this.employeeRole = employeeRole;
+	}
+	public String getEmployeeGrade() {
+		return employeeGrade;
+	}
+	public void setEmployeeGrade(String employeeGrade) {
+		this.employeeGrade = employeeGrade;
+	}
+	public String getEmployeeType() {
+		return employeeType;
+	}
+	public void setEmployeeType(String employeeType) {
+		this.employeeType = employeeType;
+	}
+	public String getEmploymentStatus() {
+		return employmentStatus;
+	}
+	public void setEmploymentStatus(String employmentStatus) {
+		this.employmentStatus = employmentStatus;
+	}
+	public String getEmployeeServiceType() {
+		return employeeServiceType;
+	}
+	public void setEmployeeServiceType(String employeeServiceType) {
+		this.employeeServiceType = employeeServiceType;
+	}
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+	public String getHostCountry() {
+		return hostCountry;
+	}
+	public void setHostCountry(String hostCountry) {
+		this.hostCountry = hostCountry;
+	}
+	public String getHomeCountryCode() {
+		return homeCountryCode;
+	}
+	public void setHomeCountryCode(String homeCountryCode) {
+		this.homeCountryCode = homeCountryCode;
+	}
+	public String getHomeCountry() {
+		return homeCountry;
+	}
+	public void setHomeCountry(String homeCountry) {
+		this.homeCountry = homeCountry;
+	}
+	public String getHostCountryCode() {
+		return hostCountryCode;
+	}
+	public void setHostCountryCode(String hostCountryCode) {
+		this.hostCountryCode = hostCountryCode;
+	}
+	public String getEmployeeName() {
+		return employeeName;
+	}
+	public void setEmployeeName(String employeeName) {
+		this.employeeName = employeeName;
+	}
+	public String getHomeCurrency() {
+		return homeCurrency;
+	}
+	public void setHomeCurrency(String homeCurrency) {
+		this.homeCurrency = homeCurrency;
+	}
+	public String getHostCurrency() {
+		return hostCurrency;
+	}
+	public void setHostCurrency(String hostCurrency) {
+		this.hostCurrency = hostCurrency;
+	}
+	public long getProjectNumber() {
+		return projectNumber;
+	}
+	public void setProjectNumber(long projectNumber) {
+		this.projectNumber = projectNumber;
+	}
+	public boolean isRloFlag() {
+		return rloFlag;
+	}
+	public void setRloFlag(boolean rloFlag) {
+		this.rloFlag = rloFlag;
+	}
+	public String getOnBehalfEmpNo() {
+		return onBehalfEmpNo;
+	}
+	public void setOnBehalfEmpNo(String onBehalfEmpNo) {
+		this.onBehalfEmpNo = onBehalfEmpNo;
+	}
+	public String getOnBehalfPersonId() {
+		return onBehalfPersonId;
+	}
+	public void setOnBehalfPersonId(String onBehalfPersonId) {
+		this.onBehalfPersonId = onBehalfPersonId;
+	}
+	
+	
+}

@@ -1,0 +1,670 @@
+define(['angular','app','moment','displayMenu','jqueryui','utils','bootstrap',], function(angular,app,moment,jqueryui) {
+app.controller("commonCtrl",['$scope','$http','$compile','$rootScope', function($scope,$http,$compile,$rootScope){
+	$rootScope.isRtt=true; //added by 742954 for datepicker 
+	$scope.sign=false;
+ $scope.dateList=[];
+  
+    $scope.date = {};
+    $scope.date2 = moment()._d.getTime();
+    $scope.today=moment().format("YYYY-MM-DD");
+   
+    
+    $scope.tempDate = [];
+   $scope.listOfDates= [];
+   $http.post('/leaverest/rest/getDetails').success(function(result) {
+    $scope.actualVal = result.value;
+    $scope.rttVal=Number(result.value);
+    $scope.listOfDates=result.dateListing;
+	 
+	 /** START**/
+     if(angular.isArray($scope.listOfDates)) {
+		 var dateList = $scope.listOfDates.length;
+		
+		
+		 if(dateList==0){
+		 if(dateList-$scope.actualVal >0) {
+			 var tmp = dateList-$scope.actualVal;
+			 for(var i=0;i<tmp;i++) {
+				 $scope.listOfDates.push("");
+			 }
+		 } else if($scope.actualVal-dateList >0) {
+			 var tmp = $scope.actualVal-dateList;
+			 for(var i=0;i<tmp;i++) {
+				 $scope.listOfDates.push("");
+			 }
+		 } 
+		 }
+	  
+	 }
+	 /** END**/
+	
+	 $scope.dateValidator();
+      }).error(function()
+      {
+     
+       }); 
+     
+   
+   $scope.reloadTest = function() {
+	   
+	  
+	   $http.post('/leaverest/rest/getDetails').success(function(result) {
+		    $scope.actualVal = result.value;
+		    $scope.rttVal=Number(result.value);
+		    $scope.listOfDates=result.dateListing;
+			 
+
+			 /** START**/
+		     if(angular.isArray($scope.listOfDates)) {
+				 var dateList = $scope.listOfDates.length;
+				 
+				
+				 if(dateList==0){
+				 if(dateList-$scope.actualVal >0) {
+					 var tmp = dateList-$scope.actualVal;
+					 for(var i=0;i<tmp;i++) {
+						 $scope.listOfDates.push("");
+					 }
+				 } else if($scope.actualVal-dateList >0) {
+					 var tmp = $scope.actualVal-dateList;
+					 for(var i=0;i<tmp;i++) {
+						 $scope.listOfDates.push("");
+					 }
+				 } 
+				 }
+			  
+			 }
+			 /** END**/
+			
+			 $scope.dateValidator();
+		      }).error(function()
+		      {
+		     
+		       }); 
+	   window.location.reload(true); 
+   };
+   $scope.change=function()
+	{
+	   $scope.dateList=[];
+   	 if($scope.rttVal>=5){
+   		
+   	 
+   	  var len =  $scope.listOfDates.length;
+   	  
+   	  if($scope.listOfDates.length<5){
+		var temp=$scope.rttVal-$scope.listOfDates.length;
+	     for(var i=0;i<temp;i++)
+	   {
+		$scope.dateList[i]="";
+
+	    } 
+	}
+   		if(len==0){
+   			
+   			for(var i=0;i<$scope.rttVal;i++)
+   			{
+   				$scope.dateList[i]="";
+
+   			}
+   		  }
+           else{
+		    $scope.rtt=$scope.rttVal-$scope.actualVal;
+		    for(var i=0;i<$scope.rtt;i++)
+		     {
+			$scope.dateList[i]="";
+
+		      }
+   		 }
+   	 
+   	 	 
+   	}else{
+   	//	if($scope.actualVal<=5){
+   	//	  if($scope.listOfDates.length==0){
+   		$scope.empty=[];
+   		if($scope.listOfDates[0]==""){
+   		$scope.listOfDates=angular.copy($scope.empty);
+   		$scope.dateList=angular.copy($scope.empty);
+   		//	if($scope.listOfDates[0]==""){
+   				
+   		//	$scope.listOfDates.splice(0,$scope.listOfDates.length);
+   		     for(var i=0;i<$scope.rttVal;i++)
+			 {
+				$scope.dateList[i]="";
+
+			  }
+   		}else{
+   			if($scope.listOfDates.length<5){
+   				var temp=$scope.rttVal-$scope.listOfDates.length;
+   		        for(var i=0;i<temp;i++)
+			   {
+				$scope.dateList[i]="";
+
+			    } 
+   			}
+   		}	
+   		
+  	}
+   	 
+   	 
+   	 
+   	 
+   	 
+   	 
+   	 
+   	 
+   	 /*else{
+   		    	$scope.empty=[];
+   		    	console.log("aa gaya"+$scope.listOfDates.length);
+   		        var temp2=$scope.actualVal-$scope.listOfDates.length;
+   		        for(var i=$scope.actualVal;i<temp2;i--)
+ 			     {
+                 $scope.listOfDates.splice(i,1);
+
+ 			    } 
+                var temp=$scope.rttVal-$scope.listOfDates.length;
+   		        for(var i=0;i<temp;i++)
+			   {
+				$scope.dateList[i]="";
+
+			    } 
+   	  	   }*/
+ //	}
+		
+	
+	  $scope.show=true;
+	};
+   /* $scope.change=function()
+	{
+    	$scope.dateList=[];
+    	if($scope.rttVal>=5){
+		$scope.rtt=$scope.rttVal-$scope.actualVal;
+		for(var i=0;i<$scope.rtt;i++)
+		{
+			$scope.dateList[i]="";
+
+		}
+    	}else{
+    		if($scope.actualVal==5){
+    			$scope.empty={};
+    			$scope.listOfDates=angular.copy($scope.empty);
+    			if($scope.rttVal<5){
+    			for(var i=0;i<$scope.rttVal;i++)
+    			{
+    				$scope.dateList[i]="";
+
+    			}
+    			}else if($scope.rttVal>5){
+    				for(var i=0;i<$scope.rttVal;i++)
+        			{
+        				$scope.dateList[i]="";
+
+        			}
+    			}
+    		}
+    	}
+		$scope.show=true;
+	};*/
+
+	$scope.dateValidator = function(index) {
+		var date2 = moment()._d.getTime();
+		for ( var i = 0; i < $scope.listOfDates.length; i++) {
+		var date1 = $scope.listOfDates[i];
+		$scope.tempDate[i] = moment(date1)._d.getTime();
+		}
+		
+		pickDate($scope.dateList[index]);
+		checkDates(index);
+   };
+
+	
+   function pickDate(datesChoose)
+	{
+          
+	};
+	
+	function checkDates(index){
+    	 $scope.sign=false;
+    	
+    	 var i=index;
+    		  for(var j=0;j<i;j++){
+     		     if( $scope.dateList[j]===$scope.dateList[i] )
+     		      {
+              	     $scope.sign=true;
+       		       }
+    		    }
+    		  for(var k=0;k<$scope.listOfDates.length;k++){
+      		     if( $scope.listOfDates[k]===$scope.dateList[i] )
+      		      {
+               	     $scope.sign=true;
+        		   }
+     		    }
+    	  
+     	 
+     };
+	
+     
+	$scope.insertDates=function(){	
+		 //MERGING TWO LIST
+		
+
+	    for(var i=0; i<$scope.dateList.length; i++)
+	    {
+	     $scope.listOfDates.push($scope.dateList[i]);
+	     } 
+	      
+	   
+       
+	    $http.post('/leaverest/rest/insertDates',$scope.listOfDates).success(function() {
+
+	         $scope.show=false;
+			
+			})
+			.error(function()
+		     {
+			
+		     });
+		 
+	
+	 };	
+	
+
+	 
+	   $scope.master={};
+	 
+   
+       $scope.resetForm = function(){
+    	   $scope.sign=false;
+    	 
+   	   $('#inputFile').val("");
+   	//  alert("In reset Method .. " + $scope.user.file);
+   	   for ( var i = 0; i < $scope.listOfDates.length; i++) {
+   	   
+  	   document.getElementById('dateVal_').value ="dd-mmm-yyy";
+  
+        $('#dateVal_[i]').val("");
+   	
+      	}
+   	   $scope.rttVal=null;
+   
+   	    $scope.dateList=angular.copy($scope.master);
+      };
+      
+      
+    //---------------------------------End of RTT------------------------------------
+           
+      
+      
+     ////// ///////////////////////////////////////////////////////////////////////////////////////////////////////
+      
+      
+      
+      //-----------------------------------start of credit entitlement-----------------------------------
+       $scope.submitForm = false; 
+   	  $scope.types={};
+ 
+   	$scope.count=null;
+   	$scope.leavty=null;
+  	$http.post('/leaverest/rest/getCountryLeave').success(function(result) {
+  	
+  		
+		 $scope.count=result.countryName;
+		
+		
+		
+	}).error(function()
+	  {
+	console.log("Error in getting Details");
+	  });
+
+  	
+  	$scope.selectCountry=function(){
+  	 
+  		
+  		$http.post('/leaverest/rest/getLeavetype',$scope.user.selectedCountry).success(function(result) {
+			  
+				 console.log("Successfully insert country type ");
+
+				 $scope.leavty=result.leaveType;
+			
+				
+				})
+				.error(function()
+			     {
+				console.log("Error in inserting country type");
+			     });
+			
+  		
+  		
+  	};
+  	
+  	
+  	var exportExcelServiceURL = '/leaverest/rest/report';
+ 
+  	$scope.insertDetails = function()
+  	   {  
+  		  //   console.log($scope.user.selectedLeave.value);
+  		  // $scope.user.done = false;
+  		//   $scope.submitForm = true;
+  		     var input = {
+  		    //	console.log($scope.user.selectedLeave.value);
+  		    	'pCountryLevTypId':$scope.user.selectedLeave.COUNTRY_LEV_TYPE_ID,
+  		    	'pEmpId':$scope.user.empno,
+  		    	'pLevToBeAdded':$scope.user.credit,
+  		    	'pRemark':$scope.user.remarks
+  		     
+  		     }//angular.copy($scope.user);
+  			
+  			console.log(input);
+  			
+  			$http.post('/leaverest/rest/insertDetails',input).success(function(response) {
+  			  
+  				debugger;
+				  for (var i=0; i < response.length ; i++){
+						var code=response[i].code;
+						if("422"==code){
+						$scope.errorQuick="";	
+						$scope.disableSubmit=false;
+						$rootScope.processing=false;
+						$scope.serverErrMsg=response[i].fieldErrors[0].message;
+	                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+i));
+	                    errorField.addClass('dirty-field'); //commited for temporary reason
+	                 }else if("200"==code){
+	                	 $scope.disableSubmit=true;
+	                	 $rootScope.processing=false;
+							$scope.errorMsg='';
+							$scope.serverErrMsg='';
+							$scope.submitLeaveResponse = response[i].message;
+							if(!($scope.submitLeaveResponse==undefined)){
+								debugger;
+								 $rootScope.outMsg=$scope.submitLeaveResponse;
+								$("#messageModal").modal('show');
+								};
+					 };
+				  };
+  			});
+       };
+       
+       
+   	$scope.redirectToHomePage=function(){
+			$('#messageModal').modal('hide');
+			var myEl = angular.element( document.querySelector( '.modal-backdrop' ) );
+			myEl.remove();
+			var myE2=angular.element(document.getElementById("entireBody"));
+			myE2.removeClass("modal-open");
+			$location.path("/creditEntitlement");
+		};
+       
+       $scope.ExportToExcel =  function() {
+    	   console.log("export me aa gaya");
+    	   window.open(exportExcelServiceURL);
+    	   
+       };
+
+      $scope.master={};
+      $scope.reset = function(){
+  	     $('#inputFile').val("");
+  	     $scope.user=angular.copy($scope.master);
+  	   //$scope.user.file = undefined;
+  	  // alert("In reset Method .. " + $scope.user.file);
+          };
+          
+          $scope.setFiles = function(element) {
+        	    scope.$apply(function(scope) {
+        	      console.log('files:', element.files);
+        	      // Turn the FileList object into an Array
+        	        scope.files = []
+        	        for (var i = 0; i < element.files.length; i++) {
+        	          $scope.files.push(element.files[i])
+        	        }
+        	      });
+        	    };
+  
+        	    $scope.onChnageCountryLevId = function(value) {
+        	    	console.log(value);
+        	    	$scope.levCountryId = value;
+        	    }
+        
+  	 
+
+ 
+      //-----------------------------------end of credit--------------------------------------------------
+      
+      
+      
+		
+
+}]);
+app.controller('entitlementdragDrop',['$scope','$rootScope','$location','$filter','$http',
+                                      function($scope, $rootScope,$location, $filter, $http) {
+ 	
+ 	
+ 	var fileSizeLimitTransaction=1;
+ 	var fileList = "";
+ 	var objHTML="";
+ 	var uploadedFileNames=[];
+ 	var fileTransactionSize=0;
+ 	var filesTransaction=[];
+ 	var UploadedfileList="";
+
+ 	 
+ 	
+ 	$(document).ready(function(){
+ 		 objHTML = $("#dragandrophandler");
+ 		 objHTML.on('dragenter', function (e) 
+ 		{
+ 		    e.stopPropagation();
+ 		    e.preventDefault();
+ 		    $(this).css('border', '2px dashed #1479bf');
+ 		    $(this).css('background-color', '#ededed');
+ 		});
+ 		 objHTML.on('dragover', function (e) 
+ 		{
+ 		     e.stopPropagation();
+ 		     e.preventDefault();
+ 		});
+ 		 objHTML.on('drop', function (e) 
+ 		{	
+ 		     $(this).css('border', '1px dashed #da532c');
+ 		     $(this).css('background-color', '');
+ 		     e.preventDefault();
+ 		     fileList = e.originalEvent.dataTransfer.files;
+ 		     $('#errorMessageForFile').html("");
+ 		     if(fileList.length>fileSizeLimitTransaction)
+ 		    	 $('#errorMessageForFile').text("You can upload 5 documents at time.");
+ 		     else{
+ 		    	 var exceedFlag=false;
+ 		    	 angular.forEach(fileList,function(value){
+ 						if(fileValidation(value)&&(!checkExistingFile(uploadedFileNames,value.name))){
+ 							fileTransactionSize=fileTransactionSize+value.size;
+ 							if(fileTransactionSize/(1024*1024) <= fileSizeLimitTransaction){
+ 								 filesTransaction.push(value);
+ 								 uploadedFileNames.push({"name": value.name});
+ 								 generateView(filesTransaction,UploadedfileList,"downloadThisFile","removeThisFile","uploadedDocDiv");
+ 							}else{
+ 								fileTransactionSize=fileTransactionSize-value.size;
+ 								exceedFlag=true;
+ 								//$('#errorMessageForFile').append("<span class='lev-field-error'>Upload failed exceeds size limit of 5 MB </span><br>");
+ 							}
+ 						}
+ 					});
+ 					if(exceedFlag){
+ 						$('#errorMessageForFile').append("<span class='lev-field-error'>Document upload failed as file size exceeded 5 MB </span><br>");
+ 					}
+ 		     }
+ 		});
+ 		 objHTML.on('dragleave', function (e) 
+ 					{
+ 					    e.stopPropagation();
+ 					    e.preventDefault();
+ 					    $(this).css('border', '1px dashed #da532c');
+ 					    $(this).css('background-color', '');
+ 					}); 
+ 		 
+ 		$('#singleFile').on('change',function(event){
+ 			 $('#errorMessageForFile').html("");
+ 			 var fileList=[];
+ 			 fileList.push(document.getElementById("singleFile").files[0]);
+ 			 if($scope.isLevReqDetails){
+ 				 rowIndex=0;
+ 			 }else{
+ 				 rowIndex=commonAppLevService.rowIndex;
+ 			 }
+ 			 dragDropService.validateFiles(fileList,rowIndex);
+ 		});
+ 		
+ 	});
+ 	
+ 	function fileValidation(file){
+ 		var fileName=file.name;
+ 		var regexForExt = /(\.|\/)(xls|xlsx)$/i;
+ 		var sizeLimitInBytes=5242880;
+ 		if (fileName == null)
+ 				return false;
+ 		if (!regexForExt.test(fileName)){
+ 			$('#errorMessageForFile').append("<span class='lev-field-error'>File <span style='font-style: italic;'>"+fileName+"</span> type not suported </span><br>");
+ 			return false;
+ 		}
+ 		if(file.size>sizeLimitInBytes){
+ 			$('#errorMessageForFile').append("<span class='lev-field-error'>File <span style='font-style: italic;'>"+fileName+"</span> size exceeds </span>");
+ 			return false;
+ 		}
+ 		return true;
+ 	};
+ 	
+ 	function checkExistingFile(fileArray,fileName){
+ 		var flag=false;
+ 		for(var i=0;i<fileArray.length;i++){
+ 			if(fileName==fileArray[i].name){
+ 				$('#errorMessageForFile').append("<div><span class='lev-field-error'> File <span style='font-style: italic;'>"+fileName+"</span> exist </span></div>");
+ 				flag=true;
+ 				break;
+ 			}
+ 		}
+ 		return flag;
+ 	};
+ 	
+ 	function generateView(fileList,checkList,download,remove,divName){
+ 		var spanTextHTML = "";
+ 		
+ 		if(fileList.length!=0){
+ 			var spanTextHTML1 = "";
+ 			spanTextHTML1 += "<div><div  class='doc-upload-header' style='padding-bottom:8px;border-bottom:1px solid #da532c;margin-bottom:8px;' translate>Documents Uploaded</div>";
+ 			$("#uploadedDivName").html(spanTextHTML1).css({
+ 				"font-size" : "12px",
+ 				"text-align" : "left",
+ 			});
+ 		};
+ 		
+ 		angular.forEach(fileList,function(value, key) {
+ 			spanTextHTML += "<div><div class='col-xs-8 col-sm-8 col-md-10 col-lg-10' >"
+ 			+value.name	
+ 			+"</div>"
+ 			+"<div class='col-xs-2 col-sm-2 col-md-1 col-lg-1' style='padding-top:2px;'><a>" +
+ 			"<span class='glyphicon glyphicon-download-alt' style='color:#2084c9;cursor:pointer;' onclick='"+download+"("
+ 			+ key + ")'></span></a></div>"
+ 			+"<div class='col-xs-2 col-sm-2 col-md-1 col-lg-1' style='padding-top:2px;'>" +
+ 					"<span class='glyphicon glyphicon-trash' style='color:#2084c9;cursor:pointer;' onclick='"+remove+"("
+ 			+ key + ")'></span></div></div>";
+ 		});
+ 		
+ 		
+ 		$("#"+divName).html(spanTextHTML).css({
+ 			"font-size" : "12px",
+ 			"text-align" : "left",
+ 		});
+ 	};
+ 	
+ 	 $scope.uploadCreditEntlReport= function()
+  	   {  
+ 		debugger;
+    	  var fileData = new FormData();
+    	var fileSize=0;
+    	 for (var i = 0; i < filesTransaction.length; i++){
+ 			fileSize=fileSize+filesTransaction[i].size;
+ 			fileData.append('multipartFile', filesTransaction[i]);
+    	 }
+  		    var http = $http({
+  		    	url: '/leaverest/rest/upload?cntryLevType='+$scope.user.selectedLeave.COUNTRY_LEV_TYPE_ID,
+  		    	method: 'POST',
+  		    	data: fileData,
+  		        transformRequest: angular.identity,
+  		    	headers: {
+  		          "Content-Type": undefined
+  		      }
+  		    });
+  			http.success(function(response) {
+  				debugger;
+  				  for (var i=0; i < response.length ; i++){
+  						var code=response[i].code;
+  						if("422"==code){
+  						$scope.errorQuick="";	
+  						$scope.disableSubmit=false;
+  						$rootScope.processing=false;
+  						$scope.serverErrMsgMultiple=response[i].fieldErrors[0].message;
+  	                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+i));
+  	                    errorField.addClass('dirty-field'); //commited for temporary reason
+  	                 }else if("200"==code){
+  	                	 $scope.disableSubmit=true;
+  	                	 $rootScope.processing=false;
+  							$scope.errorMsg='';
+  							$scope.serverErrMsgMultiple='';
+  							$scope.submitLeaveResponse = response[i].message;
+  							if(!($scope.submitLeaveResponse==undefined)){
+  								debugger;
+  								 $rootScope.outMsg=$scope.submitLeaveResponse;
+  								$("#").modal('show');
+  								};
+  					 };
+  				  };
+  			});
+
+  
+  	   };
+ 	
+  	   
+ 	removeThisFile=function(index){
+ 		$('#errorMessageForFile').html("");
+ 		var deleteFileName=filesTransaction[index].name;
+ 		fileTransactionSize=fileTransactionSize-filesTransaction[index].size;
+ 		filesTransaction.splice(index,1);
+ 		angular.forEach(uploadedFileNames,function(value, key) {
+ 			if(deleteFileName==value.name)
+ 				uploadedFileNames.splice(key,1);
+ 		});
+ 		generateView(filesTransaction,UploadedfileList,"downloadFile","removeThisFile","uploadedDocDiv");
+ 	};
+
+ 	downloadThisFile=function(id){
+ 		var formData = new FormData();
+ 		formData.append('file', filesTransaction[id]); 
+ 		sendFileToDownload(formData);	
+ 	};
+ 	
+ 	function sendFileToDownload(formData){
+ 	   $http({
+         method: 'POST',
+         url: '/leaverest/rest/downloadFile',
+         headers: {'Content-Type': undefined},
+         data: formData,
+         transformRequest: angular.identity
+ 	   }).success(function(data, status) {
+     	   if(null!=data && undefined!=data && ""!=data){
+     		  window.location = "/leaverest/rest/downloadDoc?fileName="+data.fileName+"" +
+    			"&contentType="+data.contentType;
+     	 }
+ 	   });
+ 	};
+ 	
+   	$scope.redirectToHomePage=function(){
+		$('#messageMultipleModal').modal('hide');
+		var myEl = angular.element( document.querySelector( '.modal-backdrop' ) );
+		myEl.remove();
+		var myE2=angular.element(document.getElementById("entireBody"));
+		myE2.removeClass("modal-open");
+		$location.path("/creditEntitlement");
+	};
+  	  
+ 	
+ }]);
+return app;
+});

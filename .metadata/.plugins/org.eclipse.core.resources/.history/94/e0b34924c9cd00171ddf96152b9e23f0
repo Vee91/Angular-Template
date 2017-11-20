@@ -1,0 +1,32 @@
+
+<br>
+<br>
+<br>
+
+<p> </p>
+<div id="todoNew" >
+
+    <h2 align="center"><b><div msg key="newTodoLabel"></msg></div></b></h2>
+    <form name="TodoNew">
+         <div>
+           <span class="text">{{ResponseMessage.text}}</span>
+        </div>
+        <div class="formField">
+            <label for="todo.title"><div msg key="todoTitle"></msg></div></label>
+            <input id="todo.title" type="text" ng-model="todo.title" required/>
+        </div>
+
+        <div class="formField">
+            <label for="todo.description"><div msg key="todoDescription"></msg></div></label>
+            <textarea id="todo.description" ng-model="todo.description" required>
+            </textarea>
+        </div>
+
+        <hr/>
+
+        <button class="button" ng-click="gotoTodoListPage()">&lt; Return</button> &nbsp;
+        <button class="button" ng-click="submit()" ng-disabled="!TodoNew.$valid" >Save</button>
+
+    </form>
+
+</div>

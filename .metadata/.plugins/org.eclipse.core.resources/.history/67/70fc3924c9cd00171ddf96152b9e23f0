@@ -1,0 +1,364 @@
+
+
+<div class="row" style="padding-top: 10px"
+					ng-repeat="obj in lerfObj.lerfData">
+
+
+					<div class="col-md-12 boxBar">
+						<div class="row boxHead">
+							<div class="col-md-1 radioMod radioDiv"
+								style="width: 50px; height: 50px; padding: 0px;">
+								<input class="test1" type="radio" name="grpReq" id="radio_{{$index}}" value="radio_{{$index}}" style="margin-top: 16px;"
+									data-ng-click="changeEvent($index,obj)" ng-checked="$index===0"/>
+								
+
+							</div>
+							<div class="col-md-10 divHead headTitle">Reporting Details</div>
+						</div>
+
+
+
+						<div class="row" style="padding-top: 1%; padding-bottom: 1%;">
+							<div class="col-md-1 divHead elementBGColor"
+								style="padding-left: 0px;">Reporting Date</div>
+							<div class="col-md-2 divHead">
+
+								<kunalsdatepicker date-format="dd-MMM-yyyy">
+
+								<input type="text" id="reportingDate{{$index}}"
+									class="form-control input-sm applyLeaveInputField date-property date-font repDate"
+									ng-class="$index===0?test:disableDate"
+									placeholder={{obj.SeqNoDetails[0][0].reportingDate}}
+									ng-model="lerfObj.newReportingDate[$index]"
+									ng-change="newReportingDate({{$index}})" /> <script>
+										$('.applyLeaveInputField').keypress(
+												function(event) {
+													event.preventDefault();
+												});
+									</script> </kunalsdatepicker>
+
+
+							</div>
+							<div class="col-md-1 divHead elementBGColor">Leave End
+								Date</div>
+							<div class="col-md-2 divHead">
+								<kunalsdatepicker date-format="dd-MMM-yyyy"
+									date-min-limit="2014-01-01" date-max-limit="2016-12-31">
+
+								<input type="text"
+									class="form-control input-sm applyLeaveInputField date-property date-font"
+									style="color: #808080;"
+									value="{{obj.SeqNoDetails[0][0].lerfEndDate}}"
+									 disabled /> <script>
+										$('.applyLeaveInputField').keypress(
+												function(event) {
+													event.preventDefault();
+												});
+									</script> </kunalsdatepicker>
+							</div>
+							<div class="col-md-3 divHead elementBGColor">Computed
+								Calendar Days</div>
+							<div class="col-md-1 divHead computedDaysBox"><span style="color: #808080;">{{obj.SeqNoDetails[0][0].lerfNoOfDays}}</span></div>
+							
+							<div class="col-md-2 divHead elementBGColor">New No of Days</div>
+							<div class="col-md-1 divHead computedDaysBox"><span style="color: #808080;">{{obj.SeqNoDetails[0][0].newNoOfDays}}</span></div>
+						</div>
+
+						<div style="margin-left: 52px; margin-right: 52px;">
+							
+							<table class="table">
+								<thead>
+									<tr>
+										<th>Group Number</th>
+										<th>Request Number</th>
+										<th>Leave Type</th>
+										<th>Start Date</th>
+										<th>End Date</th>
+										<th>No of Days</th>
+										<th>Status</th>
+										<th>Submit Date</th>
+										<th style="width: 250px;">Additional Fields</th>
+									</tr>
+								</thead>
+
+								<tbody>
+									
+									<tr ng-repeat="lerfData in obj.RequestDetails[0]">
+										<td class="tableBorder">{{lerfData.grpNo}}</td>
+										<td class="tableBorder">{{lerfData.leaveReqNo}}</td>
+										<td class="tableBorder">{{lerfData.leaveTypeName}}</td>
+										<td class="tableBorder">{{lerfData.levStartDate | date:'dd-MMM-yyyy'}}</td>
+										<td class="tableBorder">{{lerfData.levEndDate | date:'dd-MMM-yyyy'}}</td>
+										<td class="tableBorder">{{lerfData.noOfDays}}</td>
+										<td class="tableBorder">{{lerfData.levStatus}}</td>
+										<td class="tableBorder">{{lerfData.submitDate}}</td>
+										<td class="tableBorder"><span ng-show="{{lerfData.additionalFieldDTO!==undefined}}"><a ng-click="viewDetails(lerfData.leaveReqNo);" style="cursor: pointer;">View additional details</a></span>
+									<div id="{{lerfData.leaveReqNo}}" class="container-fluid row " style="position: absolute;z-index: 999;left: 61%;display:none;width: 35%;">
+									<div class="teamLeavePopup col-md-12 " style="padding:0;padding-left: 0px;padding-right: 0px;text-align: left;">
+											<div class="col-lg-12 col-xs-12" style="text-align: right;  height: 40px;padding: 0;">
+												<span style="font-weight: bold; font-size:12px; font-family:Segoe UI; float: left; padding-top: 12px;margin-left: 15px;">REQUEST NO: {{lerfData.additionalFieldDTO.leaveReqNo}} </span>
+												<span class="glyphicon glyphicon-remove closeLevHistory"  style="padding: 10px 5px 5px;" ng-click="closeAddDetailsSec(lerfData.leaveReqNo);"></span>
+							
+											</div>
+											<div class="triangleTeamLeave col-md-12" style="padding-bottom: 1%;">
+											<div class="row">
+												<div class="col-md-5 attrName">{{lerfData.additionalFieldDTO.attribute1_Name}}</div>
+												<div class="col-md-7 attrVal">{{lerfData.additionalFieldDTO.attribute1_Value}}</div>
+											</div>
+											<div class="row">
+												<div class="col-md-5 attrName">{{lerfData.additionalFieldDTO.attribute2_Name}}</div>
+												<div class="col-md-7 attrVal">{{lerfData.additionalFieldDTO.attribute2_Value | date:'dd-MMM-yyyy'}}</div>
+											</div>
+											<div class="row">
+												<div class="col-md-5 attrName">{{lerfData.additionalFieldDTO.attribute3_Name}}</div>
+												<div class="col-md-7 attrVal">{{lerfData.additionalFieldDTO.attribute3_Value}}</div>
+											</div>
+											<div class="row">
+												<div class="col-md-5 attrName">{{lerfData.additionalFieldDTO.attribute4_Name}}</div>
+												<div class="col-md-7 attrVal">{{lerfData.additionalFieldDTO.attribute4_Value}}</div>
+											</div>
+											<div class="row">
+												<div class="col-md-5 attrName">{{lerfData.additionalFieldDTO.attribute5_Name}}</div>
+												<div class="col-md-7 attrVal">{{lerfData.additionalFieldDTO.attribute5_Value}}</div>
+											</div>
+						
+											</div>
+								</div>
+								</div>
+											
+										</td>
+										
+									<tr>
+								</tbody>
+							</table>
+
+							<div class="row">
+							
+							
+							<div id="i94form_{{$index}}" ng-if="obj.USLocal">
+								<div class="row">
+									<div class="col-md-12 i94Style">
+
+										<input type="checkbox" ng-model="lerfObj.i94Checked[$index]" style="margin-top: 2px;"
+											ng-value="$index"
+											data-ng-change="i94Change(lerfObj.i94Checked,$index);">
+										<span style="vertical-align: top;">I wish to update my latest i94 details</span>
+										<hr style="margin: 5px 0px; display: none;" id="hr_{{$index}}">
+									</div>
+									
+								</div>
+
+								<div class="row" id="reportingDiv{{$index}}"
+									style="padding-bottom: 1%; display: none;">
+									<!-- ng-style="i94Sec(val,idx)" -->
+
+									<div class="col-md-12" style="padding-top: 1%;padding-left: 0;">
+										<div class="col-md-2 divHead i94Sec"
+											style="width: 80px">Travel Date<span class="asterisk">*</span></div>
+										<div class="col-md-2 divHead">
+											<kunalsdatepicker date-format="dd-MMM-yyyy">
+
+											<input type="text" style="width: 70%;"
+												class="form-control input-sm applyLeaveInputField date-property date-font"
+												placeholder="DD-MMM-YYYY" ng-model="lerfObj.travelDate" ng-change="i94DtlsChanged();"/> <script>
+													$('.applyLeaveInputField')
+															.keypress(
+																	function(
+																			event) {
+																		event
+																				.preventDefault();
+																	});
+												</script> </kunalsdatepicker>
+										</div>
+										<div class="col-md-2 divHead i94Sec"
+											style="width: 80px">Issue Date<span class="asterisk">*</span></div>
+										<div class="col-md-2 divHead">
+											<kunalsdatepicker date-format="dd-MMM-yyyy">
+
+											<input type="text" style="width: 70%;"
+												class="form-control input-sm applyLeaveInputField date-property date-font"
+												placeholder="DD-MMM-YYYY" ng-model="lerfObj.issueDate" ng-change="i94DtlsChanged();"/> <script>
+													$('.applyLeaveInputField')
+															.keypress(
+																	function(
+																			event) {
+																		event
+																				.preventDefault();
+																	});
+												</script> </kunalsdatepicker>
+										</div>
+										<div class="col-md-2 divHead i94Sec"
+											style="width: 80px">Expiry Date<span class="asterisk">*</span></div>
+										<div class="col-md-2 divHead">
+											<kunalsdatepicker date-format="dd-MMM-yyyy">
+
+											<input type="text" style="width: 70%;"
+												class="form-control input-sm applyLeaveInputField date-property date-font"
+												placeholder="DD-MMM-YYYY" ng-model="lerfObj.expiryDate" ng-change="i94DtlsChanged();"/> <script>
+													$('.applyLeaveInputField')
+															.keypress(
+																	function(
+																			event) {
+																		event
+																				.preventDefault();
+																	});
+												</script> </kunalsdatepicker>
+										</div>
+									</div>
+
+									<div class="col-md-12" style="padding-top: 1% ;padding-left: 0;">
+										<div class="col-md-2 divHead i94Sec"
+											style="width: 80px">I94 Number<span class="asterisk">*</span></div>
+										<div class="col-md-2" style="text-align: left;height: 25px;">
+											<input type="text" ng-model="lerfObj.i94No"  style="width: 70%;height: 25px;" ng-change="i94DtlsChanged();"
+											allow-only-numbers ondrop="return false;" onpaste="return false;"/>
+										</div>
+										<div class="col-md-2 divHead i94Sec"
+											style="width: 80px">Visa Code<span class="asterisk"">*</span></div>
+										<div class="col-md-2 divHead">
+											<select style="float: left; width: 80%;" ng-model="data.visaCode" ng-change="i94DtlsChanged();">
+												<option value="">Select</option>
+												<option ng-repeat="o in obj.VisaCodeList">{{o}}</option>
+											</select> 
+										</div>
+										
+									</div>
+									
+									<div class="col-md-2 i94Sec" style="margin-top: 21px;">
+											<label class="viewClass" ng-click="viewVisaDetails($index);" id="lbl_{{$index}}"
+											 for="viewVisa_{{$index}}">+ View visa details</label>
+									</div>
+
+								</div>
+								
+								<div class="row" id="visaDtls_{{$index}}" style="display:none;background-color:#f5f5f5;border: 1px solid #D9D9D9;">
+									<div class="col-md-12" style="padding-left: 0px; ">
+										<span style="vertical-align: top; font-size:13px; color:#808080;
+										float: left;margin: 10px;margin-left: 15px; font-weight:bold;">VISA DETAILS</span>
+										
+									</div>
+									
+									<div class="col-md-12 i94Sec" style="font-weight: bold;font-size: 12px;">
+										<div class="col-md-2" style="padding-left: 0px;margin-left: 15px;">
+											<span>Visa Number</span>
+										</div>
+										<div class="col-md-2">
+											<span>Visa Start Date</span>
+										</div>
+										<div class="col-md-2">
+											<span>Visa Expiry Date</span>
+										</div>
+										<div class="col-md-2">
+											<span>Visa Code</span>
+										</div>
+										
+									</div>
+									
+									<div class="col-md-12 i94Sec" style="font-size: 12px;">
+										<div class="col-md-2" style="padding-left: 0px;margin-left: 15px;">
+											<span>{{obj.VisaList[0].i94Number}}</span>
+										</div>
+										<div class="col-md-2">
+											<span>{{obj.VisaList[0].i94IssueDate}}</span>
+										</div>
+										<div class="col-md-2">
+											<span>{{obj.VisaList[0].i94ExpiryDate}}</span>
+										</div>
+										<div class="col-md-2">
+											<span>{{obj.VisaList[0].visaCode}}</span>
+										</div>
+									</div>
+									
+								</div>
+							</div>
+							
+							<div class="col-md-12 optionSec" id="earlyLateSec_{{$index}}">
+								<div class="row">
+								<div class="col-md-10">
+									<span class="reportingCmnt">{{lerfObj.successData[0].success.msg}}</span>
+									<br>
+									<span class="reportingCmnt">{{lerfObj.successData[0].success.yes}}</span>
+									<br>
+									<span class="reportingCmnt">{{lerfObj.successData[0].success.no}}</span>
+									
+								</div>
+								<div class="col-md-2" style="margin-top: 15px;">
+									<button id="noBtn" class="btn-default col-md-4" style="margin-right: 5px;"
+										ng-click="noClick();">
+											<span style="font-size: 13px;"></span><span>No</span>
+									</button>
+									<button id="yesBtn" class="btn-primary col-md-4" ng-click="yesClick();">
+											<span style="font-size: 13px;"></span><span>Yes</span>
+									</button>
+								</div>
+								</div>
+								
+							
+							</div>
+							
+							<div class="col-md-12 optionSec"  id="applyLev_{{$index}}">
+								<div class="row">
+								<div class="col-md-10">
+									<span class="reportingCmnt">{{lerfObj.successData[0].success.msg}}</span>
+									<br>
+									<span class="reportingCmnt">{{lerfObj.successData[0].success.ApplyLeave}} </span>
+									<br>
+									<span class="reportingCmnt">{{lerfObj.successData[0].success.CreateLOP}} </span>
+								</div>
+								<div class="col-md-2" style="margin-top: 27px;">
+									<button id="btnLeave" class="btn-primary col-md-4" style="margin-right: 5px;"
+									ng-click="applyLeaveClicked();">
+											<span style="font-size: 13px;"></span><span>Apply Leave</span>
+									</button>
+									<button id="btnLOV" class="btn-primary col-md-4" ng-click="createLOP();">
+											<span style="font-size: 13px;"></span><span>Create LOP</span>
+									</button>
+								</div>
+								</div>
+								
+							
+							</div>
+							
+						
+						</div>
+
+						
+
+					</div>
+					<div class="container-fluid row submitBtnBar" ng-if="$index===lerfObj.submitIdx||lerfObj.submitShow"
+							 id="{{$index}}_submitDiv">
+							<button id="submitBtn" class="btn btn-primary col-md-1" style="padding: 4px;left: 46%;"
+								ng-Click="submitLERF();">
+								<span>Submit LERF</span>
+							</button>
+						</div>
+				</div>
+
+				
+			</div>
+			
+			
+			
+			
+			<div id="messageModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+						<div class="modal-header ng-scope">
+	            	<h3 class="modal-title">
+		        	<span class="glyphicon glyphicon-ok-circle successImg"></span> 
+		        	<span class="popUpTitleText ng-binding">Success!</span>
+		        	</h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px;text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:22px;">{{lerfObj.successData[0].message}}</div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+									ng-click="redirectToRequestList();">OK</button>
+								
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>	

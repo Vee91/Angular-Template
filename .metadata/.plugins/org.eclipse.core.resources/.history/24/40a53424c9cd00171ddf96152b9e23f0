@@ -1,0 +1,937 @@
+<link href="appResources/css/teamCalendar.css" rel="stylesheet"
+	type="text/css" />
+<link href="appResources/css/angular-datepicker.css" rel="stylesheet"
+	type="text/css" />
+<link rel="stylesheet" href="appResources/css/clm-icons.css">
+<style>
+div.leaveWeekHeader {
+	color: #4f82b1;
+	font-size: 13px;
+	height: 16px;
+}
+
+.class1 {
+	background-color: #F6F9FB;
+}
+
+.class2 {
+	background-color: #FFFFFF;
+}
+
+div#empData:nth-of-type(odd) {
+	background-color: #F6F9FB;
+}
+
+div#empData:nth-of-type(even) {
+	background-color: #FFFFFF;
+}
+
+.popover-content {
+	height: auto;
+	width: 200px;
+}
+
+.popover.top>.arrow {
+	left: 84%;
+}
+
+.popover.top>.arrow:after {
+	border-top-color: rgb(79, 130, 177);
+}
+</style>
+<div class="row topPanel" style="padding-bottom: 30px;"
+	ng-controller="TeamCalenderController" id="teamCalendar">
+	<div>
+		<!-- <input type="text" class="datepicker" id="teamCalDateSelector" ng-bind="startDate.value | date:'dd-MM-yyyy'">{{startDate.value}}</input> -->
+		<div class="row">
+			<div class="col-md-12"
+				style="padding-left: 0px; padding-bottom: 5px;">
+
+				<div>
+					<span class="topPanelBoldTextList">Leave - My Team Calendar</span>
+					<span style="float: right; margin-top: 5px;"></span>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12 row"
+			style="padding-left: 0px; margin-left: 0px; padding-right: 0px; margin-right: 0px;">
+
+			<div class="col-md-3 row"
+				style="padding-left: 0px; padding-right: 0px; margin-right: 0px;">
+				<div class="col-md-6" style="padding-left: 0px;">
+					<kunalsdatepicker date-format="dd-MMM-yyyy"> <input
+						type="text" class="form-control input-sm date-property"
+						placeholder="DD-MMM-YYYY" ng-change="getCalendarFromStartDate()"
+						ng-model="startDate" style="background-color: #fff;" readonly />
+					</kunalsdatepicker>
+				</div>
+			</div>
+			<div class="col-md-1"></div>
+			<div class="col-md-8 row colRemovePadding"
+				style="border: 1px solid hsla(0, 2%, 41%, 0.35); margin-left: 18px; height: 25px; background-color: #F7F7F7;">
+				<div
+					class="col-md-12 row colRemovePadding content-main-row legendRow"
+					style="padding: 0px; margin-left: 19px; margin-top: 2px;">
+					<div class="col-md-6 row content-main-row padding0">
+						<div class="col-md-1 holiday-property paddingTop9 width5"
+							style="margin-left: 0px;"></div>
+						<div class="col-md-3 padding0" style="padding-right: 0px;">Holiday</div>
+						<div class="col-md-1 weekend-property paddingTop9 width5"
+							style="margin-left: 0px;"></div>
+						<div class="col-md-3 padding0" style="padding-right: 0px;">Weekend</div>
+						<div class="col-md-1 approvedleave-property paddingTop9 width5"></div>
+						<div class="col-md-3 padding0"
+							style="padding-right: 0px; margin-left: 12px;">Approved
+							Leave</div>
+
+					</div>
+					<div class="col-md-6 row content-main-row"
+						style="padding: 0px; margin-left: 0px;">
+						<div class="col-md-1 flexi-property paddingTop9 width5"
+							style="margin-left: -4px;"></div>
+						<div class="col-md-3 padding0">Flexi holiday</div>
+						<div class="col-md-1 pendingleave-property paddingTop9 width5"></div>
+						<div class="col-md-3 padding0" style="">Pending leave</div>
+						<div class="col-md-1 planned-property paddingTop9 width5"></div>
+						<div class="col-md-3 padding0 text-left"
+							style="padding-left: 15px;">Planned leave</div>
+
+					</div>
+
+				</div>
+			</div>
+			<!-- <div class="col-md-1" ng-if="!processing"
+				style="margin-left: 28px; padding-left: 50px;">
+				<a ng-Click="exportToExcel()"><span
+					class="glyphicon glyphicon-upload"
+					style="font-size: 20px; cursor: pointer"
+					tooltip="Export data to excel" tooltip-placement="top"
+					tooltip-trigger="mouseenter"></span></a>
+			</div> -->
+		</div>
+
+		<div style="margin-top: 0px; padding-top: 31px;" class="row">
+			<div class="row" style="margin-left: 5px;">
+				<div class="col-md-12 row">
+					<div class="col-md-9 panel-heading paddingLeftZero"
+						style="margin-right: 10px; padding-bottom: 0px; height: 34px; padding-top: 0px;"
+						ng-if="!processing">
+						<h3 class="panel-title">{{legendTitle}}</h3>
+					</div>
+					<div class="col-md-2 padding0"
+						style="float: right; margin-top: 11px; margin-right: 2px; text-align: right;">
+						<a ng-Click="exportToExcel()"
+							style="font-size: 14px; color: #2585C7"> <span
+							style="width: 10px; padding-right: -1px;"> <span
+								style="font-size: 14px; cursor: pointer; color: #2585C7;"
+								tooltip="Export data to excel" tooltip-placement="top"
+								tooltip-trigger="mouseenter"> <span
+									class="clm-icon-excel-download"></span> <span
+									style="font-size: 11px; font-weight: bold;">DOWNLOAD
+										REPORT</span></span></a>
+					</div>
+				</div>
+			</div>
+
+			<div class="row" ng-show="!processing"
+				style="margin-left: 0px; background-color: #4F82B1; width: 1253px; border: none;">
+				<div class="col-md-1 col-md-1-custom calColor-Title dateRanger"
+					style="width: 25px; border: none; height: 51px; border-left: 1px solid #555555; font-size: 11px; font-weight: bold; color: #FFFFFF; padding-top: 12px;">#</div>
+
+				<div class="col-md-2 col-md-2-custom calColor-Title empNameTitle"
+					style="height: 51px; padding-top: 10px; width: 100px; border: none;">
+					<div class="empNameNo">Employee Name</div>
+					<div class="inner-addon left-addon">
+						<i class="glyphicon glyphicon-search" style="padding-right: 0px;"></i>
+						<input type="text" ng-model="searchEmpName"
+							style="width: 99px; height: 20px;" />
+					</div>
+
+				</div>
+				<div class="col-md-2 col-md-2-custom calColor-Title empNameTitle"
+					style="height: 51px; padding-top: 10px; width: 82px; border: none;">
+					<div class="empNameNo">Employee No.</div>
+					<div class="inner-addon left-addon">
+						<i class="glyphicon glyphicon-search" style="padding-right: 0px;"></i>
+						<input type="text" ng-model="searchEmpNo"
+							style="width: 82px; height: 20px;" />
+					</div>
+				</div
+				<!-- Phase 1 -->
+				<div class="col-md-2 col-md-2-custom calColor-Title empNameTitle"
+					style="height: 55px; width: 137px; padding-top:10px; padding-left:15px;" >
+					<div class="empNameNo">Current Approver</div>
+				</div>
+				<div class="col-md-1 calColor inset-color calColorAuto dateRanger"
+					ng-repeat="date_ranger in dateArr track by $index"
+					style="font-size: 12px; height: 51px; border: none; padding-top: 13px; padding-right: 10px; padding-left: 7px; color: #FFFFFF;">
+					<!--  color:#a2a2a2;  -->
+					<span class="text-margin" ng-style="setDateColor()">{{date_ranger}}</span>
+				</div>
+				<div class="col-md-1 col-md-1-custom calColor totalRow"
+					style="width: 56.282px; height: 51px; border: none; font-size: 12px; color: #FFFFFF; padding-top: 15px; font-weight: bold;">
+					<span>Total</span>
+				</div>
+
+			</div>
+			<div class="row" style="margin-left: 0px; width: 1258px;"
+				ng-show="!processing">
+				<div id="calContentScroll" class="mousescroll"
+					ng-style="calculateDynHeight();">
+
+					<div id="empData"
+						ng-repeat="emp_data in empCalendarData | searchEmpNameNo : searchEmpName : searchEmpNo : this">
+
+						<div class="col-md-1 col-md-1-custom calColor-Title"
+							style="width: 25px; border-left: 1px solid #CBD5D9; font-size: 11px; color: #a2a2a2; padding-top: 6px;">{{$index
+							+ 1}}.</div>
+						<div class="col-md-2 col-md-2-custom calColor-Title empName"
+							style="width: 100px; height: 30px;">
+							<div class="text-margin wrap-text"
+								style="text-align: left; font-size: 11px; color: #a2a2a2; padding-left: 10px; padding-top: 5px;">
+								<!--  custom-hover-popover popover-html="{{emp_data.fullName}}" popover-placement="bottom" popover-label="{{emp_data.fullName}}" -->
+								<a
+									ng-click="buildYearlyView(emp_data.employeeNo,emp_data.fullName)"
+									style="cursor: pointer;">{{emp_data.fullName}} </a>
+								<!-- tooltip="{{emp_data.fullName}}"
+									tooltip-placement="right" tooltip-trigger="mouseenter" -->
+							</div>
+							<!-- <div class="tool-tip">{{emp_data.fullName}}</div> -->
+						</div>
+						<div class="col-md-2 col-md-2-custom calColor-Title empName"
+							style="width: 82px; height: 30px;">
+							<div class="text-margin wrap-text"
+								style="font-size: 11px; text-align: left; color: #454545; padding-left: 10px; padding-top: 5px;">{{emp_data.employeeNo}}
+							</div>
+						</div>
+						<!-- Phase 1 -->
+						<div class="col-md-2 col-md-2-custom calColor-Title empName">
+							<label class="approverChange" style="font-weight: normal;">
+								<select class="approverChange"
+								style="width: 115px; max-height: 17px;"
+								ng-options="approver.fullName for approver in emp_data.miscellaneous.employeeDTO"
+								ng-init="currentApprover = setDefaultValueAppr(emp_data.miscellaneous.employeeDTO, 1)"
+								ng-model="currentApprover"
+								ng-change="changeApprover(emp_data, currentApprover, $index)">
+							</select>
+							</label>
+						</div>
+						<div style="display: none;"></div>
+
+						<!-- <div id="popoverLeave"
+							ng-repeat="content in emp_data.calendarDetails"
+							rel="popoverLeave"
+							class="col-md-1 col-md-1-custom calColor inset-color leaveInfo wrapper"
+							ng-style="setBoxColor(content)"
+							ng-click="showAction(content,emp_data.employeeNo,$parent.$index)"
+							tooltip="{{setToolTipContent(content)}}" tooltip-placement="left"
+							tooltip-trigger="mouseenter"
+							style="width: 28.395px; height: 30px;"></div> -->
+
+						<div ng-repeat="content in emp_data.calendarDetails"
+							class="col-md-1 col-md-1-custom calColor inset-color leaveInfo wrapper"
+							ng-style="setBoxColor(content);"
+							ng-class="setPlanLeave(content);"
+							ng-click="showAction(content,emp_data.employeeNo,$parent.$parent.$index,$parent.$index)"
+							tooltip="{{setToolTipContent(content)}}" tooltip-placement="left"
+							tooltip-trigger="mouseenter"
+							id="day_{{$parent.$parent.$index}}_{{$parent.$index}}"
+							tooltip-enable="{{content.event !== 'D'}}"></div>
+						<!--  -->
+
+						<div
+							class="col-md-1 col-md-1-custom calColor rowCompleteTotal totalRowCol"
+							style="font-size: 13px; padding-top: 7px; width: 46px;">{{fetchTotalRowCal(emp_data.calendarDetails)}}</div>
+						<div class="row"></div>
+					</div>
+				</div>
+				<!-- <div class="col-md-1 col-md-1-custom calColor-Title"
+					style="border-left: 1px solid #CBD5D9; border-top: 1px solid #CBD5D9; border-right: none; border-bottom: 1px solid #CBD5D9;"></div>
+				<div class="col-md-2 col-md-2-custom calColor-Title totalCol"
+					style="width: 164px; border-bottom: 1px solid #CBD5D9; border-right: none; border-top: 1px solid #CBD5D9;">
+
+				</div> -->
+				<!-- Phase 1 -->
+				<!-- <div class="col-md-2 col-md-2-custom calColor-Title totalCol">
+
+				</div> -->
+				<div class="col-md-2 col-md-2-custom calColor-Title totalRowCol"
+					style="width: 344px; padding-top: 4px; border-bottom: 1px solid #CBD5D9; border-left: 1px solid #CBD5D9; border-top: 1px solid #CBD5D9; font-size: 12px; font-weight: bold;">
+					<span>Total</span>
+				</div>
+				<div ng-repeat="colCount in colCountArr track by $index"
+					class="col-md-1 col-md-1-custom calColor totalRowCol"
+					style="border-bottom: 1px solid #CBD5D9; border-top: 1px solid #CBD5D9; padding-top: 6px; font-size: 13px;">{{colCount}}</div>
+				<div
+					class="col-md-1 col-md-1-custom calColor rowCompleteTotal totalRowCol"
+					style="width: 57.282px; border-bottom: 1px solid #CBD5D9; border-top: 1px solid #CBD5D9; padding-top: 6px; font-size: 13px;">{{totalNoOfLeaves}}</div>
+			</div>
+
+			<div class="saveApproverBtn" style="margin-top: 8px;">
+				<button type="button" class="btn btn-primary"
+					ng-click="saveChangedApprovers()" value="Save"
+					style="align: center; background-color: #1F84C8; color: #FFFFFF; padding-left: 38px; padding-right: 38px; font-family: segoe UI regular; font-size: 14px;">Save</button>
+				<!-- <button type="button" class="btn btn-default"
+					ng-click="saveChangedApprovers()" value="Save"
+					style="align: center;">Change Approver</button> -->
+				<!-- <input type="submit" class="btn btn-default"
+					ng-click="saveChangedApprovers()" value="Save"
+					style="align: center;" /> -->
+			</div>
+
+		</div>
+	</div>
+
+
+	<!-- yearly view as per apply leave -->
+
+	<div id="yearViewModal" class="modal fade " data-backdrop="static"
+		data-keyboard="false">
+		<div class="row text-left" style="margin: 0px 30px 0px 30px;">
+			<div
+				class="col-xs-12  col-sm-12  col-md-12  col-lg-12 modal-body yearly-modal-body leave-modal-text"
+				style="margin-top: 40px;">
+				<div class="row text-right" style="margin: 0px;">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+
+						<div class="row text-right" style="margin: 0px;">
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+								<a href=""><img src="appResources/img/Close.png"
+									data-dismiss="modal" /></a>
+							</div>
+						</div>
+						<div class="col-md-10 row"
+							style="padding-top: 16px; margin-left: 25px;">
+							<div class="col-md-4 row" style="">
+								<div class="col-md-5" style="color: #1461aa; font-size: 14px;">
+									Employee name:</div>
+								<div class="col-md-7 text-margin wrap-text emp-name">{{empName}}</div>
+							</div>
+							<div class="col-md-4 row">
+								<div class="col-md-5"
+									style="color: #1461aa; font-size: 14px; margin-left: -30px;">
+									Employee ID:</div>
+								<div class="col-md-7 text-margin wrap-text emp-name">
+									{{empNo}}</div>
+							</div>
+							<div class="col-md-4"></div>
+						</div>
+						<div class="row" style="margin: 0px 0px 20px 0px">
+							<div class="col-md-6 col-lg-6" style="margin: 5px 0px 0px 0px;">
+								<div id="levBalYearlyId" class="row content-main-row ">
+									<div class="col-xs-* col-md-12 col-lg-12 padding-zero"
+										style="border: 1px solid #999999; padding-bottom: 6px;">
+										<div class="row balance-childrow">
+											<div class="col-xs-* col-md-12 col-lg-12"
+												style="padding-top: 5px; padding-bottom: 5px;">
+												<div class="leave-balance-header text-left" translate>Available
+													Leave Balance:</div>
+											</div>
+										</div>
+										<div class="row balance-childrow text-center">
+											<span class="col-xs-3 col-sm-3 col-md-3 col-lg-3"
+												data-ng-repeat="bal in balanceReport"> <span
+												class="balance-name" style="cursor: default;"
+												data-toggle="tooltip" title="{{bal.countryLevTypeName}}"
+												translate>{{bal.countryLevTypeName | getFirstLetter}}</span><span
+												class="balance-name">:</span> <span class="balance-count"
+												data-ng-bind="bal.leavebalance" translate></span>
+											</span>
+										</div>
+										<script>
+											$(document)
+													.ready(
+															function() {
+																$(
+																		'#levBalYearlyId')
+																		.tooltip(
+																				{
+																					selector : "span[data-toggle='tooltip']"
+																				});
+															});
+										</script>
+									</div>
+								</div>
+
+
+
+							</div>
+							<div class="col-md-6 col-lg-6" style="margin: 5px 0px 0px 0px;">
+
+								<div id="leaveLabelsId" class="row content-main-row">
+									<div
+										class="col-xs-12 col-sm-12 col-md-12 col-lg-12  yearly-legend-subrow"
+										style="padding-top: 5px; background-color: #ffffff; border: 1px solid #999999;">
+										<div class="row content-main-row" style="padding-bottom: 5px;">
+											<div
+												class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 holiday-property"
+												style="margin: 0px; width: 2.86%;"></div>
+											<div
+												class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left"
+												translate>Holiday</div>
+											<div
+												class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 planned-property"
+												style="width: 2.86%;"></div>
+											<div
+												class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left"
+												translate>Planned Leave</div>
+											<div
+												class="col-xs-1 col-sm-1 col-md-1 col-lg-1 weekend-property"
+												style="margin: 0px; width: 2.86%;"></div>
+											<div
+												class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left"
+												translate>Weekend</div>
+										</div>
+										<div class="row content-main-row" style="padding-bottom: 5px;">
+											<div
+												class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 flexi-property"
+												style="margin: 0px; width: 2.86%;"></div>
+											<div
+												class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left"
+												translate>Flexi Holiday</div>
+											<div
+												class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 pendingleave-property"
+												style="width: 2.86%;"></div>
+											<div
+												class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left"
+												translate>Pending Leave</div>
+											<div
+												class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 approvedleave-property"
+												style="margin: 0px; width: 2.86%;"></div>
+											<div
+												class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left"
+												translate>Approved Leave</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-xs-4" style="text-align: center;" ng-hide="true">
+							<a data-ng-hide="pageSize.length>0" class="disabled" href>No
+								Records</a>
+							<p data-ng-hide="items.length==0" data-ng-model="selectedPage"
+								id="paginationSelect" style="vertical-align: top;">{{pageSize[currentPage].label}}</p>
+						</div>
+						<div ng-repeat="slide in pagedItems[currentPage]">
+							<div class="row" style="margin: 0px 0px 10px 0px;">
+								<div class="col-md-1 text-right" style="margin-left: 37.666667%">
+									<p data-ng-hide="currentPage == 0" style="margin-top: 4px;">
+										<a href data-ng-click="prevPage('paginationSelect')"
+											class="glyphicon glyphicon-triangle-left"
+											style="font-size: 14px; text-decoration: none;"> </a>
+									</p>
+								</div>
+								<div class="col-md-1 text-center" style="">
+									<h4 style="color: #4f82b1; font-size: 22px; margin-top: 0px;">{{slide.year}}</h4>
+								</div>
+								<div class="col-md-1 text-left" style="">
+									<p style="margin-top: 4px;"
+										data-ng-hide="(currentPage >= (pageSize.length-1))||(0 == pageSize.length)">
+										<a href data-ng-click="nextPage('paginationSelect')"
+											class="glyphicon glyphicon-triangle-right"
+											style="font-size: 14px; text-decoration: none;"></a>
+									</p>
+								</div>
+							</div>
+
+							<div id="calenderYearlydiv" class="row" style="margin: 0px;">
+								<div class="col-xs-12 col-md-3 col-lg-3" id="month"
+									ng-repeat="month in slide.calData"
+									ng-class="{'cal-backgrnd-clr1' : {{(((($index/4)-(($index/4)%1))+($index%4))%2)==0}},'cal-backgrnd-clr2' : {{(((($index/4)-(($index/4)%1))+($index%4))%2)!=0}}}"
+									style="height: 300px;">
+									<div class="text-center"
+										style="color: #4f82b1; font-size: 14px; margin-bottom: 10px;">{{month.monthName}}</div>
+									<div class="row content-main-row text-center"
+										style="border-bottom: 1px solid #4f82b1">
+										<div class="col-lg-12 padding0px"
+											style="margin-bottom: 5px; padding-left: 0px;">
+											<span class="yearly-cal-day">Su</span> <span
+												class="yearly-cal-day">Mo</span> <span
+												class="yearly-cal-day">Tu</span> <span
+												class="yearly-cal-day">We</span> <span
+												class="yearly-cal-day">Th</span> <span
+												class="yearly-cal-day">Fr</span> <span
+												class="yearly-cal-day">Sa</span>
+
+										</div>
+									</div>
+
+									<!-- <div id="calenderdiv">
+										<div class="week" ng-repeat="week in month.weeks"
+											style="padding-bottom: 16px;">
+											<div id="day{{day.date._d.getTime()}}"
+												ng-mouseover="hoverDates($event,day);"
+												ng-click="selectStartOrEndDate(day,$event);"
+												tooltip="{{day.desc}}" tooltip-placement="top"
+												tooltip-trigger="mouseenter" class="day"
+												ng-class="{today: day.isToday, selected: day.date.isSame(selected) ,'yearly-day-approvedleave':(day.typ==='L'),'yearly-day-weekend':(day.typ==='W'),'yearly-day-holiday':(day.typ==='H'),'yearly-day-flexi':(day.typ==='F'),'yearly-day-plannedleave':(day.typ==='P'), 'yearly-day-pendingleave':(day.holLevType=='L')}"
+												ng-repeat="day in week.days" style="">
+												<span ng-class="{'hide-date': !day.isCurrentMonth}">{{day.number}}</span>
+											</div>
+										</div>
+									</div> -->
+
+									<div>
+										<div class="week" ng-repeat="week in month.weeks">
+											<span class="normalDay"
+												style="border-width: 1px; border-style: solid; border-color: #f7f7f7; height: 43px;"
+												data-toggle="tooltip" title="{{day.desc}}"
+												ng-repeat="day in week.days">
+												<div style="position: relative;" class="calendar-tile-css"
+													id="day{{day.date._d.getTime()}}"
+													name="{{endDate._d.getTime()}}"
+													ng-class="{'hide-date': !day.isCurrentMonth}"
+													ng-mouseover="hoverDates($event,day);">
+													<div style="height: 25px;" class="text-center"
+														data-ng-class="{'yearly-day-pendingleave':(day.typ=='L' && day.status=='2'),'yearly-day-approvedleave':(day.typ=='L' && (day.status=='3' || day.status=='13' || day.status=='10' || day.status=='14' || day.status=='15' || day.status=='17')),'yearly-day-weekend':(day.typ=='W'),'yearly-day-flexi':(day.typ=='F'),'yearly-day-holiday':(day.typ=='H'), 'yearly-day-plannedleave' : (day.typ=='P')}">{{day.number}}</div>
+												</div>
+											</span>
+
+										</div>
+
+									</div>
+
+								</div>
+								<script>
+									$(document)
+											.ready(
+													function() {
+														$('#calenderYearlydiv')
+																.tooltip(
+																		{
+																			selector : "span[data-toggle='tooltip']"
+																		});
+													});
+								</script>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- end yearly view as per apply leave -->
+
+
+	<!-- -->
+	<div id="messageModal" class="modal fade leave-modal">
+		<div class="modal-dialog leave-modal-dialog"
+			style="padding-top: 150px;">
+			<div class="modal-content leave-modal-content">
+				<div class="modal-header ng-scope"
+					style="background-color: #427cb2; text-align: left; color: white; padding-left: 30px">
+					<h3 class="modal-title">
+						<img src="appResources/img/please_note_icon_success.png"
+							style="vertical-align: middle;"> <span
+							style="vertical-align: middle;">Please Note!</span>
+					</h3>
+				</div>
+				<div class="modal-body leave-modal-body leave-modal-text"
+					style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+					<div>
+						<p style="word-wrap: break-word;">{{outputMesg}}</p>
+					</div>
+					<div style="padding-top: 20px; padding-bottom: 20px;">
+						<button class="leave-modal-button"
+							onclick="$('#messageModal').modal('hide');">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div id="planLeaveModal" class="modal fade leave-modal">
+		<div class="modal-dialog leave-modal-dialog"
+			style="padding-top: 206px;">
+			<div class="modal-content leave-modal-content">
+				<div class="modal-header"
+					style="text-align: left; max-height: 52px; background-color: #427cb2; border-bottom: none;">
+					<span
+						style="font-size: 22px; padding-left: 8px; color: #b7ddff; position: relative; bottom: 5px;">Plan
+						leave comments</span>
+					<!-- <span
+						class="close glyphicon glyphicon-remove-circle"
+						data-dismiss="modal" aria-hidden="true"
+						style="font-size: 2em !important;"></span> -->
+				</div>
+				<div class="modal-body leave-modal-body leave-modal-text"
+					style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px; background-color: #f7f7f7; color: #454545;"
+					ng-repeat="content in planLeaveComments">
+					<div class="row" style="z-index: 1;">
+						<div class="col-md-12 planLeaveTitle">
+							Associate Comments <span style="font-weight: normal;">({{content.appliedDate
+								| date:'dd-MMM-yyyy'}}) :</span>
+						</div>
+						<div class="col-md-12 planLeaveComment">
+							{{content.employeeComment === null || content.employeeComment ===
+							'' ? 'No associate comments' : content.reasonForLeave}}</div>
+						<div class="col-md-12 planLeaveTitle"
+							ng-if="content.approvalComments !== null && content.approvalComments !== '' && content.approvalComments !== undefined">
+							Previous Comments <span style="font-weight: normal;">({{content.approvalDate
+								| date:'dd-MMM-yyyy'}}) :</span>
+						</div>
+						<div class="col-md-12 planLeaveComment"
+							ng-if="content.approvalComments !== null && content.approvalComments !== '' && content.approvalComments !== undefined">
+							{{content.approvalComments === null || content.approvalComments
+							=== '' ? 'No approver comments' : content.approvalComments}}</div>
+						<div class="col-md-12 planLeaveTitle">
+							Approver Comments <span style="font-weight: normal;">({{sysDate
+								| date:'dd-MMM-yyyy'}}) :</span>
+						</div>
+						<div>
+							<form role="form" name="putComments" ng-submit="" novalidate>
+								<textarea ng-model="cancelComments"
+									class="form-control feedBackLettersChars" ng-minlength="1"
+									ng-maxlength="300"
+									style="height: 80px; width: 365px; color: #000; resize: none; border: 1px solid #ccc; padding-right: 14px; outline: none; overflow: hidden; background-color: #f7f7f7;"
+									name="commentsBox" rows="4" cols="50" ng-required="true"
+									id="commentsBox" placeholder="Please enter comments here: "></textarea>
+								</span>
+								<div class="row-fluid">
+									<div class="span12 feedbackcount">
+
+										<span data-ng-bind-template="{{250-commentBoxTextlength}}"
+											style="font-size: 12px; background-color: Color:#1c66a9;">
+										</span> Characters left
+									</div>
+								</div>
+								<span style="color: red;"
+									ng-if="putComments.commentsBox.$dirty && putComments.commentsBox.$error.required">Please
+									ente the comments!</span>
+								<div style="padding-top: 20px; padding-bottom: 20px;">
+									<input type="submit" class="btn btn-primary popoverSaveBtn"
+										ng-click="saveApproverComments(content, cancelComments)"
+										ng-disabled="putComments.$invalid" value="Save" /> <input
+										type="submit" class="btn btn-default popoverSaveBtn"
+										data-dismiss="modal" aria-hidden="true" value="Cancel" />
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+</div>
+
+</div>
+
+<script>
+	var maxTextLimit = 250;
+	//code to apply any character entered in textarea start
+	$('#commentsBox').keypress(function(event) {
+		var keycode = (event.keyCode ? event.keyCode : event.which);
+		var scope = angular.element('#commentsBox').scope();
+		if ($('#commentsBox').val().length >= maxTextLimit && keycode != 8)
+			event.preventDefault();
+		else {
+			scope.cancelComments = $('#commentsBox').val();
+			scope.commentBoxTextlength = $('#commentsBox').val().length;
+			scope.$apply();
+		}
+
+	}).keyup(function(event) {
+		var keycode = (event.keyCode ? event.keyCode : event.which);
+		var scope = angular.element('#commentsBox').scope();
+		if ($('#commentsBox').val().length > maxTextLimit && keycode != 8)
+			event.preventDefault();
+		else {
+			scope.cancelComments = $('#commentsBox').val();
+			scope.commentBoxTextlength = $('#commentsBox').val().length;
+			scope.$apply();
+		}
+	});
+
+	$('.modal').bind('cut copy paste', function(e) {
+		e.preventDefault();
+	});
+
+	$(document).ready(function() {
+		$('#teamCalendar').tooltip({
+			selector : "span[data-toggle='tooltip']",
+			container : "body"
+		});
+	});
+
+	(function($) {
+
+		jQuery.fn
+				.extend({
+					slimScroll : function(o) {
+
+						var ops = o;
+						//do it for every element that matches selector
+						this
+								.each(function() {
+
+									var isOverPanel, isOverBar, isDragg, queueHide, barHeight, divS = '<div></div>', minBarHeight = 30, wheelStep = 30, o = ops
+											|| {}, cwidth = o.width || 'auto', size = o.size
+											|| '7px', color = o.color || '#000', position = o.position
+											|| 'right', opacity = o.opacity || .4, alwaysVisible = o.alwaysVisible === true;
+
+									//used in event handlers and for better minification
+									var me = $(this);
+
+									//wrap content
+									var wrapper = $(divS).css({
+										position : 'relative',
+										overflow : 'hidden',
+										width : cwidth
+									/*,
+																		 height : cheight */
+									}).attr({
+										'class' : 'slimScrollDiv'
+									});
+
+									//update style for the div
+									me.css({
+										overflow : 'hidden',
+										width : cwidth
+									/* ,
+																		height : cheight */
+									});
+
+									//create scrollbar rail
+									var rail = $(divS).css({
+										width : '15px',
+										height : '100%',
+										position : 'absolute',
+										top : 0
+									});
+
+									//create scrollbar
+									var bar = $(divS)
+											.attr(
+													{
+														'class' : 'slimScrollBar ',
+														style : 'border-radius: '
+																+ size
+													})
+											.css(
+													{
+														background : color,
+														width : size,
+														position : 'absolute',
+														top : 0,
+														opacity : opacity,
+														display : alwaysVisible ? 'block'
+																: 'none',
+														BorderRadius : size,
+														MozBorderRadius : size,
+														WebkitBorderRadius : size,
+														zIndex : 99
+													});
+
+									//set position
+									var posCss = (position == 'right') ? {
+										right : '1px'
+									} : {
+										left : '1px'
+									};
+									rail.css(posCss);
+									bar.css(posCss);
+
+									//wrap it
+									me.wrap(wrapper);
+
+									//append to parent div
+									me.parent().append(bar);
+									me.parent().append(rail);
+
+									//make it draggable
+									bar.draggable({
+										axis : 'y',
+										containment : 'parent',
+										start : function() {
+											isDragg = true;
+										},
+										stop : function() {
+											isDragg = false;
+											hideBar();
+										},
+										drag : function(e) {
+											//scroll content
+											scrollContent(0,
+													$(this).position().top,
+													false);
+										}
+									});
+
+									//on rail over
+									rail.hover(function() {
+										showBar();
+									}, function() {
+										hideBar();
+									});
+
+									//on bar over
+									bar.hover(function() {
+										isOverBar = true;
+									}, function() {
+										isOverBar = false;
+									});
+
+									//show on parent mouseover
+									me.hover(function() {
+										isOverPanel = true;
+										showBar();
+										hideBar();
+									}, function() {
+										isOverPanel = false;
+										hideBar();
+									});
+
+									var _onWheel = function(e) {
+										//use mouse wheel only when mouse is over
+										if (!isOverPanel) {
+											return;
+										}
+
+										var e = e || window.event;
+
+										var delta = 0;
+										if (e.wheelDelta) {
+											delta = -e.wheelDelta / 120;
+										}
+										if (e.detail) {
+											delta = e.detail / 3;
+										}
+
+										//scroll content
+										scrollContent(0, delta, true);
+
+										//stop window scroll
+										if (e.preventDefault) {
+											e.preventDefault();
+										}
+										e.returnValue = false;
+									}
+
+									var scrollContent = function(x, y, isWheel) {
+										var delta = y;
+
+										if (isWheel) {
+											//move bar with mouse wheel
+											delta = bar.position().top + y
+													* wheelStep;
+
+											//move bar, make sure it doesn't go out
+											delta = Math.max(delta, 0);
+											var maxTop = me.outerHeight()
+													- bar.outerHeight();
+											delta = Math.min(delta, maxTop);
+
+											//scroll the scrollbar
+											bar.css({
+												top : delta + 'px'
+											});
+										}
+
+										//calculate actual scroll amount
+										percentScroll = parseInt(bar.position().top)
+												/ (me.outerHeight() - bar
+														.outerHeight());
+										delta = percentScroll
+												* (me[0].scrollHeight - me
+														.outerHeight());
+
+										//scroll content
+										me.scrollTop(delta);
+
+										//ensure bar is visible
+										showBar();
+									}
+
+									var attachWheel = function() {
+										if (window.addEventListener) {
+											this.addEventListener(
+													'DOMMouseScroll', _onWheel,
+													false);
+											this.addEventListener('mousewheel',
+													_onWheel, false);
+										} else {
+											document.attachEvent(
+													"onmousewheel", _onWheel)
+										}
+									}
+
+									//attach scroll events
+									attachWheel();
+
+									var getBarHeight = function() {
+										//calculate scrollbar height and make sure it is not too small
+										barHeight = Math
+												.max(
+														(me.outerHeight() / me[0].scrollHeight)
+																* me
+																		.outerHeight(),
+														minBarHeight);
+										bar.css({
+											height : barHeight + 'px'
+										});
+									}
+
+									//set up initial height
+									getBarHeight();
+
+									var showBar = function() {
+										//recalculate bar height
+										getBarHeight();
+										clearTimeout(queueHide);
+
+										//show only when required
+										if (barHeight >= me.outerHeight()) {
+											return;
+										}
+										bar.fadeIn('fast');
+									}
+
+									var hideBar = function() {
+										//only hide when options allow it
+										if (!alwaysVisible) {
+											queueHide = setTimeout(function() {
+												if (!isOverBar && !isDragg) {
+													bar.fadeOut('slow');
+												}
+											}, 1000);
+										}
+									}
+
+								});
+
+						//maintain chainability
+						return this;
+					}
+				});
+
+		jQuery.fn.extend({
+			slimscroll : jQuery.fn.slimScroll
+		});
+
+	})(jQuery);
+
+	//invalid name call
+	$('#calContentScroll').slimscroll({
+		color : '#4F82B1',
+		size : '10px',
+		width : '99.8%',
+	});
+
+	/* $('#calContentScroll').css({
+		color : '#4F82B1',
+		size : '10px',
+		width : '98%',
+	}); */
+
+	$(document).ready(function() {
+		$('.modal').on('hide.bs.modal', function() {
+			$('body').css("padding-right", "0px");
+		})
+	});
+</script>
+<div data-ng-include="'xssValidate.html'"></div>

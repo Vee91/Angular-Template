@@ -1,0 +1,784 @@
+define(['angular','app','moment','timeZone','applyLevServices'], function(angular,app,moment) {
+
+
+app.directive("calendar1",function($window,$timeout, $rootScope, leaveCalendarService,commonAppLevService) {
+				return {
+					restrict : "EA",
+					templateUrl : "pages/leave/ApplyLevCalendar.html",
+					controller : function($scope) {
+
+					},
+					scope : {
+						selected : "=?",
+						yearList : "=?",
+						startDate : "=?",
+						endDate : "=?",
+						leaveDays : "=?",
+						selectMonths : "=?",
+						selectYears : "=?",
+						holidayList : "=?",
+						month : '=?'
+						
+					},
+					link : function(scope, ele, attr) {
+						
+						var calenderBuilt = false;
+						var kunal = '';
+						var listSize = 0;
+						var planListSize=0;
+						var createId = 0;
+						scope.isClickable=false;
+						scope.rowNo = 0;
+						scope.validity = '';
+						scope.selectMonths = moment.months();
+						scope.leaveDays = [];
+						scope.nextYearPresent = true;
+						scope.previousYearPresent = true;
+						scope.selected = scope.selected || moment();
+						scope.month = scope.selected.clone();
+						scope.startMonthDate = scope.selected.clone();
+						scope.startMonthDate.date(1); // _d: Fri May 01 2015 00:00:00 GMT+0530
+						//leaveCalendarService._removeTime(scope.startMonthDate.day(0)); // Sun May 31 2015 00:00:00
+						 $rootScope.$on("test123", function (event, args) 
+									{
+							          scope.previous();
+							         });
+						 $rootScope.$on("changeMainCalPrvYear", function (event, args) 
+									{
+							
+							        scope.previousYear();
+							         });
+						 
+						 $rootScope.$on("test456", function (event, args) 
+									{
+							
+							              scope.next();
+							         });
+						 
+						 $rootScope.$on("changeMainCalNxtYear", function (event, args) 
+									{
+							
+							 			scope.nextYear();
+							         });
+						 $rootScope.$on("test789", function (event, args) 
+									{
+							 scope.startDate=args.startDate;
+							         });
+						 $rootScope.$on("test890", function (event, args) 
+									{
+							 scope.endDate=args.endDate;
+							         });
+						 
+						 $rootScope.$on("quickCalReset", function (event, args) 
+									{
+var sdtemp=moment();
+var monthTemp=moment();
+sdtemp.date(1);
+leaveCalendarService._removeTime(sdtemp.day(0)); 
+								leaveCalendarService._buildMonth(scope,sdtemp,monthTemp,scope["yearList"]);
+								scope.selectYears = (Object.keys(scope["yearList"]));
+								scope.calendarYear = scope.month.year();
+								scope.calendarMonth = scope.month.format("MMMM");
+								scope.month=moment();
+								//calenderBuilt = true;
+						
+							         });
+						 //&& !calenderBuilt  removed from if condition to refresh the calendar
+						scope.$watch(function() {
+							return scope["yearList"];
+						},
+						function(data) {
+							if (angular.isObject(scope["yearList"])
+								&& Object.keys(scope["yearList"])
+								&& (Object.keys(scope["yearList"]).length > 0)
+								) {
+								scope.startMonthDate = scope.month.clone();
+								scope.startMonthDate.date(1); // _d: Fri May 01 2015 00:00:00 GMT+0530
+								scope.startMonthDate.day(0);
+								leaveCalendarService._removeTime(scope.startMonthDate.day(0)); // Sun May 31 2015 00:00:00
+									leaveCalendarService._buildMonth(scope,scope.startMonthDate,scope.month,data);
+									scope.selectYears = (Object.keys(scope["yearList"]));
+									scope.calendarYear = scope.month.year();
+									scope.calendarMonth = scope.month.format("MMMM");
+								//	calenderBuilt = true;
+							}
+						});
+
+// function to check if previous year is present-----------------------------------------------------------------
+						scope.checkPreviousYearPresent = function(currentYear) {
+							scope.previousYearPresent = (currentYear) in scope.yearList;
+							if (!scope.nextYearPresent)
+								scope.nextYearPresent = true;
+						};
+						
+// function to check if next year is present-----------------------------------------------------------------						
+						scope.checkNextYearPresent = function(currentYear) {
+							scope.nextYearPresent = (currentYear) in scope.yearList;
+							if (!scope.previousYearPresent)
+								scope.previousYearPresent = true;
+						};
+//function to jump to next month--------------------------------------------------------------------------
+						scope.next = function() {
+							var next = scope.month.clone();
+							var temp = scope.month.clone();
+							leaveCalendarService._removeTime(next.month(next.month() + 1).date(1));
+							scope.month.month(scope.month.month() + 1);
+							var tempCount = false;
+							for (year in scope["yearList"]) {
+								if (year == scope.month.year()) {
+									tempCount = true;
+									break;
+								}
+							}
+							scope.checkNextYearPresent(scope.month.year());
+							if (tempCount) {
+								leaveCalendarService._buildMonth(scope,next,scope.month,scope["yearList"]);
+								$timeout(function() {
+									var sDate;
+									var eDate;
+									var temp;
+									var listToLoop=[];
+									if(!$rootScope.isquickApplyCalendar && !$rootScope.isPlanLevCalendar)
+										listToLoop=commonAppLevService.selectedDates;
+									else if($rootScope.isPlanLevCalendar){
+										listToLoop=commonAppLevService.selectedPlanDates;
+										
+									}
+									else if($rootScope.isquickApplyCalendar && commonAppLevService.quickDate.length==1)
+										listToLoop[0]=commonAppLevService.quickDate[0];
+									for (leaveDay in listToLoop) {
+										if(!(listToLoop[leaveDay]==undefined)){
+										if (leaveDay % 2 == 0) {
+											if(!(listToLoop[leaveDay]==undefined))
+											sDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											eDate = listToLoop[leaveDay+1];
+											temp = sDate;
+											$(".day"+ sDate).addClass("hoverDivStart");
+											if($rootScope.isquickApplyCalendar)
+												$(".day"+ sDate).addClass("hoverDivEnd");
+											
+										} else {
+											eDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											sDate = listToLoop[leaveDay-1];
+											$(".day"+ eDate).addClass("hoverDivEnd");
+										};
+										if (!(sDate == undefined) && !(eDate == undefined)) {
+											temp = temp + 86400000;
+											while (eDate > temp) {
+												$(".day"+ temp).addClass("hoverDiv");
+												temp = temp + 86400000;
+											};
+										};
+									};	
+									};
+								}, 20);
+							} else {
+								scope.month = temp;
+							}
+						};
+
+//function to jump to previous month--------------------------------------------------------------------------						
+						scope.previous = function() {
+							var previous = scope.month.clone();
+							var temp = scope.month.clone();
+							leaveCalendarService._removeTime(previous.month(previous.month() - 1).date(1));
+							scope.month.month(scope.month.month() - 1);
+							var tempCount = false;
+							for (year in scope["yearList"]) {
+								if (year == scope.month.year()) {
+									tempCount = true;
+									break;
+								};
+							};
+							scope.checkPreviousYearPresent(scope.month.year());
+							if (tempCount) {
+								leaveCalendarService._buildMonth(scope,previous,scope.month,scope["yearList"]);
+								$timeout(function() {
+									var sDate;
+									var eDate;
+									var temp;
+									var listToLoop=[];
+									if(!$rootScope.isquickApplyCalendar && !$rootScope.isPlanLevCalendar)
+										listToLoop=commonAppLevService.selectedDates;
+									else if($rootScope.isPlanLevCalendar){
+										listToLoop=commonAppLevService.selectedPlanDates;
+									}
+									else if($rootScope.isquickApplyCalendar && commonAppLevService.quickDate.length==1)
+										listToLoop[0]=commonAppLevService.quickDate[0];
+									for (leaveDay in listToLoop) {
+										if(!(listToLoop[leaveDay]==undefined)){
+										if (leaveDay % 2 == 0) {
+											
+											sDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											eDate = listToLoop[leaveDay+1];
+											temp = sDate;
+											$(".day"+ sDate).addClass("hoverDivStart");
+											if($rootScope.isquickApplyCalendar)
+												$(".day"+ sDate).addClass("hoverDivEnd");
+										} else {
+											eDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											sDate = listToLoop[leaveDay-1];
+											$(".day"+ eDate).addClass("hoverDivEnd");
+										}
+										if (!(sDate == undefined) && !(eDate == undefined)) {
+											temp = temp + 86400000;
+											while (eDate > temp) {
+												$(".day"+ temp).addClass("hoverDiv");
+												temp = temp + 86400000;
+											}
+										}
+									};
+									};
+								}, 20);
+							} else {
+								scope.month = temp;
+							}
+						};
+
+//function to jump to next year--------------------------------------------------------------------------
+						scope.nextYear = function() {
+							var temp = scope.month.clone();
+							var next = scope.month.year(scope.month.year()+1).clone();
+							leaveCalendarService._removeTime(next.month(next.month()).date(1));
+							/*scope.month.month(scope.month.month() + 1);*/
+							var tempCount = false;
+							for (year in scope["yearList"]) {
+								if (year == scope.month.year()) {
+									tempCount = true;
+									break;
+								}
+							}
+							scope.checkNextYearPresent(scope.month.year());
+							if (tempCount) {
+								leaveCalendarService._buildMonth(scope,next,scope.month,scope["yearList"]);
+								$timeout(function() {
+									var sDate;
+									var eDate;
+									var temp;
+									var listToLoop=[];
+									if(!$rootScope.isquickApplyCalendar && !$rootScope.isPlanLevCalendar)
+										listToLoop=commonAppLevService.selectedDates;
+									else if($rootScope.isPlanLevCalendar){
+										listToLoop=commonAppLevService.selectedPlanDates;
+									}
+									else if($rootScope.isquickApplyCalendar && commonAppLevService.quickDate.length==1)
+										listToLoop[0]=commonAppLevService.quickDate[0];
+									for (leaveDay in listToLoop) {
+										if(!(listToLoop==undefined)){
+										if (leaveDay % 2 == 0) {
+											if(!(listToLoop[leaveDay]==undefined))
+											sDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											eDate = listToLoop[leaveDay+1];
+											temp = sDate;
+											$(".day"+ sDate).addClass("hoverDivStart");
+											if($rootScope.isquickApplyCalendar)
+												$(".day"+ sDate).addClass("hoverDivEnd");
+											
+										} else {
+											eDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											sDate = listToLoop[leaveDay-1];
+											$(".day"+ eDate).addClass("hoverDivEnd");
+										};
+										if (!(sDate == undefined) && !(eDate == undefined)) {
+											temp = temp + 86400000;
+											while (eDate > temp) {
+												$(".day"+ temp).addClass("hoverDiv");
+												temp = temp + 86400000;
+											};
+										};
+									};	
+									};
+								}, 20);
+							} else {
+								scope.month = temp;
+							}
+						};	
+						
+						
+//function to jump to previous year--------------------------------------------------------------------------
+						scope.previousYear = function() {
+							var temp = scope.month.clone();
+							var previous = scope.month.year(scope.month.year()-1).clone();
+							leaveCalendarService._removeTime(previous.month(previous.month()).date(1));
+							/*scope.month.month(scope.month.month() + 1);*/
+							var tempCount = false;
+							for (year in scope["yearList"]) {
+								if (year == scope.month.year()) {
+									tempCount = true;
+									break;
+								}
+							}
+							scope.checkPreviousYearPresent(scope.month.year());
+							if (tempCount) {
+								leaveCalendarService._buildMonth(scope,previous,scope.month,scope["yearList"]);
+								$timeout(function() {
+									var sDate;
+									var eDate;
+									var temp;
+									var listToLoop=[];
+									if(!$rootScope.isquickApplyCalendar && !$rootScope.isPlanLevCalendar)
+										listToLoop=commonAppLevService.selectedDates;
+									else if($rootScope.isPlanLevCalendar){
+										listToLoop=commonAppLevService.selectedPlanDates;
+									}
+									else if($rootScope.isquickApplyCalendar && commonAppLevService.quickDate.length==1)
+										listToLoop[0]=commonAppLevService.quickDate[0];
+									for (leaveDay in listToLoop) {
+										if(!(listToLoop[leaveDay]==undefined)){
+										if (leaveDay % 2 == 0) {
+											if(!(listToLoop[leaveDay]==undefined))
+											sDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											eDate = listToLoop[leaveDay+1];
+											temp = sDate;
+											$(".day"+ sDate).addClass("hoverDivStart");
+											if($rootScope.isquickApplyCalendar)
+												$(".day"+ sDate).addClass("hoverDivEnd");
+										} else {
+											eDate = listToLoop[leaveDay];
+											if(!$rootScope.isquickApplyCalendar)
+											sDate = listToLoop[leaveDay-1];
+											$(".day"+ eDate).addClass("hoverDivEnd");
+										};
+										if (!(sDate == undefined) && !(eDate == undefined)) {
+											temp = temp + 86400000;
+											while (eDate > temp) {
+												
+												$(".day"+ temp).addClass("hoverDiv");
+												temp = temp + 86400000;
+											}
+										}
+									};	
+									};
+								}, 20);
+							} else {
+								scope.month = temp;
+							}
+						};						
+										
+										$rootScope.startDateSelected = false;
+										$rootScope.startPlanDateSelected = false;
+
+										
+
+// --------date and index comes for start/end date from main calendar----------------
+	scope.selectStartOrEndDate = function(day, event) {
+		/*if(!(scope.startDate==undefined))
+		scope.isClickable=(day.date._d.getTime() < scope.startDate.date._d.getTime());
+		if(scope.isClickable || (scope.startDate==undefined)){*/
+		if(!$rootScope.isquickApplyCalendar && !$rootScope.isPlanLevCalendar){
+		leaveCalendarService.checkFlag=false;
+		leaveCalendarService.endDateEqual=false;
+	//	scope.$parent.editStart=false;
+		var createId;
+    
+		if(undefined==scope.$parent.rowIdforCal){
+			 createId=0;
+		}else{
+			createId=scope.$parent.rowIdforCal;
+		}
+		for(var i=0;i<commonAppLevService.selectedDates.length;i++){
+			
+			if(commonAppLevService.selectedDates[createId+1]==undefined){
+				leaveCalendarService.endDateEqual=true;
+			}
+		}
+	//	if(multipleLevService.isOverlappingDates(day,createId)){
+			if(leaveCalendarService.validSelectedDate(angular.copy(day),createId)){
+				
+			};
+			var Size = commonAppLevService.selectedDates.length;
+			var listSize=0;
+			for(var i=0;i<commonAppLevService.selectedDates.length;i++){
+				
+				if(commonAppLevService.selectedDates[i]!=undefined){
+					listSize=listSize+1;
+				}
+			}
+			if((listSize % 2) == 0){
+				      if(commonAppLevService.selectedDates[createId+1]==undefined){
+					
+					  scope.startDate = angular.copy(day);
+					   // send date selected to table
+					   $rootScope.$emit("mainCalendarSDate",
+						{
+							startDate : scope.startDate,
+							rowNo : createId
+						});
+					  
+					   scope.$parent.defaultDuration(createId);
+				       }else{
+					          if(leaveCalendarService.valSd){
+						        scope.startDate = angular.copy(day);
+						        leaveCalendarService.valSd=false;
+						        scope.$parent.leave.leaveList1[createId].errorMsg='';
+								  scope.$parent.leave.leaveList1[createId].newLeave.endDate=undefined;
+						        // send date selected to table
+						        $rootScope.$emit("mainCalendarSDate",
+						     	{
+								startDate : scope.startDate,
+								rowNo : createId
+							    });
+						  
+						        scope.$parent.defaultDuration(createId);
+					           }else{
+						        scope.endDate = angular.copy(day);
+						         $rootScope.$emit("mainCalendarEDate",
+							     {
+							      endDate : scope.endDate,
+								   rowNo : createId
+							     });
+						  
+						         scope.$parent.defaultDuration(createId);	
+					           }
+				    
+				        }
+		     }else{
+				if(!leaveCalendarService.checkFlag){
+				      if(commonAppLevService.selectedDates[createId*2]==undefined){
+					  scope.endDate = angular.copy(day);
+				       $rootScope.$emit("mainCalendarEDate",
+					  {
+					  endDate : scope.endDate,
+						rowNo : createId
+					  });
+				  
+				      scope.$parent.defaultDuration(createId);
+				      }
+				}else{
+					  scope.$parent.leave.leaveList1[createId].errorEDate="";
+					  scope.$parent.leave.leaveList1[createId].errorMsg='';
+					  scope.$parent.leave.leaveList1[createId].newLeave.endDate=undefined;
+					  var field=angular.element($("#endDate_"+createId));
+					  field.removeClass('dirty-field');
+					   scope.startDate = angular.copy(day);
+					   // send date selected to table
+					//   scope.$parent.editStart=true;
+					   $rootScope.$emit("mainCalendarSDate",
+						{
+							startDate : scope.startDate,
+							rowNo : createId
+						});
+					  
+					  scope.$parent.defaultDuration(createId);
+			           //end date
+					 /* scope.endDate ="";
+				      $rootScope.$emit("mainCalendarEDate",
+					  {
+					  endDate : scope.endDate,
+						rowNo : createId
+					  });
+				  
+				      scope.$parent.defaultDuration(createId);*/
+			     }   
+			//	}	
+		}
+		
+	
+	}else if($rootScope.isquickApplyCalendar){
+		if(!($(".day"+ day.date).children().hasClass("day-pendingleave") 
+				|| $(".day"+ day.date).parent().hasClass("weekend-box1")
+				|| $(".day"+ day.date).children().hasClass("day-holiday")
+				|| $(".day"+ day.date).children().hasClass("day-approvedleave")))
+			{
+		var startClass=$(".hoverDivStart");
+		var endClass=$(".hoverDivEnd");
+		if(startClass.length>=1 && endClass.length >=1)
+			{
+			startClass.removeClass("hoverDivStart");
+			endClass.removeClass("hoverDivEnd");
+			commonAppLevService.quickDate=[];
+			};
+		$(".day"+ day.date).addClass("hoverDivStart");
+		$(".day"+ day.date).addClass("hoverDivEnd");
+		commonAppLevService.quickDate=[];
+		commonAppLevService.quickDate.push(day.date);
+		scope.$parent.getQckDates();
+	};
+	}else if($rootScope.isPlanLevCalendar){
+if(undefined==scope.$parent.leave.planList || scope.$parent.leave.planList.length-1==scope.$parent.planRowSelected){
+		var planListSize = commonAppLevService.selectedPlanDates.length;
+		var createId = (planListSize - (planListSize % 2)) / 2;
+		if((createId-1)>= 0)
+		if(commonAppLevService.selectedPlanDates[(createId-1)*2]==undefined ){
+			createId=createId-1;
+		};
+		if ((planListSize % 2) == 0) 
+		{
+		  scope.startPlanDate = angular.copy(day);
+		  scope.startDate=scope.startPlanDate ;
+		  // send date selected to table
+		  $rootScope.$emit("mainCalendarSPlanDate",
+			{
+				startDate : scope.startPlanDate,
+				rowNo : createId
+			});
+		  
+		 
+		}
+		else 
+		{
+			if (day.date > commonAppLevService.selectedPlanDates[planListSize-1]._d.getTime()) {
+													scope.endPlanDate = angular.copy(day);
+													 scope.endDate=scope.endPlanDate ;
+													
+													$rootScope.$emit("mainCalendarEPlanDate",
+															{
+														endDate : scope.endPlanDate,
+														rowNo : createId
+															});
+												
+													/*$("#"+ event.currentTarget.id).addClass("hoverDivEnd");*/
+													//commonAppLevService.selectedDates.push(scope.endDate._d);
+													scope.endPlanDate = '';
+													$rootScope.startPlanDateSelected = false;
+												} 
+												else if(day.date < commonAppLevService.selectedPlanDates[planListSize-1]._d.getTime()){
+													scope.endPlanDate=angular.copy(day);
+													 scope.endDate=scope.endPlanDate ;
+													 $rootScope.$emit("mainCalendarEPlanDate",
+																{
+															endDate : scope.endPlanDate,
+															rowNo : createId
+																});
+													 
+													 scope.endPlanDate = '';
+														$rootScope.startPlanDateSelected = false;
+												
+													
+													
+													
+													/*$("#"+ event.currentTarget.id).addClass("hoverDivEnd");*/
+													//commonAppLevService.selectedDates[listSize] = scope.endDate._d;
+													
+												}
+												else if(day.date == (scope.startPlanDate.date)._d.getTime()){
+													scope.endPlanDate=angular.copy(day);
+													 scope.endDate=scope.endPlanDate ;
+													$rootScope.$emit("mainCalendarEPlanDate",
+															{
+														endDate : scope.endPlanDate,
+														rowNo : createId
+															});
+													scope.endPlanDate = '';
+													$rootScope.startPlanDateSelected = false;
+												}
+												
+												
+												
+											};
+											
+	};
+	};			
+	//}
+											
+											
+											
+											/*
+											if (!$rootScope.isquickApplyCalendar) {
+												listSize = commonAppLevService.selectedDates.length;
+												createId = (listSize - (listSize % 2)) / 2;
+												if (!$("#"+ event.currentTarget.id).is(".hoverDiv")
+												 || !$("#"+ event.currentTarget.id).is(".hoverDivStart")
+												 || !$("#"+ event.currentTarget.id).is(".hoverDivEnd")) {
+													if (!$("#"+ event.currentTarget.id).is(".day-leave")) {
+														if (!$("#"+ event.currentTarget.id).is(".weekend-box1")) {
+															if (!$("#"+ event.currentTarget.id).is(".day-holidayStart")) {
+																if ((listSize % 2) == 0) {
+																	scope.startDate = angular.copy(day.date);
+																	$rootScope.startDateSelected = true;
+																	// send date selected to table
+																	$rootScope.$emit("mainCalendarSDate",
+																			{
+																		startDate : scope.startDate,
+																		rowNo : createId
+																			});
+																	// scope.hoverDates(event,day);
+																	if (scope.validity == "valid") {
+																		// start date highlight in calendar
+																		$("#"+ event.currentTarget.id).addClass("hoverDivStart");
+																		commonAppLevService.selectedDates.push(scope.startDate._d);
+																	}
+																} else {
+																	if (day.date._d.getTime() > scope.startDate._d.getTime()) {
+																		scope.endDate = angular.copy(day.date);
+																		$rootScope.$emit("mainCalendarEDate",
+																				{
+																			endDate : scope.endDate,
+																			rowNo : createId
+																				});
+																		$("#"+ event.currentTarget.id).addClass("hoverDivEnd");
+																		commonAppLevService.selectedDates.push(scope.endDate._d);
+																		scope.endDate = '';
+																		$rootScope.startDateSelected = false;
+																	} 
+																	else if(day.date._d.getTime() < scope.startDate._d.getTime()){
+																		scope.endDate = angular.copy(scope.startDate);
+																		scope.startDate = angular.copy(day.date);
+																		commonAppLevService.selectedDates[listSize - 1] = scope.startDate._d;
+																		$rootScope.$emit("mainCalendarSDate",
+																				{
+																			startDate : scope.startDate._d,
+																			rowNo : createId
+																				});
+																		$rootScope.$emit("mainCalendarEDate",
+																				{
+																			endDate : scope.endDate._d,
+																			rowNo : createId
+																				});
+																		$("#"+ event.currentTarget.id).addClass("hoverDivEnd");
+																		commonAppLevService.selectedDates[listSize] = scope.endDate._d;
+																		scope.endDate = '';
+																		$rootScope.startDateSelected = false;
+																	}
+																	else if(day.date._d.getTime() == scope.startDate._d.getTime()){
+																		scope.endDate=angular.copy(day.date);
+																		$rootScope.$emit("mainCalendarEDate",
+																				{
+																			endDate : scope.endDate,
+																			rowNo : createId
+																				});
+																	}
+																	
+																	
+																	
+																}
+															}
+															else {
+																alert("You cant apply leave on a holiday!!");
+															}
+														}
+														else {
+															alert("You cant apply leave on a weekend!!");
+														}
+													} else {
+														alert("You cant apply leave on an already applied leave date!!");
+													}
+												} 
+												else {
+													alert("You have already selected the dates!!");
+												}
+											} else {
+												// logic to change date in quick apply dates
+											}
+										*/};
+//method to check hovering to in-between dates------------------------------------------------------------------------------
+										scope.hoverDates = function(event, day) {/*
+											if ($rootScope.startDateSelected && !angular.isObject(scope.endDate)) {
+												// the following classes are disallowed to hover
+												if (!$("#"+ event.currentTarget.id).is(".day-leave,.weekend-box1,.day-flexi,.day-holiday")) {
+													var tempDate = angular.copy(scope.startDate);
+													if ($("#"+ event.currentTarget.id).hasClass('hoverDiv')) {
+														for (leaveDay in scope.leaveDays) {
+															$("#day"+ scope.leaveDays[leaveDay]._d.getTime()).removeClass("hoverDiv");
+														}
+													}
+													scope.leaveDays = [];
+													scope.leaveDays.push(day.date);
+													scope.hoveredDatesMapper(tempDate, day);
+													$("#"+ event.currentTarget.id).addClass("hoverDiv");
+													if (scope.validity == "invalid") {
+														$("#"+ event.currentTarget.id).removeClass("hoverDiv");
+														$rootScope.startDateSelected = false;
+														scope.endDate = '';
+													}
+												}
+											}
+										*/};
+//method to apply hover-class to all the in-between-dates between selected start date and the hovered-date
+										scope.hoveredDatesMapper = function(tempDate, day) {/*
+											if (tempDate._d.getTime() < day.date._d.getTime()) {
+												while (tempDate._d.getTime() < day.date._d.getTime()) {
+													var tempTimeStamp = tempDate._d.getTime();
+													// if the in-between day isnt an already leave-applied day.
+													if (!$("#day"+ tempTimeStamp).is(".day-leave")) {
+														if(tempDate._d.getTime()<day.date._d.getTime()){
+															$("#day"+ tempTimeStamp).addClass("hoverDiv");
+														scope.leaveDays.push(angular.copy(tempDate));
+														}
+													} 
+													else {
+														alert("You cant apply leave on an already applied leave date!!");
+														scope.leaveDays = [];
+														// now, removing all the already selected days
+														var anotherTempDate = scope.startDate.clone();
+														while (anotherTempDate._d.getTime() < day.date._d.getTime()) {
+															var anotherTempTimeStamp = anotherTempDate._d.getTime();
+															$("#day"+ anotherTempTimeStamp).removeClass("hoverDiv");
+															anotherTempDate = anotherTempDate.add(1,'d');
+														}
+														$("#day"+ scope.startDate._d.getTime()).removeClass("hoverDivStart");
+														break;
+													}
+													tempDate = tempDate.add(1,'d');
+												}
+											} 
+												else {
+													while (tempDate._d.getTime() > day.date._d.getTime()) {
+													var tempTimeStamp = tempDate._d.getTime();
+													//if the in-between day isnt an already leave-applied day.
+													if (!$("#day"+ tempTimeStamp).is(".day-leave")) {
+													$("#day"+ tempTimeStamp).addClass("hoverDiv");
+														scope.leaveDays.push(angular.copy(tempDate));
+													} 
+													else {
+														alert("You cant apply leave on an already applied leave date!!");
+														scope.leaveDays = [];
+														//now, removing all the already selected days
+														var anotherTempDate = scope.startDate.clone();
+														while (anotherTempDate._d.getTime() < day.date._d.getTime()) {
+															var anotherTempTimeStamp = anotherTempDate._d.getTime();
+															$("#day"+ anotherTempTimeStamp).removeClass("hoverDiv");
+														}
+														$("#day"+ scope.startDate._d.getTime()).removeClass("hoverDivStart");
+														break;
+													}
+													tempDate = tempDate.add(-1,'d');
+													}
+												}
+										*/};
+//event listener of DateValidator--------------------------------------
+										$rootScope.$on("DateValidator",function(event, args) {
+											scope.validity = args.validity;
+											if (args.validity == "valid") {
+												if ((listSize % 2) == 0) {
+													//commonAppLevService.selectedDates.push(scope.startDate._d);
+													$rootScope.startDateSelected = true;
+												} 
+												/*else {
+													commonAppLevService.selectedDates.push(scope.endDate._d);
+													scope.endDate._d = '';
+												}*/
+											}
+										});
+										
+										
+										
+										$rootScope.$on("PlanDateValidator",function(event, args) {
+											scope.planValidity = args.validity;
+											if (args.validity == "valid") {
+												if ((planListSize % 2) == 0) {
+													//commonAppLevService.selectedDates.push(scope.startDate._d);
+													$rootScope.startPlanDateSelected = true;
+												} 
+												/*else {
+													commonAppLevService.selectedDates.push(scope.endDate._d);
+													scope.endDate._d = '';
+												}*/
+											}
+										});
+										
+									          
+
+									}//link function ends here
+								}; //directive return ends here
+
+							}); //directive definition ends here 
+
+});

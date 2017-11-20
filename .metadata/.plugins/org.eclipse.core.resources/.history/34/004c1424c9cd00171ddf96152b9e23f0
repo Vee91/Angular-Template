@@ -1,0 +1,6 @@
+define([ 'angular', 'app' ], function(angular, app) {
+	app.controller('LeaveReqDetailsController', [ '$scope', function($scope) {
+		$scope.isLevReqDetails = true;
+	} ]);
+	return app;
+});

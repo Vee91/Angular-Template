@@ -1,0 +1,1048 @@
+
+<head>
+<script type="text/javascript"
+	src="http://cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+
+<link
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
+	rel="stylesheet" />
+<style>
+.popover .arrow {
+	left: 20px !important;
+}
+
+circle:hover {
+	stroke-width: 4px;
+	stroke: orange;
+}
+</style>
+
+
+
+
+
+</head>
+<script type="text/javascript"> 
+	 $(document).ready(function() { 
+	  
+	  
+	  
+	   var ph = $('#pop-holder'); 
+	   var ph1 = $('#pop-holder1'); 
+	   var ph2 = $('#pop-holder2'); 
+	   var ph3 = $('#pop-holder3'); 
+	    var ph4 = $('#pop-holder4'); 
+	   var ph5 = $('#pop-holder5'); 
+	   var ph6 = $('#pop-holder6'); 
+	  //Request Authorization
+	   ph.popover({ 
+	     container: 'body', 
+	 	content: function() { 
+	    
+	     var $el = $('<div id="#my-popover-div"></div>'); 
+	  
+	     $el.append('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"   style="display: block; ">' +  
+	    
+	   '<text x="2" y="10" fill="Red" font-size="13" >Approval Pending With:</text> 
+	  int reqapproval=35;
+	   for(int i=0;i<namerequestauthorization.size();i++){
+		    
+		   <text x="2" y="+reqapproval+" fill="Black" font-size="12" >"+namerequestauthorization.get(i)+"</text> 
+		   reqapproval+=20;
+		   
+	   }
+	    ' + '</svg>');
+	   
+	      return $el; 
+	   }, 
+
+	   placement: 'bottom', 
+	   html: true 
+	    }); 
+	   
+	   
+	   
+	    ph1.popover({ 
+	     container: 'body', 
+	 	content: function() { 
+	    
+	     var $el = $('<div id="#my-popover-div"></div>'); 
+	     
+	     $el.append('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"   style="display: block; ">' +  
+	    '<text x="2" y="10" fill="Red" font-size="13" >Approval Pending With:</text> 
+		   
+	    int projectlevel=35;
+		   for(int i=0;i<nameprojectlevelapproval.size();i++){
+			    
+			   <text x="2" y="+projectlevel+" fill="Black" font-size="12" >"+nameprojectlevelapproval.get(i)+"</text> 
+			   projectlevel+=20;
+			   
+		   }
+		    ' + '</svg>');
+		   
+	      return $el; 
+	   }, 
+
+	    placement: 'bottom', 
+	   html: true 
+	    }); 
+	  
+	      ph2.popover({ 
+	      container: 'body', 
+		  content: function() { 
+	    
+	      var $el = $('<div id="#my-popover-div"></div>'); 
+	    
+	       $el.append('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"   style="display: block; ">' +  
+		    
+		   '<text x="2" y="10" fill="Red" font-size="13" >Approval Pending With:</text> 
+		  int varprojectlevel=35;
+		   for(int i=0;i<nameoffshore.size();i++){
+			    
+			   <text x="2" y="+varprojectlevel+" fill="Black" font-size="12" >"+nameoffshore.get(i)+"</text> 
+			   varprojectlevel+=20;
+			   
+		   }
+		    ' + '</svg>');
+		   
+	      return $el; 
+	   }, 
+
+	   placement: 'bottom', 
+	   html: true 
+	   }); 
+	  
+	  
+	    ph3.popover({ 
+	     container: 'body', 
+	 	content: function() { 
+	   
+	     var $el = $('<div id="#my-popover-div"></div>'); 
+	      $el.append('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"   style="display: block; ">' +  
+		
+	    '<text x="2" y="10" fill="Red" font-size="13" >Approval Pending With:</text> 
+		  int varfdfu=35;
+		   for(int i=0;i<namefdfu.size();i++){
+			    
+			   <text x="2" y="+varfdfu+" fill="Black" font-size="12" >"+namefdfu.get(i)+"</text> 
+			   varfdfu+=20;
+			   
+		   }
+		    ' + '</svg>');
+		   
+	      return $el; 
+	    }, 
+
+	   placement: 'bottom', 
+	    html: true 
+	    }); 
+	  
+	    ph4.popover({ 
+	      container: 'body', 
+	 	content: function() { 
+	    
+	      var $el = $('<div id="#my-popover-div"></div>'); 
+	    
+	       $el.append('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"   style="display: block; ">' +  
+		    
+		   '<text x="2" y="10" fill="Red" font-size="13" >Approval Pending With:</text> 
+		  int varprocessapproval=35;
+		   for(int i=0;i<nameprocessapproval.size();i++){
+			    
+			   <text x="2" y="+varprocessapproval+" fill="Black" font-size="12" >"+nameprocessapproval.get(i)+"</text> 
+			   varprocessapproval+=20;
+			   
+		   }
+		    ' + '</svg>');
+	      return $el; 
+	   }, 
+
+	   placement: 'bottom', 
+	   html: true 
+	   }); 
+	  
+	  
+	   ph5.popover({ 
+	     container: 'body', 
+	 	content: function() { 
+	    
+	      var $el = $('<div id="#my-popover-div"></div>'); 
+	    
+	       $el.append('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"   style="display: block; ">' +  
+		    
+		   '<text x="2" y="10" fill="Red" font-size="13" >Approval Pending With:</text> 
+		  int varpretravel=35;
+		   for(int i=0;i<namepretravel.size();i++){
+			    
+			   <text x="2" y="+varpretravel+" fill="Black" font-size="12" >"+namepretravel.get(i)+"</text> 
+			   varpretravel+=20;
+			   
+		   }
+		    ' + '</svg>');
+		   
+	      return $el; 
+	    }, 
+
+	    placement: 'bottom', 
+	    html: true 
+	   }); 
+	  
+	  
+	  
+	   ph6.popover({ 
+	      container: 'body', 
+		  content: function() { 
+	    
+	      var $el = $('<div id="#my-popover-div"></div>'); 
+	    
+	       $el.append('<svg xmlns="http://www.w3.org/2000/svg" width="160" height="120"   style="display: block; ">' +  
+		    
+		   '<text x="2" y="10" fill="Red" font-size="13" >Approval Pending With:</text> 
+		  int varaccomtrans=35;
+		   for(int i=0;i<nameaccomtransport.size();i++){
+			    
+			   <text x="2" y="+varaccomtrans+" fill="Black" font-size="12" >"+nameaccomtransport.get(i)+"</text> 
+			   varaccomtrans+=20;
+			   
+		   }
+		    ' + '</svg>');
+		   
+	      return $el; 
+	   }, 
+
+	   placement: 'bottom', 
+	   html: true 
+	   }); 
+	  
+	   
+	  
+	   function circle2(){ 
+	   var paper = new Raphael(document.getElementById('raphael-graphic'),1300, 200); 
+	  
+	  //initiation
+	   var tinitiation = paper.text(132, 80, "Initiation"); 
+	   tinitiation.attr({ "font-size": 16}); 
+	   tinitiation.attr("fill", "Gray"); 
+
+	   var circleinitiation = paper.circle(130, 100, 10); 
+	   circleinitiation.attr("fill", "green"); 
+  circleinitiation.id = 'circleinitiation'; 
+  circleinitiation.hover(); 
+
+  var linetinitiation = paper.path( ["M", 140, 100, "L", 300, 100 ] ); 
+  linetinitiation.node.setAttribute("fill", "yellow");   
+	  
+ 
+ //Request Authorization
+  var trequestauthorization = paper.text(310, 80, "Request Authorization"); 
+  trequestauthorization.attr({ "font-size": 16}); 
+  trequestauthorization.attr("fill", "Gray"); 	
+ 
+  var circlerequestauthorization = paper.circle(300, 100, 10); 
+	   circlerequestauthorization.attr("fill", "white"); 
+	   circlerequestauthorization.attr("id", " circlerequestauthorization"); 
+	   circlerequestauthorization.attr("stroke", "orange"); 
+	   circlerequestauthorization.attr("stroke-width", 1); 
+	 
+	   var linerequestauthorization = paper.path( ["M", 310, 100, "L", 470, 100 ] ); 
+	   linerequestauthorization.node.setAttribute("fill", "yellow");   
+
+	   var mouseover1 = function (event) { 
+		 	circlerequestauthorization.attr("stroke", "orange"); 
+		 	circlerequestauthorization.attr("stroke-width", 4); 
+		  ph.css({ left : event.clientX}); 
+		 	ph.css({ marginLeft :'70px'}); 
+		 	ph.css({position:'fixed'}); 
+		  ph.css({top : event.clientY}); 
+		 	ph.popover('show'); 
+			  } \n
+
+
+		  var mouseout1 = function (event) { 
+		 	circlerequestauthorization.attr("stroke", "orange"); 
+		 	circlerequestauthorization.attr("stroke-width", 1); 
+		 	ph.popover('hide'); 
+		 	} \n
+
+			
+	  
+if(trequestauthorization==true){
+	if(tcolourrequestauthorization==true){
+	 
+		   circlerequestauthorization.attr("fill", "Green"); 
+		  
+		   var mouseover1 = function (event) { 
+			 	circlerequestauthorization.attr("stroke", "orange"); 
+			 	circlerequestauthorization.attr("stroke-width", 4); 
+			  ph.css({ left : event.clientX}); 
+			 	ph.css({ marginLeft :'40px'}); 
+			 	ph.css({position:'fixed'}); 
+			  ph.css({top : event.clientY}); 
+			 	ph.popover('hide'); 
+				  } \n
+
+		  
+	  
+	}else{
+		if(tcolourrequestauthorization1==true){
+			
+			 circlerequestauthorization.attr("fill", "Orange"); 
+		}else{
+			
+			
+		   circlerequestauthorization.attr("fill", "White"); 
+		
+		   var mouseover1 = function (event) { 
+			 	circlerequestauthorization.attr("stroke", "orange"); 
+			 	circlerequestauthorization.attr("stroke-width", 4); 
+			  ph.css({ left : event.clientX}); 
+			 	ph.css({ marginLeft :'40px'}); 
+			 	ph.css({position:'fixed'}); 
+			  ph.css({top : event.clientY}); 
+			 	ph.popover('hide'); 
+				  } \n
+		}
+	}
+	}else{
+		
+		if(trequestauthorization==false)
+		{
+			
+			linetinitiation .hide();
+			circlerequestauthorization.hide();
+					trequestauthorization.hide();
+			circleinitiation.hide();
+			tinitiation.hide();
+			
+			 var tinitiation2 = paper.text(310, 80, "Initiation"); 
+			   tinitiation2.attr({ "font-size": 16}); 
+			   tinitiation2.attr("fill", "Gray"); 
+			
+			  var circleinitiation2 = paper.circle(300, 100, 10); 
+			   circleinitiation2 .attr("fill", "Green"); 
+			   circleinitiation2 .attr("id", "circleinitiation2"); 
+			  
+			   circleinitiation2 .attr("stroke", "Orange"); 
+			  
+			  circleinitiation2 .attr("stroke-width", 1); 
+		
+		}	
+	}
+	  
+
+	  
+	  //Project Level
+	  
+	  
+
+ var tprojectlevel = paper.text(480, 65, "Project Level"); 
+ tprojectlevel.attr({ "font-size": 16}); 
+ tprojectlevel.attr("fill", "Gray"); 
+
+
+ var tprojectlevel1 = paper.text(480, 80, "Approval"); 
+ tprojectlevel1.attr({ "font-size": 16}); 
+ tprojectlevel1.attr("fill", "Gray"); 
+
+	  
+	var mouseover2 = function (event) { 
+ circleprojectlevel.attr("stroke", "orange"); 
+	circleprojectlevel.attr("stroke-width", 4); 
+ ph1.css({ left : event.clientX}); 
+	ph1.css({ marginLeft :'70px'}); 
+	ph1.css({position:'fixed'}); 
+ ph1.css({top : event.clientY});  
+	ph1.popover('show'); 
+ } \n
+
+
+ var mouseout2 = function (event) { 
+	circleprojectlevel.attr("stroke", "orange"); 
+	circleprojectlevel.attr("stroke-width", 1); 
+	ph1.popover('hide'); 
+ } \n
+
+
+ 
+	   var circleprojectlevel = paper.circle(480, 100, 10); 
+	  if(tcolourProjectlevel==true){
+	   circleprojectlevel.attr("fill", "Green"); 
+	  	var mouseover2 = function (event) { 
+	   circleprojectlevel.attr("stroke", "orange"); 
+	  	circleprojectlevel.attr("stroke-width", 4); 
+	   ph1.css({ left : event.clientX}); 
+	  	ph1.css({ marginLeft :'40px'}); 
+	  	ph1.css({position:'fixed'}); 
+	   ph1.css({top : event.clientY});  
+	  	ph1.popover('hide'); 
+	   } \n
+	  }else{
+		  if(tcolourProjectlevel1==true){
+			  
+			   circleprojectlevel.attr("fill", "Orange"); 
+		  }else{
+		   circleprojectlevel.attr("fill", "White"); 
+		  	var mouseover2 = function (event) { 
+		   circleprojectlevel.attr("stroke", "orange"); 
+		  	circleprojectlevel.attr("stroke-width", 4); 
+		   ph1.css({ left : event.clientX}); 
+		  	ph1.css({ marginLeft :'40px'}); 
+		  	ph1.css({position:'fixed'}); 
+		   ph1.css({top : event.clientY});  
+		  	ph1.popover('hide'); 
+		   } \n
+		  }  
+	  }
+	   circleprojectlevel.attr("id", "circle2"); 
+	   circleprojectlevel.attr("stroke", "orange"); 
+	  circleprojectlevel.attr("stroke-width", 1); 
+	
+	  
+	   var lineprojectlevel = paper.path( ["M", 490, 100, "L", 650, 100 ] ); 
+	
+	  //Processing
+	  
+	   var tProcessing = paper.text(660, 80, "Processing"); 
+	   tProcessing.attr({ "font-size": 16}); 
+	   tProcessing.attr("fill", "Gray"); 
+
+	  
+	   var circleProcessing = paper.circle(660, 100, 10); 
+	  if(tcolourprocessing==true){
+	   circleProcessing.attr("fill", "Green"); 
+	  }
+	  else{
+		  if(tcolourprocessing1==true){
+			   circleProcessing.attr("fill", "Orange"); 
+			  
+		  }else{
+		   circleProcessing.attr("fill", "white"); 
+		  }
+		  
+	  }
+	   circleProcessing.attr("id", "circle2"); 
+	   circleProcessing.attr("stroke", "orange"); 
+	   circleProcessing.attr("stroke-width", 1); 
+	  
+	   var linecircleProcessing = paper.path( ["M", 670, 100, "L", 835, 100 ] ); 
+	  
+	  
+	  //offshore
+	  
+	   var toffshore = paper.text(841, 65, "Onsite/Offshore"); 
+	   toffshore.attr({ "font-size": 16}); 
+	   toffshore.attr("fill", "Gray"); 
+
+	   var toffshore1 = paper.text(841, 80, "Reporting"); 
+	   toffshore1.attr({ "font-size": 16}); 
+	   toffshore1.attr("fill", "Gray"); 
+
+		
+		 	var mouseover3 = function (event) { 
+			  circleoffshore.attr("stroke", "orange"); 
+		 	circleoffshore.attr("stroke-width", 4); 
+		  ph2.css({ left : event.clientX}); 
+			  ph2.css({ marginLeft :'70px'}); 
+			  ph2.css({position:'fixed'}); 
+		  ph2.css({top : event.clientY});  
+		 	ph2.popover('show'); 
+			  } \n
+
+
+		  var mouseout3 = function (event) { 
+			  circleoffshore.attr("stroke", "orange"); 
+		 	circleoffshore.attr("stroke-width", 1); 
+		 	ph2.popover('hide'); 
+			  } \n
+			
+			
+	   var circleoffshore = paper.circle(836, 100, 10); 
+	  
+	   circleoffshore.attr("id", "circle2"); 
+	   circleoffshore.attr("stroke", "orange"); 
+	   circleoffshore.attr("stroke-width", 1); 
+if(trequestoffshore==true){
+	
+	if(tcolouroffshore==true){
+		   circleoffshore.attr("fill", "Green"); 
+
+			 	var mouseover3 = function (event) { 
+				  circleoffshore.attr("stroke", "orange"); 
+			 	circleoffshore.attr("stroke-width", 4); 
+			  ph2.css({ left : event.clientX}); 
+				  ph2.css({ marginLeft :'40px'}); 
+				  ph2.css({position:'fixed'}); 
+			  ph2.css({top : event.clientY});  
+			 	ph2.popover('hide'); 
+				  } \n
+		  }else{
+			  if(tcolouroffshore1==true){
+			   circleoffshore.attr("fill", "Orange"); 
+			  }else{
+				  
+				  
+				   circleoffshore.attr("fill", "White"); 
+				  
+				  	var mouseover3 = function (event) { 
+					  circleoffshore.attr("stroke", "orange"); 
+				 	circleoffshore.attr("stroke-width", 4); 
+				  ph2.css({ left : event.clientX}); 
+					  ph2.css({ marginLeft :'40px'}); 
+					  ph2.css({position:'fixed'}); 
+				  ph2.css({top : event.clientY});  
+				 	ph2.popover('hide'); 
+					  } \n
+				  
+			  }
+			  
+		  }
+}else{
+	
+	if(trequestoffshore==false){
+		  toffshore.hide();
+		  toffshore1.hide();
+		 
+		  circleoffshore.hide(); 
+		  linecircleProcessing.hide(); 
+		
+	}
+	
+	
+}
+	  
+	  
+//for processing
+//connecting line	  
+
+ var lineconnect = paper.path( ["M", 661, 110, "L", 661, 160 ] ); 
+	   lineconnect.hide(); 
+	  
+	  
+	  //FDFU
+
+	   var tfdfu = paper.text(590, 140, "FDFU");
+	   tfdfu.attr({ "font-size": 16}); 
+	   tfdfu.attr("fill", "Gray\ 
+	   tfdfu.hide(); 
+	
+	  
+	   var linefdfu= paper.path( ["M", 490, 160, "L", 580, 160 ] ); 
+	  
+	  
+	   linefdfu.hide(); 
+	 
+	  	var mouseover4 = function (event) { 
+		  circlefdfu.attr("stroke", "orange"); 
+		  circlefdfu.attr("stroke-width", 4); 
+	  ph3.css({ left : event.clientX}); 
+		  ph3.css({ marginLeft :'70px'}); 
+		  ph3.css({position:'fixed'}); 
+	  ph3.css({top : event.clientY}); 
+		  ph3.popover('show'); 
+		  } \n
+
+
+	  var mouseout4 = function (event) { 
+		  circlefdfu.attr("stroke", "orange"); 
+		  circlefdfu.attr("stroke-width", 1); 
+		  ph3.popover('hide'); 
+		  } \n
+		 
+	   var circlefdfu = paper.circle(590, 160, 10); 
+	   circlefdfu.attr("fill", "white"); 
+	   circlefdfu.attr("id", "circlep1"); 
+	   circlefdfu.attr("stroke", "orange"); 
+	   circlefdfu.attr("stroke-width", 1); 
+	   circlefdfu.hide(); 
+	
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	  if(trequestfdfu==true){
+		  if(tcolourofdfu==true){
+			   circlefdfu.attr("fill", "Green\ 
+			  	var mouseover4 = function (event) { 
+				  circlefdfu.attr("stroke", "orange"); 
+				  circlefdfu.attr("stroke-width", 4); 
+			  ph3.css({ left : event.clientX}); 
+				  ph3.css({ marginLeft :'40px'}); 
+				  ph3.css({position:'fixed'}); 
+			  ph3.css({top : event.clientY}); 
+				  ph3.popover('hide'); 
+				  } \n
+		  }else{
+			  
+			  if(tcolourofdfu1==true){
+				   circlefdfu.attr("fill", "Orange"); 
+				  
+			  }else{
+				  
+				   circlefdfu.attr("fill", "White"); 
+				  	var mouseover4 = function (event) { 
+					  circlefdfu.attr("stroke", "orange"); 
+					  circlefdfu.attr("stroke-width", 4); 
+				  ph3.css({ left : event.clientX}); 
+					  ph3.css({ marginLeft :'40px'}); 
+					  ph3.css({position:'fixed'}); 
+				  ph3.css({top : event.clientY}); 
+					  ph3.popover('hide'); 
+					  } \n
+				  
+			  }
+			  
+		  }
+		  
+		  
+	  }
+
+	  //for processapproval
+	  
+	   var tprocessapproval = paper.text(745, 125, "Pending"); 
+	   tprocessapproval.attr({ "font-size": 16}); 
+	   tprocessapproval.attr("fill", "Gray"); 
+	   tprocessapproval.hide(); 
+
+	   var tprocessapproval1 = paper.text(745, 140, "Approval"); 
+	   tprocessapproval1.attr({ "font-size": 16}); 
+	   tprocessapproval1.attr("fill", "Gray"); 
+	   tprocessapproval1.hide(); 
+	  
+	  
+	   var circletprocessapproval = paper.circle(740, 160, 10); 
+
+	   circletprocessapproval.attr("id", "circlep2"); 
+	   circletprocessapproval.attr("stroke", "orange"); 
+	   circletprocessapproval.attr("stroke-width", 1); 
+	   circletprocessapproval.hide(); 
+	
+		
+		  var mouseover5 = function (event) { 
+		  circletprocessapproval.attr("stroke", "orange");
+		  circletprocessapproval.attr("stroke-width", 4); 
+	  ph4.css({ left : event.clientX}); 
+		  ph4.css({ marginLeft :'70px'}); 
+		  ph4.css({position:'fixed'}); 
+	  ph4.css({top : event.clientY});  
+		  ph4.popover('show'); 
+		  } \n
+
+
+	  var mouseout5 = function (event) { 
+		  circletprocessapproval.attr("stroke", "orange"); 
+		  circletprocessapproval.attr("stroke-width", 1); 
+		  ph4.popover('hide'); 
+		  } \n
+		
+		
+		
+
+		  if(trequestprocessapproval==true){
+			  if(tcolouroprocesapproval==true){
+				   circletprocessapproval.attr("fill", "Green"); 
+				   var mouseover5 = function (event) { 
+					  circletprocessapproval.attr("stroke", "orange"); 
+					  circletprocessapproval.attr("stroke-width", 4); 
+				  ph4.css({ left : event.clientX}); 
+					  ph4.css({ marginLeft :'40px'}); 
+					  ph4.css({position:'fixed'}); 
+				  ph4.css({top : event.clientY});  
+					  ph4.popover('hide'); 
+					  } \n
+
+			  }else{
+				  
+				  if(tcolouroprocesapproval1==true){
+					   circletprocessapproval.attr("fill", "Orange");
+					  
+				  }else{
+					  
+					   circletprocessapproval.attr("fill", "white");
+					   var mouseover5 = function (event) { 
+						  circletprocessapproval.attr("stroke", "orange");
+						  circletprocessapproval.attr("stroke-width", 4); 
+					  ph4.css({ left : event.clientX}); 
+						  ph4.css({ marginLeft :'40px'}); 
+						  ph4.css({position:'fixed'}); 
+					  ph4.css({top : event.clientY});  
+						  ph4.popover('hide'); 
+						  } \n
+					  
+				  }
+				  
+			  }
+			  
+			  
+		  }
+		  
+	  
+	  
+	  
+	  if(trequestfdfu==false && trequestpretravel==false){
+	   var lineprocessapproval = paper.path( ["M", 660, 160, "L", 730, 160 ] ); 
+	  }else{if(trequestprocessapproval==false && trequestaccomtransport==false){
+		  
+		   var lineprocessapproval = paper.path( ["M", 600, 160, "L", 662, 160 ] ); 
+		  
+	  }else{
+		   var lineprocessapproval = paper.path( ["M", 600, 160, "L", 730, 160 ] ); 
+	  
+	  }    
+		  
+	  }
+	  
+	   lineprocessapproval.hide(); 
+	  
+	 
+	  
+	  
+	  
+	  //Pre-Travel
+	  
+	  if(trequestfdfu==true){
+	   var tpretravel = paper.text(480, 125, "Pre-Travel");
+	   var tpretravel1 = paper.text(480, 140, "Clearance"); 
+	   var circlepretravel = paper.circle(480, 160, 10); 
+	  }else{
+		  if(trequestfdfu==false){
+			   var tpretravel = paper.text(590, 125, "Pre-Travel"); 
+			   var tpretravel1 = paper.text(590, 140, "Clearance"); 
+			   var circlepretravel = paper.circle(590, 160, 10); 
+		  }
+		  
+	  }
+	  
+	  
+	  
+	   tpretravel.attr({ "font-size": 16}); 
+	   tpretravel.attr("fill", "Gray"); 
+	   tpretravel.hide(); 
+	 
+	   tpretravel1.attr({ "font-size": 16}); 
+	   tpretravel1.attr("fill", "Gray");
+	   tpretravel1.hide(); 
+	  
+	  
+
+		  var mouseover6 = function (event) { 
+		  circlepretravel.attr("stroke", "orange"); 
+		  circlepretravel.attr("stroke-width", 4); 
+	  ph5.css({ left : event.clientX}); 
+		  ph5.css({ marginLeft :'70px'}); 
+		  ph5.css({position:'fixed'}); 
+	  ph5.css({top : event.clientY}); 
+		  ph5.popover('show'); 
+		  } \n
+
+
+	  var mouseout6 = function (event) { 
+		  circlepretravel.attr("stroke", "orange"); 
+		  circlepretravel.attr("stroke-width", 1); 
+		  ph5.popover('hide'); 
+		  } \n
+	  
+	  
+if(trequestpretravel==true){
+	
+	
+
+		 
+		if(tcolouropretravel==true){ 
+	   circlepretravel.attr("fill", "Green"); 
+	  
+	   var mouseover6 = function (event) { 
+		  circlepretravel.attr("stroke", "orange"); 
+		  circlepretravel.attr("stroke-width", 4); 
+	  ph5.css({ left : event.clientX}); 
+		  ph5.css({ marginLeft :'40px'}); 
+		  ph5.css({position:'fixed'}); 
+	  ph5.css({top : event.clientY}); 
+		  ph5.popover('hide'); 
+		  } \n
+	  
+	  
+		}else{
+			if(tcolouropretravel1==true){
+				 circlepretravel.attr("fill", "Orange"); 
+						
+				
+			}else{
+				 circlepretravel.attr("fill", "White"); 
+				 
+				   var mouseover6 = function (event) { 
+					  circlepretravel.attr("stroke", "orange"); 
+					  circlepretravel.attr("stroke-width", 4); 
+				  ph5.css({ left : event.clientX}); 
+					  ph5.css({ marginLeft :'40px'}); 
+					  ph5.css({position:'fixed'}); 
+				  ph5.css({top : event.clientY}); 
+					  ph5.popover('hide'); 
+					  } \n
+				
+			}
+			
+			
+		}
+	  
+}	  
+	  
+	   circlepretravel.attr("id", "circlep3"); 
+	   circlepretravel.attr("stroke", "orange"); 
+	   circlepretravel.attr("stroke-width", 1); 
+	   circlepretravel.hide(); 
+	  
+	  //Accom/Transport
+	  
+	  if(trequestprocessapproval==false){
+		  
+		   var taccomtrans = paper.text(745, 125, "Accom/");
+		   var taccomtrans1 = paper.text(745, 140, "Transport"); 
+		   var circleplineaccomtrans = paper.circle(740, 160, 10); 
+	  }else{
+		  
+		   var taccomtrans = paper.text(840, 125, "Accom/");
+		   var taccomtrans1 = paper.text(840, 140, "Transport"); 
+		   var circleplineaccomtrans = paper.circle(845, 160, 10); 
+	    
+		  
+	  }
+	  
+	  
+	   taccomtrans.attr({ "font-size": 16}); 
+	   taccomtrans.attr("fill", "Gray");
+	   taccomtrans.hide(); 
+	  
+	  
+	   taccomtrans1.attr({ "font-size": 16}); 
+	   taccomtrans1.attr("fill", "Gray");
+	   taccomtrans1.hide(); 
+	  
+
+	   var lineaccomtrans = paper.path( ["M", 750, 160, "L", 836, 160 ] ); 
+	   lineaccomtrans.hide(); 
+	 
+	
+	   circleplineaccomtrans.attr("id", "circlep3");
+	   circleplineaccomtrans.attr("stroke", "orange");
+	   circleplineaccomtrans.attr("stroke-width", 1); 
+	   circleplineaccomtrans.hide(); 
+
+
+		  var mouseover7 = function (event) { 
+		  circleplineaccomtrans.attr("stroke", "orange");
+		  circleplineaccomtrans.attr("stroke-width", 4); 
+	  ph6.css({ left : event.clientX}); 
+		  ph6.css({ marginLeft :'70px'}); 
+		  ph6.css({position:'fixed'}); 
+	  ph6.css({top : event.clientY});  
+		  ph6.popover('show'); 
+		  } \n
+
+
+	  var mouseout7 = function (event) { 
+		  circleplineaccomtrans.attr("stroke", "orange"); 
+		  circleplineaccomtrans.attr("stroke-width", 1); 
+		  ph6.popover('hide'); 
+		  } \n
+		
+
+if(trequestaccomtransport==true){
+	if(tcolouroaccomtransport==true){
+		   circleplineaccomtrans.attr("fill", "Green"); 
+
+			  var mouseover7 = function (event) { 
+			  circleplineaccomtrans.attr("stroke", "orange"); 
+			  circleplineaccomtrans.attr("stroke-width", 4); 
+		  ph6.css({ left : event.clientX}); 
+			  ph6.css({ marginLeft :'40px'}); 
+			  ph6.css({position:'fixed'}); 
+		  ph6.css({top : event.clientY});  
+			  ph6.popover('hide'); 
+			  } \n
+		
+	}else{
+		
+		if(tcolouroaccomtransport1=true){
+			   circleplineaccomtrans.attr("fill", "Orange\ 
+			
+		}else{
+			   circleplineaccomtrans.attr("fill", "white\ 
+			
+			   var mouseover7 = function (event) { 
+				  circleplineaccomtrans.attr("stroke", "orange\ 
+				  circleplineaccomtrans.attr("stroke-width", 4); 
+			  ph6.css({ left : event.clientX}); 
+				  ph6.css({ marginLeft :'40px'}); 
+				  ph6.css({position:'fixed'}); 
+			  ph6.css({top : event.clientY});  
+				  ph6.popover('hide'); 
+				  } \n
+			
+		}
+		
+	}
+	
+}
+	  
+	 
+
+
+	 
+
+
+	 
+
+
+	  
+//For processing end
+	   var r=0; 
+
+		 
+	   circleProcessing.click(function () { 
+
+	   if(r==0){ 
+	    lineconnect.show(); 
+	 
+	   lineprocessapproval.show(); tprocessapproval1.show(); taccomtrans1.show();
+	   lineaccomtrans.show(); 
+	   circlefdfu.show(); 
+	   tfdfu.show(); 
+	   tpretravel.show(); 
+	   tpretravel1.show(); 
+	  if(trequestfdfu==false){
+	  
+	   linefdfu.hide(); 
+
+	   circlefdfu.hide(); 
+	   tfdfu.hide(); 
+	  
+	  }else{
+		  
+		  if(trequestfdfu==true){
+			  
+			   linefdfu.show(); 
+			  
+		  }
+		  
+	  }
+	  
+	 
+	  
+	  
+	   circletprocessapproval.show(); 
+	   circlepretravel.show(); 
+	   circleplineaccomtrans.show(); 
+	 
+	   tprocessapproval.show(); 
+	  
+	   taccomtrans.show();  
+	  
+ if(trequestpretravel==false){
+		  
+		   linefdfu.hide(); 
+		   circlepretravel.hide(); 
+		   tpretravel.hide(); 
+		   tpretravel1.hide(); 
+	  }
+	  if(trequestprocessapproval==false){
+		   lineaccomtrans.hide(); 
+		   circletprocessapproval.hide(); 
+		   tprocessapproval.hide(); tprocessapproval1.hide(); 
+		  
+	  }
+	  
+	  
+	  if(trequestaccomtransport==false){
+		   lineaccomtrans.hide(); 
+		   circleplineaccomtrans.hide(); taccomtrans1.hide(); taccomtrans.hide();
+	  }
+	  
+	  
+	  
+	  
+	  
+	   r=1; 
+	   }else{ 
+
+	   if(r==1){ 
+	     lineconnect.hide(); 
+	   linefdfu.hide(); 
+	   lineprocessapproval.hide(); tprocessapproval1.hide(); taccomtrans1.hide();
+	   lineaccomtrans.hide(); 
+	   circlefdfu.hide(); 
+	   circletprocessapproval.hide(); 
+	   circlepretravel.hide(); 
+	   circleplineaccomtrans.hide(); 
+	   tfdfu.hide(); 
+	   tprocessapproval.hide(); 
+	   tpretravel.hide(); 
+	   tpretravel1.hide(); 
+	   taccomtrans.hide(); 
+	   r=0; 
+	   } 
+	   }                        
+
+
+	                     }); 
+	  var mouseover = function (event) { 
+
+	 	circleinitiation.attr("stroke", "orange"); 
+	 	circleinitiation.attr("stroke-width", 4); 
+		
+			
+	 	} \n 
+
+	  var mouseout = function (event) { 
+	 	circleinitiation.attr("stroke", "orange");
+	 	circleinitiation.attr("stroke-width", 0); 
+
+	  }\n 
+
+	
+		
+	
+	
+	 
+		
+	
+		
+	
+		
+		
+		
+		
+		  circleinitiation.hover(mouseover, mouseout); 
+		  circlerequestauthorization.hover(mouseover1, mouseout1); 
+		  circleprojectlevel.hover(mouseover2, mouseout2); 
+			  circleoffshore.hover(mouseover3, mouseout3); 
+	  circlefdfu.hover(mouseover4, mouseout4); 
+	  circletprocessapproval.hover(mouseover5, mouseout5); 
+	  circlepretravel.hover(mouseover6, mouseout6); 
+	  circleplineaccomtrans.hover(mouseover7, mouseout7); 
+			  } 
+	  
+	   window.onload=circle2; 
+	  
+	  
+	  
+	  }); 
+	  </script>
+
+<a id="pop-holder"></a>
+<a id="pop-holder1"></a>
+<a id="pop-holder2"></a>
+<a id="pop-holder3"></a>
+<a id="pop-holder4"></a>
+<a id="pop-holder5"></a>
+<a id="pop-holder6"></a>
+<div id="raphael-graphic"></div>
+
+

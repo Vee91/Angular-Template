@@ -1,0 +1,21 @@
+define(['app', 'homeService'], function (app) {
+    app.controller('homeController',
+        ['$location', 'HomeService', function ($location, HomeService) {
+            var vm = this;
+            vm.welcome = HomeService.welcome();
+            
+            
+            function init() {
+
+            	HomeService.welcome()
+                    .then(function (response) {
+                    	console.log("here");
+                    });
+
+            }
+
+            init();
+
+        }]);
+    return app;
+});

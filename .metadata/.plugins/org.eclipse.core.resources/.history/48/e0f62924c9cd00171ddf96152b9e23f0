@@ -1,0 +1,43 @@
+<div>LeaveRevamp Demo</div>
+<a href="#/applyleave">Apply Leave</a>
+<br>
+<a href="#/FYA">Approve Leave</a>
+<br>
+<a href="#/levReqList">Leave Request list</a>
+<br>
+<a href="#/myTeamCal">My Team Calendar</a>
+<br>
+<a href="#/onBehalfBalReport">Associate Balance Report</a>
+<br>
+<a href="#/empReqList">Employee Request List</a>
+<br>
+<a href="#/onBehalfReassignLeave">Reassign On Behalf Leave</a>
+<br>
+<a href="#/balReportHome">My Leave Balance Report</a>
+<br>
+<a href="#/lerfHistory">Lerf History</a>
+<br>
+<a href="#/rtt">RTT France</a>
+<br>
+<a href="#/delLeave">Delete Leave</a>
+<br>
+<a href="#/balReportHome">Leave Balance Report</a>
+<br>
+<a href="#/reAssignOnBehalf">ReAssign on behalf</a>
+<br>
+<a href="#/applyLERF">Apply LERF</a>
+<br>
+<a href="#/approveLERFPage">Approve LERF</a>
+<br>
+<a href="#/amendReqList">Amend on behalf</a>
+<br>
+<a href="#/onBehalfLERF">Apply LERF on behalf </a>
+<br>
+<a href="#/onBehalfApplyLeave">Apply On Behalf Leave</a>
+<br>
+<a href="#/onBehalfReassignLeave">Reassign On Behalf Leave</a>
+<br>
+<a href="#/onBehalfDeleteLeave">Delete On Behalf Leave</a>
+<br>
+
+

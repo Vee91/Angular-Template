@@ -1,0 +1,242 @@
+<link href="appResources/css/clm-icons.css" rel="stylesheet" />
+<link href="appResources/css/leaveReqList.css" rel="stylesheet"
+	type="text/css" />
+<link href="appResources/css/lerfHome.css" rel="stylesheet"type="text/css" />
+<style>
+th {
+	text-align: center;
+}
+
+td {
+	text-align: center;
+}
+.radioMod input[type='radio'] {
+  	margin: 0px;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 1px solid darkgray;
+    border-radius: 60%;
+    outline: none;
+    box-shadow: 0 0 3px 0px #428bca inset;
+}
+.radioMod input[type='radio']:hover {
+    box-shadow:0 0 5px 0px #428bca inset;
+    cursor:pointer;
+}
+.radioMod input[type='radio']:before {
+   content: '';
+    display: block;
+    width: 60%;
+    height: 60%;
+    margin: 17% 19% 5% 20%;
+    border-radius: 48%;   
+}
+.radioMod input[type='radio']:checked:after {
+    background: #428bca;
+}
+
+</style>
+
+ <div class="row topPanel" style="padding-bottom: 110px; margin-top: 1px;" data-ng-controller="lerfHistoryController">
+ 
+ <div class="row" style="padding-left: 8px;">
+			<div>
+
+				<div class="col-lg-12 col-md-12 col-xs-12" style="padding-top: 10px; padding-left: 0px;">
+					<!-- 					<span class="topPanelBoldTextList" style="float: left;">{{pageName}}</span>
+					<span style="float: right; margin-top:5px;"></span> -->
+					<div class="pageTitle ng-binding">{{lerfPageName}}</div>
+				</div>
+			</div>
+	</div>
+	
+			<div style="color: red; font-size: medium;" data-ng-show="lerfHistoryList.length==0 && !showProcessingFlag">
+				LERF Records does not exists.
+			</div>
+			
+			<div data-ng-switch data-on="showPage">
+				<div data-ng-switch-when="historyPage" style=" padding-top: 3%;" data-ng-show="lerfHistoryList.length>0">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>LERF Request No</th>
+								<th>Group Start Date</th>
+								<th>Group End Date</th>
+								<th>Reporting Date</th>
+								<th>No. of Days</th>
+								<th>Submit Date</th>
+								<th>Status</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr style="height: 23px;" data-ng-repeat="data in lerfHistoryList">
+								<td data-ng-class="{myTableStriped:(($index+1) %2 ==0)}">
+									<a data-ng-click="clickedOnSingleRequest(data);" >{{data.lerfId}}</a></td>
+								<td data-ng-class="{myTableStriped:(($index+1) %2 ==0)}">{{data.lerfStartDate}}</td>
+								<td data-ng-class="{myTableStriped:(($index+1) %2 ==0)}">{{data.lerfEndDate}}</td>
+								<td data-ng-class="{myTableStriped:(($index+1) %2 ==0)}">{{data.reportingDate}}</td>
+								<td data-ng-class="{myTableStriped:(($index+1) %2 ==0)}">{{data.noOfDays}}</td>
+								<td data-ng-class="{myTableStriped:(($index+1) %2 ==0)}">{{data.appliedDate}}</td>	
+								<td data-ng-class="{myTableStriped:(($index+1) %2 ==0)}">{{data.status}}</td>		
+							</tr>
+						</tbody>
+					</table>
+			</div>	
+		
+		<div data-ng-switch-when="detailsPage" style=" margin-top: 2%;">
+		
+			<div class="col-lg-12 col-xs-12"
+				style="padding-left: 0px; margin-bottom: 5px;">
+				<div class="container-fluid  containerBox row"
+					style="margin-left: 0px; margin-right: 0px; padding: 0px; margin-top: 15px;">
+		
+					<div class="reqDetails" style="border:0px;">
+			
+							<div class="row requestBar" style="border-bottom: 1px solid #ccc;">
+									<div class="col-lg-12 col-xs-12 whiteBarReqDetails"
+										data-toggle="collapse" data-aria-expanded="false"
+										style="cursor: pointer; padding-left: 0px;"
+										id="whitebar{{$index}}"
+										ng-mouseenter="$emit('setDivHoverStyle', $index, 'whitebar','enter')"
+										ng-mouseleave="$emit('setDivHoverStyle', $index, 'whitebar','leave')">
+										<div
+									   
+									    class="col-lg-1 col-xs-2 orangeBar">
+								        <span > <img src="appResources/img/levReqDtlBar_icon.png"> </span>
+							        	</div>
+										<div class="col-lg-9 col-xs-5" id="headClass{{$index}}"
+											style="text-align: left; min-height: 30px; margin-top: 10px;"
+											verticalalign>
+											<span class="leaveHeadClass">LERF Details</span>
+										</div>
+										<div class="col-lg-2 col-xs-5"
+									style="margin-bottom: 0px; padding-left: 20px; min-height: 30px; height: 30px; float: right;"
+									verticalalign>
+									<label style="font-size: 12px; padding-top: 5px;"></label>
+		
+								</div>
+									</div>
+								</div>
+						</div>
+
+				<!-- Phase 1 -->
+				<!-- collapse -->
+				<div class=" in" id="subRequestDetails{{$index}}"
+					style="height: auto;">
+					<div class="row">
+						<div class=" subRequestDtlsClass addFields" style="border:0px;border-bottom: 1px solid #ccc;padding-bottom: 10px;">
+							<div class="row">
+								<div class="col-lg-4 col-xs-4" >
+									<label class="titleFont">Reporting Date</label><br> <span
+										class="contentFont">{{lerfObj.lerfData.reportingDate}}</span>
+								</div>
+								<div class="col-lg-4 col-xs-4">
+									<!-- style="padding-left: 3%;" -->
+									<label class="titleFont">Reporting Leave(s) Start Date</label><br>
+									<span class="contentFont">{{lerfObj.lerfData.lerfStartDate}}</span>
+								</div>
+
+								<div class="col-lg-4 col-xs-4">
+									<label class="titleFont">Reporting Leave(s) End Date</label><br>
+									<span class="contentFont">{{lerfObj.lerfData.lerfEndDate}}</span>
+								</div>
+
+
+							</div>
+						</div>
+
+						<div class="subRequestDtlsClass addFields" style="border:0px;">
+							<div class="row">
+								<div style="background-color: #fff; padding: 1%;">
+
+									<span class="titleFont"
+										style="float: left; font-weight: bold; padding-bottom: 5px;">LERF
+										applied for the following leave Requests</span>
+									<table class="table table-bordered" style="margin-bottom: 0">
+										<thead>
+											<tr class="titleFont">
+												<th style="background-color: #ffffff; color: grey;"></th>
+												<th style="background-color: #ffffff; color: grey;">Request Number</th>
+												<th style="background-color: #ffffff; color: grey;">Leave Type</th>
+												<th style="background-color: #ffffff; color: grey;">Start Date</th>
+												<th style="background-color: #ffffff; color: grey;">Duration</th>
+												<th style="background-color: #ffffff; color: grey;">End Date</th>
+												<th style="background-color: #ffffff; color: grey;">Duration</th>
+												<th style="background-color: #ffffff; color: grey;">No of Days</th>
+												<th style="background-color: #ffffff; color: grey;">Additional Fields</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											<tr
+												data-ng-repeat="lerfData in singleLerfDetails"
+												class="contentFont">
+												<td><input  type="radio" name="selectReq" ng-model="lerfObj.selctedReq" ng-value="lerfData.subRequest" basic-tracker reset-tracker ng-click="getWorkFlowdtls(lerfData.subRequest,lerfData.masterRequest);"></td>
+												<td><a data-ng-click="redirectSingleRequest(lerfData)">{{lerfData.subRequest}}</a></td>
+												<td>{{lerfData.leaveType}}</td>
+												<td>{{lerfData.lerfStartDate}}</td>
+												<td>{{lerfData.startLeaveStatus}}</td>
+												<td>{{lerfData.lerfEndDate}}</td>
+												<td>{{lerfData.endLeaveStatus}}</td>
+												<td>{{lerfData.noOfDays}}</td>
+												<td>{{lerfData.reason}}</td>
+											<tr>
+										</tbody>
+									</table>
+
+
+								</div>
+								
+								<div class="row">
+									<div class="col-lg-12 col-xs-12"
+										style="margin-bottom: 10px; padding-left: 0px; padding-right: 0px;">
+										<div class="tab-content trackerBarDetail">
+											<div>
+												<ul class="nav nav-pills">
+													<li class="active"><a id="workflow{{$index}}"
+														ng-click="trackDetails('Workflow', $index, isLWP)"
+														style="background-color: #0449b0; margin-top: 10px; margin-left: 10px; font-size: 11px; padding-top: 5px; padding-bottom: 5px;">WORKFLOW
+															DETAILS</a></li>
+												</ul>
+											</div>
+											<div
+												style="border-top: 3px solid #0449b0; margin-left: 10px; margin-right: 10px;">
+											</div>
+											
+											<div id="divWorkflow"
+												style="min-height: 295px; padding-bottom: 1px;">
+												<h3></h3>
+
+												<div class="col-md-12 col-xs-12" id="workflowContainer">
+													<div basic-tracker="lerfObj.basicWorkFlowData"
+														tracker-status-color="" ></div>
+												</div>
+												
+											</div>
+										</div>
+
+								</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="actionButtonsForSubmit" class="row col-lg-12 col-xs-12"
+				style="margin: 15px 0px 20px 0px; text-align: right; padding-bottom: 10px;padding-right:0px;">
+				<div class="col-lg-12"
+					style="margin-right: 6px; padding-right: 0px;">
+					<button class="btn-default col-lg-1 col-xs-2" ng-show="!isApproverLerfCtrl"
+						style="float: right;" ng-click="backToRequestList()" id="backBtn">Back</button>
+				</div>
+			</div>
+			
+			
+		</div>
+	</div>
+
+				</div>
+				

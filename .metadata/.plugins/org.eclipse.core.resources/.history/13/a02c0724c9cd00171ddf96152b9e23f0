@@ -1,0 +1,1361 @@
+define(
+		[ 'jquery', 'angular', 'app', 'LeaveFilters', 'LeaveServices',
+				'applyLevServices', 'LeaveCommonDirectives', 'displayMenu',
+				'utils', 'bootstrap', 'dragDropController', 'dragDropServices' ],
+		function(jquery, angular, app, jqueryui) {
+			/*
+			 * 
+			 * Request Details Controller
+			 */
+
+			app
+					.controller(
+							'CmnReqDetailsCtrl',
+							[
+									'$scope',
+									'levReqDetails',
+									'levReqList',
+									'$routeParams',
+									'$http',
+									'$filter',
+									'$q',
+									'$compile',
+									'$rootScope',
+									'$location',
+									'commonAppLevService',
+									'dragDropServices',
+									'levCommonServices',
+									function($scope, levReqDetails, levReqList,
+											$routeParams, $http, $filter, $q,
+											$compile, $rootScope, $location,
+											commonAppLevService,
+											dragDropService, levCommonServices) {
+										
+										
+										$rootScope.processing = false;
+										$scope.reqWorkflowDetails = [];
+										$scope.allWorkflowDetails = null;
+										var cancelRequest = "/leaverest/rest/cancelLeaveDetails";
+										var lwpUndertaking = "/leaverest/rest/lwpReport";
+										var nominationService = "/leaverest/rest/nominationDetail";
+										var maternityForm = "/leaverest/rest/maternityForm";
+										var getLWPRepParam = "/leaverest/rest/downloadLwpReport";
+										var getMatRepParam = "/leaverest/rest/downloadMaternityForm";
+										var dwnldLWPMatReport = "/leaverest/rest/fetchReport";
+										var docCount = "/leaverest/rest/fetchUploadedDocCount";
+										$scope.addressDetails = null;
+										$scope.isFileLoaded = false;
+
+										$scope.isLWP = false;
+										$scope.moreWorkflowDetails = [];
+										$scope.remarksEllipsis = "<div>{{data.remarks}}</div>";
+										$scope.outMsg = [];
+										$scope.wsReqSelected = [];
+										$scope.basicWorkFlowData = [];
+										$scope.actionWorkflowData = [];
+										$scope.cancelComments = "";
+										$scope.isMaternity = false;
+										$scope.isLwpUndertaking = false;
+
+										$scope.allWorkflowDetails = [];
+
+										/* disable cancel if already cancelled */
+										$scope.isCancelled = false;
+
+										$scope.isValidPage = true;
+										$scope.documentCount = 0;
+										
+										$scope.isMaternChildBirth = false;
+										$rootScope.uploadProcessing=false;
+
+										$scope.expandActionSection = function(
+												id, hideId, actionId,
+												showActionId) {
+
+											$('#' + hideId)
+													.on(
+															'hidden.bs.collapse',
+															function() {
+
+																$("#" + id)
+																		.switchClass(
+																				"col-lg-10",
+																				"col-lg-1",
+																				500,
+																				"linear");
+																$(
+																		"#"
+																				+ actionId)
+																		.switchClass(
+																				"col-lg-1",
+																				"col-lg-10",
+																				500,
+																				"linear",
+																				function() {
+
+																					$(
+																							"#"
+																									+ showActionId)
+																							.collapse(
+																									"show");
+
+																				});
+															});
+
+											// changed col-md-5 to col-md-7
+											$("#" + showActionId)
+													.on(
+															'hidden.bs.collapse',
+															function() {
+																$(
+																		"#"
+																				+ actionId)
+																		.switchClass(
+																				"col-lg-10",
+																				"col-lg-1",
+																				500,
+																				"linear");
+																$("#" + id)
+																		.switchClass(
+																				"col-lg-1",
+																				"col-lg-10",
+																				500,
+																				"linear",
+																				function() {
+																					$(
+																							"#"
+																									+ hideId)
+																							.css(
+																									{
+																										"display" : ""
+																									});
+																				});
+															});
+
+											$('#' + hideId)
+													.on(
+															'show.bs.collapse',
+															function() {
+																$("#" + hideId)
+																		.css(
+																				{
+																					"display" : "none"
+																				});
+																$(
+																		"#"
+																				+ showActionId)
+																		.collapse(
+																				"hide");
+
+															});
+
+										};
+										var parentReqNo = $routeParams.parentReqNo;
+										var employeeNo =$routeParams.employeeNo;
+										var allDetailsLink = "";
+
+										if ($scope.isLevReqDetails) {
+											allDetailsLink = $http
+													.post("/leaverest/rest/fetchLeaveAllRequestDetails",
+													{
+														params : {
+															'parentReqNo' : parentReqNo
+														}
+													});
+															
+										} else if (employeeNo !== null
+												&& employeeNo !== undefined
+												&& $scope.isEmpReqDetails) {
+											allDetailsLink = $http
+													.post("/leaverest/rest/fetchLeaveAllRequestDetails?employeeId="
+															+ employeeNo);
+										}else if($scope.isReassignReqDetails &&
+												employeeNo !== null
+												&& employeeNo !== undefined){
+											var dataToPass = [];
+											dataToPass.push({
+												"employeeNo" : employeeNo
+											});
+											allDetailsLink = $http
+											.post("/leaverest/rest/fetchReassignOnBehalfDetails?employeeId="
+													+ employeeNo);
+										}else if (employeeNo !== null
+												&& employeeNo !== undefined
+												&& $scope.isDelReqDetails) {
+											var dataToPass = [];
+											dataToPass.push({
+												"employeeNo" : employeeNo
+											});
+											
+											allDetailsLink = $http
+											.post("/leaverest/rest/fetchDeleteOnBehalf?employeeId="+ employeeNo);
+											
+
+											/*allDetailsLink = $http
+													.post(
+															"/leaverest/rest/deleteLeaveOnBehalfList",
+															dataToPass);*/
+										} else if ($scope.isTrackReqDtls) {
+											allDetailsLink = $http
+													.post("/leaverest/rest/fetchLeaveAllRequestDetails?employeeId="
+															+ employeeNo);
+
+										}
+
+										$rootScope.processing = true;
+										allDetailsLink
+												.success(
+														function(data) {
+															if (data !== null
+																	&& data !== undefined
+																	&& !$
+																			.isEmptyObject(data)) {
+																$rootScope.processing = false;
+																$scope.masterList = $filter(
+																		'myRequestMasterFilter')
+																		(
+																				data.masterList,
+																				parseInt(parentReqNo));
+																$scope.detailsList = $filter(
+																		'myRequestFilter')
+																		(
+																				data.detailsList,
+																				parseInt(parentReqNo));
+																if ($scope.masterList.length > 0
+																		&& $scope.detailsList.length > 0) {
+																	/*
+																	 * cancel
+																	 * button
+																	 * visibility
+																	 * phase 1
+																	 */
+																	if ($scope.detailsList[0]
+																			.hasOwnProperty('attribute1Name')
+																			&& $scope.detailsList[0]['attribute1Name']
+																			&& $scope.detailsList[0]['attribute1Value']
+																					.toLowerCase() === 'childbirth') {
+																		$scope.isMaternChildBirth = true;
+																	}
+
+																	showCancelButton();
+																	/*
+																	 * Document
+																	 * count
+																	 */
+																	fetchUploadedDocCount($scope.detailsList[0].subRequest);
+
+																	decideLwpUndertaking();
+																	handleMaternityDetails();
+
+																	var serviceArray = [];
+																	for ( var i = 0; i < $scope.detailsList.length; i++) {
+																		serviceArray
+																				.push($http
+																						.post("/leaverest/rest/fetchSingleRequestStatus"
+																								+ "?levRequestNo="
+																								+ $scope.detailsList[i].subRequest));
+
+																	}
+
+																	$q
+																			.all(
+																					serviceArray)
+																			.then(
+																					function(
+																							result) {
+
+																						angular
+																								.forEach(
+																										result,
+																										function(
+																												response) {
+																											$scope.allWorkflowDetails
+																													.push(response.data);
+
+																											for ( var i = 0; i < $scope.detailsList.length; i++) {
+																												getNewWorkFlowData(i);
+																											}
+																										});
+																					});
+																} else {
+																	$rootScope.processing = false;
+																	$scope.isValidPage = false;
+																}
+															} else {
+																$rootScope.processing = false;
+																$scope.isValidPage = false;
+															}
+
+														}).error(
+														function(data) {
+
+														});
+
+										/* } */
+
+										/* Address fetch */
+
+										$http
+												.post(
+														"/leaverest/rest/fetchAddrDetails"
+																+ "?levRequestNo="
+																+ parentReqNo)
+												.success(
+														function(data) {
+															console
+																	.log("address details data : "
+																			+ JSON
+																					.stringify(data));
+															$scope.addressDetails = data;
+														}).error(
+														function(data) {
+
+														});
+
+										function fetchUploadedDocCount(
+												requestId) {
+											$http
+													.post(docCount, {
+														"requestId" : requestId
+													})
+													.success(
+															function(data) {
+																if (null != data
+																		&& undefined != data
+																		&& "" != data) {
+																	$scope.documentCount = data.count;
+																}
+															});
+										}
+
+										/* Added through common section */
+
+										if ($scope.isLevReqDetails) {
+											$('#copyToNewDiv')
+													.append(
+															compileElement('<a class="btn btn-link actionButton" style="padding-left: 0px;" ng-click="requestCopyToNewAll()"><span '
+																	+ 'class="glyphicon glyphicon-share-alt"></span><span '
+																	+ 'class="actionButtonText">Copy to New All</span></a>'));
+
+											$('#cancelDeleteDiv')
+													.append(
+															compileElement('<a class="btn btn-link actionButton" ng-click="cancelAll()"><span '
+																	+ 'class="glyphicon glyphicon-remove-sign"></span><span '
+																	+ 'class="actionButtonText">Cancel All</span></a>'));
+
+										} else if ($scope.isDelReqDetails) {
+											$('#cancelDeleteDiv')
+													.append(
+															compileElement('<a class="btn btn-link actionButton" ng-click="cancelAll()"><span '
+																	+ 'class="glyphicon glyphicon-remove-sign"></span><span '
+																	+ 'class="actionButtonText">Delete All</span></a>'));
+										}
+
+										/* End common section */
+
+										console
+												.log("allWorkflowDetails : "
+														+ JSON
+																.stringify($scope.detailsList));
+
+										$scope.setMasterStatusColor = function(
+												status) {
+											if (status !== null
+													&& status !== undefined) {
+												return levReqDetails
+														.setMasterStatusColor(status);
+											}
+										};
+
+										$scope.decideStatusSubReq = function(
+												status) {
+											return levdecideStatusSubReq(status);
+										};
+
+										$scope.setStatusColor = function(status) {
+											if (status !== null
+													&& status !== undefined) {
+												return levsetStatusColor(status);
+											}
+										};
+
+										$scope.toggleToolbar = function(divId,
+												index) {
+											if (divId === 'levHist') {
+												$('#leaveAmendment' + index)
+														.addClass('divDisplay');
+												$('#leaveHistory' + index)
+														.removeClass(
+																'divDisplay');
+												$('#leaveHistLi' + index)
+														.addClass('active');
+												$('#leaveAmendLi' + index)
+														.removeClass('active');
+											} else if (divId === 'levAmend') {
+												$('#leaveHistory' + index)
+														.addClass('divDisplay');
+												$('#leaveAmendment' + index)
+														.removeClass(
+																'divDisplay');
+												$('#leaveHistLi' + index)
+														.removeClass('active');
+												$('#leaveAmendLi' + index)
+														.addClass('active');
+											}
+										};
+
+										$scope.getRequestSpecificDetails = function(
+												obj, index) {
+											$scope.isLWP = new String(
+													obj.leaveType).valueOf()
+													.toUpperCase() === new String(
+													'Leave Without Pay')
+													.valueOf().toUpperCase() ? true
+													: false;
+											$('#orngBar' + index)
+													.toggleClass(
+															'glyphicon-chevron-down glyphicon-chevron-up');
+										};
+
+										$scope
+												.$on(
+														'setDivHoverStyle',
+														function(event, index,
+																div, action) {
+															levReqList
+																	.handleMouseEventForBackColor(
+																			div
+																					+ index,
+																			action);
+														});
+
+										$scope.trackDetails = function(tracker,
+												index) {
+											if ('Workflow' === tracker) {
+												$("#divWorkflow" + index)
+														.show();
+												$('#workflow' + index).parent()
+														.addClass("active");
+												if ($scope.isLWP) {
+													$("#divLWP" + index).hide();
+													$('#lwp' + index).parent()
+															.removeClass(
+																	"active");
+												}
+											} else if ('LWP' === tracker) {
+												$("#divLWP" + index).show();
+												$('#lwp' + index).parent()
+														.addClass("active");
+												if ($scope.isLWP) {
+													$("#divWorkflow" + index)
+															.hide();
+													$('#workflow' + index)
+															.parent()
+															.removeClass(
+																	"active");
+												}
+											}
+
+										};
+
+										$scope.changeWidth = function(
+												subRequest) {
+
+											if ($scope.allWorkflowDetails !== null
+													&& $scope.allWorkflowDetails !== undefined
+													&& $scope.allWorkflowDetails.length !== 0) {
+												var filteredWorkflow = $filter(
+														'workflowDetailsFilter')
+														(
+																$scope.allWorkflowDetails,
+																subRequest);
+
+												var sizeOfArray = filteredWorkflow.length;
+												if (sizeOfArray === 3) {
+													$(".entry:last-of-type")
+															.addClass("afterAp");
+													$(".entry:first-of-type")
+															.addClass(
+																	"beforeAp");
+												}
+
+												if (sizeOfArray === 2) {
+													$(".entry:last-of-type")
+															.addClass(
+																	"afterAp1");
+													$(".entry:first-of-type")
+															.addClass(
+																	"beforeAp1");
+												}
+											}
+										};
+
+										$scope.expandAll = function() {
+											var areaExpanded = true;
+											for ( var i = 0; i < $scope.detailsList.length; i++) {
+												if (!$("#subRequestDetails" + i)
+														.hasClass("in")) {
+													areaExpanded = false;
+													break;
+												}
+											}
+											if (!areaExpanded) {
+												for ( var i = 0; i < $scope.detailsList.length; i++) {
+													if ($(
+															"#subRequestDetails"
+																	+ i)
+															.hasClass(
+																	"collapse")) {
+														$(
+																"#subRequestDetails"
+																		+ i)
+																.switchClass(
+																		"collapse",
+																		"in");
+														$('#orngBar' + i)
+																.toggleClass(
+																		'glyphicon-chevron-down glyphicon-chevron-up');
+														$(
+																"#subRequestDetails"
+																		+ i)
+																.css("height",
+																		"auto");
+													}
+												}
+											}
+										};
+										$scope.collapseAll = function() {
+											var areaExpanded = false;
+											for ( var i = 0; i < $scope.detailsList.length; i++) {
+												if ($("#subRequestDetails" + i)
+														.hasClass("in")) {
+													areaExpanded = true;
+													break;
+												}
+											}
+											if (areaExpanded) {
+												for ( var i = 0; i < $scope.detailsList.length; i++) {
+													if ($(
+															"#subRequestDetails"
+																	+ i)
+															.hasClass("in")) {
+														$(
+																"#subRequestDetails"
+																		+ i)
+																.switchClass(
+																		"in",
+																		"collapse");
+														$('#orngBar' + i)
+																.toggleClass(
+																		'glyphicon-chevron-down glyphicon-chevron-up');
+													}
+												}
+											}
+										};
+
+										$scope.bgColorforMsg = function(message) {
+											return levReqList
+													.setStatusColor(message);
+										};
+
+										var scrolled = 0;
+										$scope.leftClick = function() {
+
+											if (scrolled >= 0) {
+												scrolled = scrolled - 800;
+												$(".timelineHeader")
+														.stop()
+														.animate(
+																{
+																	scrollLeft : scrolled
+																});
+												$(".timeline").stop().animate({
+													scrollLeft : scrolled
+												});
+											}
+
+										};
+
+										$scope.rightClick = function() {
+											if ($('.bar').width() >= scrolled) {
+												scrolled = scrolled + 800;
+												$(".timelineHeader")
+														.stop()
+														.animate(
+																{
+																	scrollLeft : scrolled
+																});
+												$(".timeline").stop().animate({
+													scrollLeft : scrolled
+												});
+											}
+										};
+
+										$scope.addCancelLeave = function(
+												reqDetails) {
+											var reqPresent = false;
+											for (req in $scope.wsReqSelected) {
+												if ($scope.wsReqSelected[req].childReqNo === reqDetails.subRequest) {
+													reqPresent = true;
+												}
+											}
+											if (!reqPresent) {
+
+												$scope.wsReqSelected
+														.push({
+															parentReqNo : reqDetails.masterRequest,
+															childReqNo : reqDetails.subRequest,
+															status : reqDetails.status,
+															comments : reqDetails.approverComment
+														});
+											}
+											console
+													.log("stingified cancel list : "
+															+ JSON
+																	.stringify($scope.wsReqSelected));
+
+										};
+
+										$scope.cancelAll = function() {
+
+											$("#commentsModal").modal('show');
+										};
+
+										$scope.putCommentsCancel = function(
+												comments) {
+											$("#commentsModal").modal('hide');
+											$rootScope.processing = true;
+											$scope.wsReqSelected = [];
+											for (i in $scope.detailsList) {
+												var reqDetails = $scope.detailsList[i];
+												$scope.wsReqSelected
+														.push({
+															parentReqNo : reqDetails.masterRequest,
+															childReqNo : reqDetails.subRequest,
+															status : reqDetails.status,
+															comments : comments
+														});
+											}
+											console
+													.log("stingified cancel list : "
+															+ JSON
+																	.stringify($scope.wsReqSelected));
+											requestCancel();
+										};
+
+										function handleCancel(data) {
+											$rootScope.processing = false;
+											$scope.outMsg = [];
+
+											angular
+													.forEach(
+															data,
+															function(value,
+																	keyOut) {
+																if (keyOut === 'code'
+																		&& value === '200') {
+																	$scope.outMsg
+																			.push(data.message);
+																	for (i in $scope.allWorkflowDetails) {
+																		angular
+																				.forEach(
+																						$scope.allWorkflowDetails[i],
+																						function(
+																								value,
+																								keyIn) {
+
+																							if (keyIn === data.uniqueId) {
+																								$scope.allWorkflowDetails[i] = data.success[data.uniqueId];
+																							}
+																						});
+
+																		for (k in $scope.detailsList) {
+																			if ($scope.detailsList[k].subRequest === data.uniqueId) {
+																				angular
+																						.forEach(
+																								$scope.allWorkflowDetails[i],
+																								function(
+																										value,
+																										keyIn) {
+																									if (keyIn === $scope.detailsList[k].subRequest) {
+																										$scope.detailsList[k].status = value[value.length - 1].levWorkflow[0].leaveStatus.name;
+																									}
+																								});
+																				$scope.detailsList[k].reqType = "Cancelled";
+																				$scope.isCancelled = true;
+																			}
+																		}
+
+																	}
+																} else if (keyOut === 'code'
+																		&& value === '422') {
+																	$scope.outMsg
+																			.push(data.fieldErrors[0].message);
+																}
+															});
+
+											for ( var i = 0; i < $scope.detailsList.length; i++) {
+												getNewWorkFlowData(i);
+											}
+											$('#messageModal').modal('show');
+											$scope.wsReqSelected = [];
+
+											$('#cancelBtn,#copyBtn,#backBtn')
+													.removeClass(
+															'disableLinkButton');
+										}
+
+										$scope.cancelSelLeave = function() {
+											requestCancel();
+										};
+
+										$scope.cancel = function(comments) {
+											$rootScope.processing = true;
+											requestCancel(comments);
+										};
+
+										function requestCancel(comments) {
+
+											$('#cancelBtn,#copyBtn,#backBtn')
+													.addClass(
+															'disableLinkButton');
+											$('#commentsModal').modal('hide');
+
+											$scope.wsReqSelected = [];
+											var reqDetails = $scope.detailsList[0];
+											$scope.wsReqSelected
+													.push({
+														parentReqNo : reqDetails.masterRequest,
+														childReqNo : reqDetails.subRequest,
+														status : reqDetails.status,
+														comments : comments
+													});
+
+											$http
+													.post(
+															cancelRequest,
+															$scope.wsReqSelected)
+													.success(
+															function(data) {
+																$rootScope.processing = false;
+																console
+																		.log("response : "
+																				+ JSON
+																						.stringify(data));
+																handleCancel(data[0]);
+																$(
+																		"#commentsBox")
+																		.val(
+																				null);
+															});
+										}
+
+										function compileElement(element) {
+											return $compile(element)($scope);
+										}
+
+										$scope.requestCopyToNew = function(
+												index) {
+											$scope.outMsg = [];
+											var id = 0;
+											var listToPushToNew = [];
+											var obj = $scope.detailsList[index];
+											if (obj.leaveType.toLowerCase() === 'timesheet leave') {
+												$scope.outMsg
+														.push("Timesheet leave cannot be copied to a new request");
+												$("#messageModal")
+														.modal('show');
+											} else {
+												listToPushToNew
+														.push({
+															newLeave : {
+																id : id++,
+																leaveTypeName : obj.leaveType,
+																countryLeaveTypeId : obj.countryLeaveTypeId,
+																reason : obj.remarks,
+																startDate : $filter(
+																		'istDateFormat')
+																		(
+																				obj.startDate),
+																endDate : $filter(
+																		'istDateFormat')
+																		(
+																				obj.endDate),
+																noOfDays : obj.numOfDays,
+																isDisabled : false
+															}
+														});
+
+												$location.path("/applyleave");
+												commonAppLevService
+														.copyToNew(listToPushToNew);
+											}
+										};
+
+										$scope.requestCopyToNewAll = function() {
+											var id = 0;
+											var listToPushToNew = [];
+											for ( var i = 0; i < $scope.detailsList.length; i++) {
+												var obj = $scope.detailsList[i];
+												listToPushToNew
+														.push({
+															newLeave : {
+																id : id++,
+																leaveTypeName : obj.leaveType,
+																countryLeaveTypeId : obj.countryLeaveTypeId,
+																reason : obj.remarks,
+																isDisabled : false
+															}
+														});
+											}
+
+											$location.path("/applyleave");
+											commonAppLevService
+													.copyToNew(listToPushToNew);
+										};
+
+										function handleCommentsValidation(
+												details) {
+											$scope.outMsg = "Please enter the comments for";
+											$("#messageModal").modal('show');
+										}
+
+										function getNewWorkFlowData(index) {
+
+											console
+													.log("WorkFLow Data :   "
+															+ JSON
+																	.stringify($scope.allWorkflowDetails[0]));
+
+											var cancelWorkflowFlag = $scope.detailsList[index].reqType
+													.toLowerCase() === 'cancelled';
+
+											if (!cancelWorkflowFlag) {
+												$scope.detailsList[index]['basicWorkFlowData'] = [];
+											} else {
+												$scope.detailsList[index]['cancelWorkFlowData'] = [];
+											}
+
+											angular
+													.forEach(
+															$scope.allWorkflowDetails[0],
+															function(value, key) {
+																$scope.workFlowPush = [];
+																for ( var i = 0; i < $scope.allWorkflowDetails[0][key].length; i++) {
+																	$scope.tracker = {};
+
+																	$scope.extWrkFlowData = [];
+																	var apprComments = $scope.allWorkflowDetails[0][key][i].levWorkflow[0].approvalComment;
+
+																	var fullName = $scope.allWorkflowDetails[0][key][i].levWorkflow[0].fullName !== undefined ? $filter(
+																			'capitalize')
+																			(
+																					$scope.allWorkflowDetails[0][key][i].levWorkflow[0].fullName)
+																			: "System";
+																	$scope.tracker.htmlTextBox = "<p class='nodeNameText leftAlign'>"
+																			+ $scope.allWorkflowDetails[0][key][i].levWorkflow[0].employeeRole
+																			+ "</p>"
+																			+ "<p class='nodeNameText leftAlign'>"
+																			+ $scope.allWorkflowDetails[0][key][i].levWorkflow[0].appliedDate
+																			+ "</p><br/>"
+																			+ "<p class='nodeNameTextDetails leftAlign'>"
+																			+ fullName
+																			+ " | "
+																			+ $scope.allWorkflowDetails[0][key][i].levWorkflow[0].employeeNo
+																			+ "</p>"
+																			+ "<p class='nodeNameTextEmail leftAlign'>"
+																			+ $scope.allWorkflowDetails[0][key][i].levWorkflow[0].contactDTO.emailId
+																			+ "</p>"
+																			+ "<p class='nodeNameTextDetails leftAlign'>"
+																			+ $scope.allWorkflowDetails[0][key][i].levWorkflow[0].contactDTO.contactNumberCell
+																			+ "</p>"
+																			+ "<p class='nodeNameTextDetails leftAlign'> Status: "
+																			+ $scope.allWorkflowDetails[0][key][i].levWorkflow[0].leaveStatus.name
+																			+ "</p>"
+																			+ "<p class='nodeNameTextDetails leftAlign' style='width: auto; word-wrap: break-word;'> Comments: "
+																			+ (apprComments !== null
+																					&& apprComments !== undefined ? apprComments
+																					: 'No comments')
+																			+ "</p>";
+
+																	if ($scope.allWorkflowDetails[0][key][i].levWorkflow.length > 1
+																			&& i === $scope.allWorkflowDetails[0][key].length - 1) {
+
+																		$scope.workFlowPush
+																				.push($scope.allWorkflowDetails[0][key][i].levWorkflow
+																						.slice(
+																								1,
+																								$scope.allWorkflowDetails[0][key][i].length));
+																		$scope.tracker.htmlTextBox += "<a class='leftAlign testNidhi' onclick='showFaltuDtls();' style='cursor: pointer;'>Others +"
+																				+ parseInt($scope.allWorkflowDetails[0][key][i].levWorkflow.length - 1)
+																				+ "</a>";
+																		$scope.tracker.htmlTextBox += "<div id='faltuID' class='tempTestDiv'>";
+																		for ( var c = 0; c < $scope.workFlowPush[0].length; c++) {
+
+																			$scope.tracker.htmlTextBox += "<p class='testP'>"
+																					+ $scope.workFlowPush[0][c].employeeRole
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].fullName
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].employeeNo
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].contactDTO.emailId
+																					+ " | "
+																					+ $scope.workFlowPush[0][c].contactDTO.contactNumberCell
+																					+ "</p>";
+
+																		}
+																		$scope.tracker.htmlTextBox += "</div>";
+																		$compile(
+																				$scope.tracker.htmlTextBox)
+																				(
+																						$scope);
+
+																	}
+
+																	if (i === $scope.allWorkflowDetails[0][key].length - 1) {
+																		if ($scope.allWorkflowDetails[0][key][i].levWorkflow[0].leaveStatus.id == 13
+																				|| $scope.allWorkflowDetails[0][key][i].levWorkflow[0].leaveStatus.id == 3
+																				|| $scope.allWorkflowDetails[0][key][i].levWorkflow[0].leaveStatus.id == 14) {
+																			$scope.tracker.status = "ACTED";
+																		} else if ($scope.allWorkflowDetails[0][key][i].levWorkflow[0].leaveStatus.id == 4
+																				|| $scope.allWorkflowDetails[0][key][i].levWorkflow[0].leaveStatus.id == 12
+																				|| $scope.allWorkflowDetails[0][key][i].levWorkflow[0].leaveStatus.id == 15) {
+																			$scope.tracker.status = "REJECTED";
+																		} else {
+																			$scope.tracker.status = "PENDING";
+																		}
+
+																	} else {
+																		$scope.tracker.status = "ACTED";
+																	}
+
+																	if ($scope.isCancelled) {
+																		$scope.detailsList[index]['cancelWorkFlowData']
+																				.push($scope.tracker);
+																	} else {
+																		$scope.detailsList[index]['basicWorkFlowData']
+																				.push($scope.tracker);
+																	}
+																}
+
+																console
+																		.log("$scope.basicWorkFlowData  ::: "
+																				+ JSON
+																						.stringify($scope.isCancelled));
+															});
+
+										}
+
+										$scope.backToRequestList = function() {
+											if ($scope.isLevReqDetails) {
+												$location.path("/levReqList/");
+											} else if ($scope.isEmpReqDetails) {
+												$location.path("/empReqList/");
+												levReqList
+														.backToRequestList($routeParams.employeeNo);
+											} else if ($scope.isTrackReqDtls) {
+												window.location = "https://gess.ultimatix.net/gess/pages/trackRequestWorkflowDetailsHome.jsf";
+											}else if($scope.isReassignReqDetails){
+												$location.path("/onBehalfReassignLeave/");
+												levReqList
+														.backToRequestList($routeParams.employeeNo);
+											}else if($scope.isDelReqDetails){
+												$location.path("/onBehalfDeleteLeave/");
+												levReqList
+														.backToRequestList($routeParams.employeeNo);
+											}
+											dragDropService.resetFiles();
+										};
+
+										window.onhashchange = function() {
+											dragDropService.resetFiles();
+										};
+
+										// code added by Priit
+
+										$scope.UploadFiles = function() {
+											$rootScope.uploadProcessing=true;
+											dragDropService
+													.uploadReqFiles(
+															$scope.detailsList[0].subRequest,
+															null, "N",
+															"isLevReqDetails",$scope.detailsList[0].masterRequest);
+										};
+
+										/* cancel button visibility phase 1 */
+										function showCancelButton() {
+											if ($scope.detailsList[0].reqType
+													.toLowerCase() === 'cancelled') {
+												$scope.isCancelled = true;
+											}
+										}
+
+										$scope.showDragDrop = function() {
+											$rootScope.processing = true;
+											if (!$scope.isFileLoaded) {
+												dragDropService
+														.fetchAllLeaveDocs(
+																$scope.detailsList[0].subRequest,
+																$scope.isLevReqDetails);
+											}
+											$scope.uploadSec = true;
+											$('#add_delete_tab').css({
+												"display" : "block"
+											});
+											$scope.isFileLoaded = true;
+											$rootScope.processing = false;
+										};
+
+										$scope.cancelDragDrop = function() {
+											$scope.uploadSec = false;
+											$('#add_delete_tab').css({
+												"display" : "none"
+											});
+											
+										};
+
+										$scope.lwpUndertaking = function(index) {
+											/*
+											 * var startDate = new Date(
+											 * $scope.detailsList[index].startDate);
+											 * var endDate = new Date(
+											 * $scope.detailsList[index].endDate);
+											 */
+											var startDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[index].startDate);
+											var endDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[index].endDate);
+
+											var dataToPass = {
+												employeeNo : $scope.masterList[0].employeeNo,
+												startDate : startDate,
+												endDate : endDate,
+												reportType : 'pdf',
+												Attribute1_Value : $scope.detailsList[index].attribute1Value,
+												Attribute2_Value : $scope.detailsList[index].attribute2Value,
+												levRequestNo : $scope.detailsList[index].subRequest
+												
+											};
+
+											$http
+													.get(
+															lwpUndertaking
+																	+ '?cd='
+																	+ (new Date())
+																			.getTime(),
+															{
+																params : dataToPass
+															})
+													.then(
+															function(response) {
+																console
+																		.log("LWP FormResponse "
+																				+ JSON
+																						.stringify(response));
+																if (response.data.code === '200') {
+																	$scope.para_1 = response.data.success.para_1;
+																	$scope.para_2 = response.data.success.para_2;
+																	$scope.para_3 = response.data.success.para_3;
+																	$scope.para_4 = response.data.success.para_4;
+																	$scope.para_5 = response.data.success.para_5;
+																	$scope.para_6 = response.data.success.para_6;
+																	$scope.variable1 = response.data.success.fileName;
+																	$scope.lwpEmpName = response.data.success.name;
+																	$scope.lwpEmpNo = response.data.success.code;
+																	$scope.isLwp = true;
+																}
+																;
+															});
+										};
+
+										$scope.maternityNomForm = function(
+												index) {
+											var startDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[index].startDate);
+											var endDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[index].endDate);
+											var dataToPass = {
+												nomName : $scope.detailsList[index].nominationDetails.nomineeName,
+												nomAddress : $scope.detailsList[index].nominationDetails.nomineeAddress,
+												nomRelation : $scope.detailsList[index].nominationDetails.relation,
+												childBirthDate : $scope.detailsList[index].attribute2Value,
+												startDate : startDate,
+												endDate : endDate,
+												fatherName : $scope.detailsList[index].nominationDetails.relativeName,
+												fileType : 'pdf',
+												Attribute2_Value : $scope.detailsList[index].attribute2Value,
+												levRequestNo : $scope.detailsList[index].subRequest
+												
+											};
+											$http
+													.get(
+															maternityForm
+																	+ '?cd='
+																	+ (new Date())
+																			.getTime(),
+															{
+																params : dataToPass
+															})
+													.then(
+															function(response) {
+																console
+																		.log("maternityNomForm "
+																				+ JSON
+																						.stringify(response));
+																if (response.data.code === '200') {
+																	$scope.dataObj1 = response.data.success.para_1;
+																	$scope.dataObj2 = response.data.success.para_2;
+																	$scope.variable1 = response.data.success.fileName;
+																	$scope.isMaternity = true;
+																}
+															});
+
+										};
+
+										$scope.changeLwpFlg = function() {
+											$scope.isLwp = false;
+										};
+
+										$scope.changeMaternityFlg = function() {
+											$scope.isMaternity = false;
+										};
+
+										function decideLwpUndertaking() {
+											$scope.detailsList
+													.forEach(function(entry) {
+														entry['isLwpUndertaking'] = (entry.countryLeaveTypeId === 57
+																|| entry.countryLeaveTypeId === 260
+																|| entry.countryLeaveTypeId === 810 || entry.countryLeaveTypeId === 811)
+																&& entry.numOfDays > 30 ? true
+																: false;
+													});
+										}
+
+										function handleMaternityDetails() {
+											var maternityService = [], tmpAdd = [];
+											$scope.detailsList
+													.forEach(function(entry) {
+														if (entry.maternityLeave) {
+															var subrequest = {
+																params : {
+																	'levRequestNo' : entry.subRequest
+																}
+															};
+															$http
+																	.get(
+																			nominationService,
+																			subrequest)
+																	.success(
+																			function(
+																					result) {
+																				var i = 0;
+																				/*
+																				 * angular
+																				 * .forEach(
+																				 * result,
+																				 * function(
+																				 * response) {
+																				 * tmpAdd
+																				 * .push(response);
+																				 * });
+																				 */
+																				tmpAdd
+																						.push(result);
+																				$scope.detailsList
+																						.forEach(function(
+																								entry) {
+																							if (entry.maternityLeave) {
+																								delete tmpAdd[i]["levRequestNo"]
+																								entry['nominationDetails'] = tmpAdd[i];
+																								++i;
+																							}
+																						});
+																			});
+														}
+													});
+										}
+
+										$scope.printLwpUndertaking = function() {
+											var startDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[0].startDate);
+											var endDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[0].endDate);
+											var dataToPass = {
+												employeeNo : $scope.masterList[0].employeeNo,
+												startDate : startDate,
+												endDate : endDate,
+												Attribute1_Value : $scope.detailsList[0].attribute1Value,
+												reportType : 'pdf',
+												Attribute2_Value : $scope.detailsList[0].attribute2Value,
+												levRequestNo : $scope.detailsList[0].subRequest
+											};
+
+											$http
+													.get(
+															getLWPRepParam
+																	+ '?cd='
+																	+ (new Date())
+																			.getTime(),
+															{
+																params : dataToPass
+															})
+													.then(
+															function(response) {
+																console
+																		.log("LWP FormResponse "
+																				+ JSON
+																						.stringify(response));
+																if (response.data.code === '200') {
+																	cmnLwpMatDwnld(
+																			response,
+																			'lwp');
+																}
+															});
+										};
+
+										$scope.printMaternityForm = function() {
+											var startDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[0].startDate);
+											var endDate = $filter(
+													'istDateFormat')
+													(
+															$scope.detailsList[0].endDate);
+											var dataToPass = {
+												nomName : $scope.detailsList[0].nominationDetails.nomineeName,
+												nomAddress : $scope.detailsList[0].nominationDetails.nomineeAddress,
+												childBirthDate : $scope.detailsList[0].attribute2Value,
+												nomRelation : $scope.detailsList[0].nominationDetails.relation,
+												startDate : startDate,
+												endDate : endDate,
+												fatherName : $scope.detailsList[0].nominationDetails.relativeName,
+												fileType : 'pdf',
+												Attribute2_Value : $scope.detailsList[0].attribute2Value,
+												levRequestNo : $scope.detailsList[0].subRequest
+												
+											};
+											$http
+													.get(
+															getMatRepParam
+																	+ '?cd='
+																	+ (new Date())
+																			.getTime(),
+															{
+																params : dataToPass
+															})
+													.then(
+															function(response) {
+																console
+																		.log("maternityNomForm "
+																				+ JSON
+																						.stringify(response));
+																if (response.data.code === '200') {
+																	cmnLwpMatDwnld(
+																			response,
+																			'maternity');
+																}
+															});
+
+										};
+
+										function cmnLwpMatDwnld(response, type) {
+											var fileName = response.data.success.fileName;
+											if (angular.isDefined(fileName)) {
+												window.open(dwnldLWPMatReport
+														+ "?reportName="
+														+ fileName
+														+ "&reportType=" + type
+														+ "&fileType=pdf",
+														'_blank');
+											}
+										}
+										
+										
+										$scope.reassignRequest=function(){
+											$('#reassignModal').modal('show');
+											
+										};
+										
+										
+										$scope.reassignEmpSearch=function(){
+											$scope.reassignEmpSearchFlag=false;
+											var reassignEmpId=$('#reassignEmpIdBox').val();
+											$scope.reassignEmpData= {
+													1:reassignEmpId
+											};
+										
+											if(null!=reassignEmpId && undefined!=reassignEmpId && ""!=reassignEmpId){
+												$http.post("/leaverest/rest/searchEmployee?start=1&pageSize=10",$scope.reassignEmpData)
+												.success(function(data){
+													$scope.reassignEmpData.details=data;
+													$scope.reassignEmpSearchFlag=true;
+												});
+											}
+											
+										};
+										
+										$scope.onBehalfReassign=function(){
+											$scope.isReassigned=false;
+											var reassignEmpId=$('#reassignEmpIdBox').val();
+											$scope.reassignData=[];
+											$scope.reassignData
+											.push({
+												levRequestNo : $scope.detailsList[0].subRequest,
+												parentReqNo : $scope.detailsList[0].masterRequest,
+												//employeeNo :searchData,
+												
+											});
+											if(null!=reassignEmpId && undefined!=reassignEmpId && ""!=reassignEmpId){
+												
+												$http.post("/leaverest/rest/reassignOnBehalfLeave?reassignTo="+reassignEmpId,$scope.reassignData)
+												.success(function(data){
+													$scope.isReassigned=true;
+													$('#reassignModal').modal('hide');
+												
+													
+													
+												});
+											}
+											
+										};
+										$scope.deleteRequest=function(){
+											$scope.isDeleted=false;
+											$scope.deleteData=[];
+											$scope.deleteData
+											.push({
+												childReqNo : $scope.detailsList[0].subRequest,
+												parentReqNo : $scope.detailsList[0].masterRequest,												
+											});											
+											$http.post("/leaverest/rest/deleteLeaveOnBehalf",$scope.deleteData)
+											.success(function(data){
+												if(null!=data && undefined!=data && ""!=data){
+													if(data[0].fieldErrors[0].code==200){
+														notAllowedMessage =data[0].fieldErrors[0].message;
+														$scope.outMsg
+																.push(notAllowedMessage);
+														$("#messageModal")
+																.modal('show');
+														$scope.isDeleted=true;
+													}
+												}
+											});
+										};
+										
+
+									} ]);
+			return app;
+		});

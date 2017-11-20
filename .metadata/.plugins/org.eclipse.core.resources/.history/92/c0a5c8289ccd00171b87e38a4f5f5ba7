@@ -1,0 +1,87 @@
+package com.plagiarism.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ultimatix.gess.leave.dto.LerfDetailDTO;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.LerfApprovalService;
+import com.ultimatix.gess.leave.service.LerfReassignService;
+import com.ultimatix.gess.leave.service.LerfRejectService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.LeaveUtils;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class ApprovalLerfController {
+	
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(ApprovalLerfController.class);
+	
+	@Autowired
+	private LeaveUtils leaveUtils;
+		
+	@Autowired
+	private LerfApprovalService lerfApprovalService;
+	
+	@Autowired
+	private LerfRejectService lerfRejectService;
+	
+	@Autowired
+	private LerfReassignService lerfReassignService;
+
+	@RequestMapping(value = "/approveLerfReq", method = RequestMethod.POST)
+	@ResponseBody
+	public List<ResponseResource> approveLERF(@RequestBody LerfDetailDTO lerfDetailDTO){
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("ApprovalLerfController | approveLERF | START | lerfId:"+lerfDetailDTO.getLerfId()+" | backupId:"+lerfDetailDTO.getBackupEmpId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		ResponseResource resource=lerfApprovalService.validateLERFApproval(lerfDetailDTO, leaveUtils);
+		LOG.info("ApprovalLerfController | approveLERF | VALID_APPROVE_LERF_SUCCESS | lerfId:"+lerfDetailDTO.getLerfId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		lerfApprovalService.lerfApproval(lerfDetailDTO);
+		List<ResponseResource> resources = new ArrayList<ResponseResource>();
+		resources.add(resource);
+		LOG.info("ApprovalLerfController | approveLERF | END | lerfId:"+lerfDetailDTO.getLerfId()+" | backupId:"+lerfDetailDTO.getBackupEmpId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		return resources;
+			
+	}
+	
+	@RequestMapping(value = "/rejectLerfReq", method = RequestMethod.POST)
+	@ResponseBody
+	public List<ResponseResource> rejectLERF(@RequestBody LerfDetailDTO lerfDetailDTO){
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("ApprovalLerfController | rejectLERF | START | lerfId:"+lerfDetailDTO.getLerfId()+" | backupId:"+lerfDetailDTO.getBackupEmpId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		ResponseResource resource=lerfRejectService.validateLERFReject(lerfDetailDTO, leaveUtils);
+		LOG.info("ApprovalLerfController | rejectLERF | VALID_REJECT_LERF_SUCCESS | lerfId:"+lerfDetailDTO.getLerfId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		lerfRejectService.lerfReject(lerfDetailDTO, leaveUtils);
+		List<ResponseResource> resources = new ArrayList<ResponseResource>();
+		resources.add(resource);
+		LOG.info("ApprovalLerfController | rejectLERF | END | lerfId:"+lerfDetailDTO.getLerfId()+" | backupId:"+lerfDetailDTO.getBackupEmpId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		return resources;
+			
+	}
+	
+	@RequestMapping(value = "/reassignLerfReq", method = RequestMethod.POST)
+	@ResponseBody
+	public List<ResponseResource> reassignLERF(@RequestBody LerfDetailDTO lerfDetailDTO) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("ApprovalLerfController | reassignLERF | START | lerfId:"+lerfDetailDTO.getLerfId()+" | backupId:"+lerfDetailDTO.getBackupEmpId()+" | reassignTo:"+lerfDetailDTO.getReassignTo()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		ResponseResource resource=lerfReassignService.validLERFReassign(lerfDetailDTO, leaveUtils);
+		LOG.info("ApprovalLerfController | reassignLERF | VALID_REASSIGN_LERF_SUCCESS | lerfId:"+lerfDetailDTO.getLerfId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		lerfReassignService.validLERFReassign(lerfDetailDTO, leaveUtils);
+		LOG.info("ApprovalLerfController | rejectLERF | VALID_REASSIGN_LERF_SUCCESS | lerfId:"+lerfDetailDTO.getLerfId()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		lerfReassignService.reassignLerf(lerfDetailDTO);
+		List<ResponseResource> resources = new ArrayList<ResponseResource>();
+		resources.add(resource);
+		LOG.info("ApprovalLerfController | reassignLERF | END | lerfId:"+lerfDetailDTO.getLerfId()+" | backupId:"+lerfDetailDTO.getBackupEmpId()+" | reassignTo:"+lerfDetailDTO.getReassignTo()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		return resources;
+			
+	}
+}

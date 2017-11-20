@@ -1,0 +1,925 @@
+define(['angular','app','jquery', 'moment','timeZone'], function(angular,app,jquery,moment) {
+	
+//Service 1 for apply leave ----------	
+app.service('applyLevService',function($document,$compile){
+	
+//method that makes drop down -------------------------------------------		
+this._buildDropDown=function(field,lookupValuesList,isParent,$scope,index){
+			var newElement = null,
+	            newChild = null,
+	            hasCheckBox=false;
+			    
+			var label= angular.element('<label></label>');
+			if(isParent){
+				label.attr('class', "addfieldClass"+index+" applylev-form-header");
+			}else{
+				label.attr('class', "childfieldClass"+index+" applylev-form-header");
+			};
+			
+			label.attr('for', field.displayName);
+			label.html(field.displayName);
+			var asterisk=angular.element('<span></span>');
+			if(isParent){
+			asterisk.attr('class',"asterisk addfieldClass"+index+"");
+			}else{
+				asterisk.attr('class',"asterisk childfieldClass"+index+"");
+			}
+			asterisk.html('*');
+			var tempElement1=label.add(asterisk);
+			
+			newElement = angular.element('<select></select>');
+			if(isParent){
+				newElement.attr('class', "form-control addfieldClass"+index+"");
+			}else{
+				newElement.attr('class', "form-control childfieldClass"+index+"");
+			}
+			
+			var parentList=$scope.leave.leaveList1[index].additionalFieldsList
+			for(var i=0 ; i<parentList.length;i++){
+			if(("CHECK_BOX"==parentList[i].fieldType))
+				hasCheckBox=true;
+			 break;
+			};
+			
+			
+			if(isParent){
+				if(!hasCheckBox)
+			newElement.attr('ng-change', "getChildfields(leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+",leave.leaveList1["+index+"].newLeave.id)");
+			newElement.attr('name', field.databaseColumnName+"_Parent_"+index);
+			}else {
+				newElement.attr('ng-change', "removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)");
+				newElement.attr('name', field.databaseColumnName+"_"+index);
+			};
+			newElement.attr('ng-model', "leave.leaveList1["+index+"].newLeave." + field.databaseColumnName );
+			newElement.attr('style', "padding:1px 0px 2px 0px;");
+			newElement.attr('id', field.databaseColumnName+"_"+index);
+			
+			newElement.attr('ng-required' , true);
+			angular.forEach(lookupValuesList, function (option, childId) {
+                newChild = angular.element($document[0].createElement('option'));
+                 newChild.attr('value', option);
+               if (angular.isDefined(option)) {newChild.html(option);}
+                   newElement.append(newChild);
+                 
+               }); 
+			
+			
+			var eleValidator=angular.element("<div></div>");
+			eleValidator.attr('ng-show','submitted && (applyLevFrm.'+field.databaseColumnName+'_'+index+'.$error.required) ');
+			var tempElement2=tempElement1.add(newElement);
+			
+			return $compile(tempElement2.add(eleValidator))($scope); 
+		   };
+		
+//method that makes radio button--------------------------		
+this._buildRadioButton=function(field,valueList,$scope,isParent,index){
+	$scope.radioValue0=valueList[0];
+	$scope.radioValue1=valueList[1];
+
+			if("iEvolveFlag"==field.databaseColumnName){
+				return $compile("<div class='addfieldClass"+index+" applylev-form-header' id='"+field.databaseColumnName+"_"+index+"'>"+field.displayName+"<span class='asterisk addfieldClass"+index+"'>*</span></div><span class='addfieldClass"+index+" applylev-form-radio'><input name='"+field.databaseColumnName+"_"+index+"' style='margin-right: 2px;' class='addfieldClass"+index+"' type='radio' ng-click='hideDisclaimer(leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+","+index+")' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' value='{{radioValue0}}'"+" ng-required='true'>"+ valueList[0]+"</span><span class='addfieldClass"+index+" applylev-form-radio'><input name='"+field.databaseColumnName+"_"+index+"' style='margin-right: 2px;margin-left: 2px;' class='addfieldClass"+index+"' type='radio' ng-click='hideDisclaimer(leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+","+index+")' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' value='{{radioValue1}}'"+" ng-required='true'>"+ valueList[1]+"</span>")($scope);
+			}else if(isParent){
+
+				return $compile("<div class='addfieldClass"+index+" applylev-form-header' id='"+field.databaseColumnName+"_"+index+"'>"+field.displayName+"<span class='asterisk addfieldClass"+index+"'>*</span></div><span class='addfieldClass"+index+" applylev-form-radio'><input name='"+field.databaseColumnName+"_Parent_"+index+"' class='addfieldClass"+index+"' type='radio' ng-click='getChildfields(leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+",leave.leaveList1["+index+"].newLeave.id)' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' value='{{radioValue0}}'"+" ng-required='true'>"+ valueList[0]+"</span><br class='addfieldClass"+index+"'><span class='addfieldClass"+index+" applylev-form-radio'><input name='"+field.databaseColumnName+"_Parent_"+index+"' class='addfieldClass"+index+"'  type='radio' ng-click='getChildfields(leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+",leave.leaveList1["+index+"].newLeave.id)' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' value='{{radioValue1}}'"+" ng-required='true'>"+ valueList[1]+"</span>")($scope);			
+			}else{
+				return $compile("<div class='addfieldClass"+index+" applylev-form-header' id='"+field.databaseColumnName+"_"+index+"'>"+field.displayName+"<span class='asterisk addfieldClass"+index+"'>*</span></div><span class='childfieldClass"+index+" applylev-form-radio'><input name='"+field.databaseColumnName+"_"+index+"' class='addfieldClass"+index+"' type='radio' ng-click='removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' value='{{radioValue0}}'"+" ng-required='true'>"+ valueList[0]+"</span><br class='addfieldClass"+index+"'><span class='addfieldClass"+index+" applylev-form-radio'><input name='"+field.databaseColumnName+"_"+index+"' class='addfieldClass"+index+"' type='radio' ng-click='removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' value='{{radioValue1}}'"+" ng-required='true'>"+ valueList[1]+"</span>")($scope);
+			}
+
+ 
+ };
+		
+//method that makes text field----------------------------------		
+this._buildTextField=function(field,isParent,$scope,index){
+	var newElement = null;
+	var label= angular.element('<label></label>');
+	if(isParent){
+		label.attr('class', "addfieldClass"+index+" applylev-form-header");
+	}else{
+		label.attr('class', "childfieldClass"+index+" applylev-form-header");
+	}
+	label.attr('for', field.displayName);
+	label.html(field.displayName);
+	var asterisk=angular.element('<span></span>');
+	if(isParent){
+	asterisk.attr('class',"asterisk addfieldClass"+index+"");
+	}else{
+		asterisk.attr('class',"asterisk childfieldClass"+index+"");
+	}
+	asterisk.html('*');
+	var tempElement1=label.add(asterisk);
+	
+	newElement= angular.element('<input />');
+	if(!("Email ID#"==field.displayName)){
+		newElement.attr('type', "text");
+	}else{
+		if(isParent)
+		newElement.attr('inParent',true);
+		else
+		newElement.attr('inParent',false);	
+		newElement.attr('type', "email");
+		newElement.attr('placeholder', "abc@xyz.com");
+		$scope.leave.leaveList1[index].showEmailDsclmr=true;
+		$scope.leave.leaveList1[index].emailDisclaimer="# Access to TCS emails or systems may not be available during the leave period, hence these details are required to stay connected.";
+		
+	};
+	/*newElement.attr('validate-field',"");
+	newElement.attr('is-null',"leave.leaveList1["+index+"].newLeave." + field.databaseColumnName);*/
+	if(isParent){
+		newElement.attr('class', "form-control addfieldClass"+index+"");
+		newElement.attr('name', field.databaseColumnName+"_Parent_"+index);
+	}else{
+		newElement.attr('class', "form-control childfieldClass"+index+"");
+		newElement.attr('name', field.databaseColumnName+"_"+index);
+		};
+	newElement.attr('ng-model', "leave.leaveList1["+index+"].newLeave." + field.databaseColumnName );
+	newElement.attr('id', field.databaseColumnName+"_"+index);
+	newElement.attr('ng-change', "removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)");
+	newElement.attr('ng-required' , true);
+    
+	return  $compile(tempElement1.add(newElement))($scope); 
+	
+		
+			
+		};
+		
+//method that makes text date ------------------------------------		
+this._buildTextDate=function(field,$scope,isParent,index){
+	
+	if(isParent){
+		if(250==$scope.leave.leaveList1[index].newLeave.countryLeaveTypeId)
+			return $compile("<label class='addfieldClass"+index+" applylev-form-header'  >"+field.displayName+"<span class='asterisk addfieldClass"+index+"'>*</span></label><div class='addfieldClass"+index+" ' date-format='dd-MMM-yyyy'  is-extra-picker='true' kunalsdatepicker><input type='text' style='font-weight:400;' name='"+field.databaseColumnName+"_Parent_"+index+"'  id='"+field.databaseColumnName+"_"+index+"' class='form-control col-lg-2 applyLeaveInputField' placeholder='DD-MMM-YYYY'  data-ng-change='removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' ng-disabled='true' ondrop='return false;' onpaste='return false;' ng-required='true' />"
+					+"<script> $('.applyLeaveInputField').keypress(function (event) {event.preventDefault();});$('.applyLeaveInputField').keydown(function (event) {if (event.keyCode === 8) {return false; };});$('.applyLeaveInputField').bind('cut copy paste', function (e) {e.preventDefault();});</script></div>"
+			)($scope);
+		else
+		return $compile("<label class='addfieldClass"+index+" applylev-form-header'  >"+field.displayName+"<span class='asterisk addfieldClass"+index+"'>*</span></label><div class='addfieldClass"+index+" ' date-format='dd-MMM-yyyy'  is-extra-picker='true' kunalsdatepicker><input type='text' style='font-weight:400;' name='"+field.databaseColumnName+"_Parent_"+index+"'  id='"+field.databaseColumnName+"_"+index+"' class='form-control col-lg-2 applyLeaveInputField date-property' placeholder='DD-MMM-YYYY'  data-ng-change='removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)' ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' ondrop='return false;' onpaste='return false;' ng-required='true' />"
+				+"<script> $('.applyLeaveInputField').keypress(function (event) {event.preventDefault();});$('.applyLeaveInputField').keydown(function (event) {if (event.keyCode === 8) {return false; };});$('.applyLeaveInputField').bind('cut copy paste', function (e) {e.preventDefault();});</script></div>"
+		)($scope);
+	}else{
+		return $compile("<label class='childfieldClass"+index+" applylev-form-header' style='margin-bottom:4px;'>"+field.displayName+"<span class='asterisk childfieldClass"+index+"'>*</span></label><div class='childfieldClass"+index+" ' date-format='dd-MMM-yyyy' is-extra-picker='true' kunalsdatepicker><input type='text' style='font-weight:400;' name='"+field.databaseColumnName+"_"+index+"'  id='"+field.databaseColumnName+"_"+index+"' class='form-control col-lg-2 applyLeaveInputField date-property' placeholder='DD-MMM-YYYY'  data-ng-change='removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)'  ng-model='leave.leaveList1["+index+"].newLeave."+field.databaseColumnName+"' ondrop='return false;' onpaste='return false;' ng-required='true' />"
+				+"<script> $('.applyLeaveInputField').keypress(function (event) {event.preventDefault();});$('.applyLeaveInputField').keydown(function (event) {if (event.keyCode === 8) {return false; };});$('.applyLeaveInputField').bind('cut copy paste', function (e) {e.preventDefault();});</script></div>")($scope);
+	};
+		
+	};
+	
+//method that makes check box----------------	
+	this._buildCheckBox=function(field,isParent,$scope,index){
+		var newElement = null;
+		var label= angular.element('<span></span>');
+		if(isParent){
+			label.attr('class', "addfieldClass"+index+" applylev-form-header");
+		}else{
+			label.attr('class', "childfieldClass"+index+" applylev-form-header");
+		}
+		//label.attr('style', "color:white");
+		label.attr('for', field.displayName);
+		label.attr('style', "padding-left:3px;vertical-align: text-top;");
+		label.html(field.displayName);
+		
+		
+		newElement= angular.element('<input />');
+		newElement.attr('type', "checkbox");
+		if(isParent){
+			newElement.attr('class', " addfieldClass"+index+"");
+		}else{
+			newElement.attr('class', " childfieldClass"+index+"");
+		};
+		if(isParent){
+			newElement.attr('ng-click', "getChildfields('"+field.displayName+"',leave.leaveList1["+index+"].newLeave.id)");
+			newElement.attr('name', field.databaseColumnName+"_Parent_"+index);
+			}else {
+				newElement.attr('ng-click', "removeServerErrMsg(leave.leaveList1["+index+"].newLeave.id)");
+				newElement.attr('name', field.databaseColumnName+"_"+index);
+			};
+		newElement.attr('ng-model', "leave.leaveList1["+index+"].newLeave." + field.databaseColumnName );
+		newElement.attr('id', field.databaseColumnName+"_"+index);
+		
+		newElement.attr('ng-required' , true);
+	    
+		return  $compile(newElement.add(label))($scope); 
+		
+			
+				
+			};
+			
+//method that makes text Link----------------------------------		
+			this._buildTextLink=function(field,isParent,$scope,index){
+				var newElement = null;
+				var label= angular.element('<label></label>');
+				if(isParent){
+					label.attr('class', "addfieldClass"+index+" applylev-form-header");
+				}else{
+					label.attr('class', "childfieldClass"+index+" applylev-form-header");
+				}
+				label.attr('for', field.displayName);
+				label.html(field.displayName);
+				if("57"==$scope.leave.leaveList1[index].newLeave.countryLeaveTypeId || "260"==$scope.leave.leaveList1[index].newLeave.countryLeaveTypeId)
+				{
+					label.attr('ng-show' , "leave.leaveList1["+index+"].newLeave.noOfDays >=30");
+				};
+				var asterisk=angular.element('<span></span>');
+				if(isParent){
+				asterisk.attr('class',"asterisk addfieldClass"+index+"");
+				}else{
+					asterisk.attr('class',"asterisk childfieldClass"+index+"");
+				};
+				
+				asterisk.html('*');
+				if("57"==$scope.leave.leaveList1[index].newLeave.countryLeaveTypeId || "260"==$scope.leave.leaveList1[index].newLeave.countryLeaveTypeId)
+				{
+					asterisk.attr('ng-show' , "leave.leaveList1["+index+"].newLeave.noOfDays >=30");
+				};
+				var tempElement1=label.add(asterisk);
+				
+				newElement= angular.element('<div></div>');
+				if(isParent){
+					newElement.attr('class', " addfieldClass"+index+"");
+					newElement.attr('name', field.databaseColumnName+"_Parent_"+index);
+				}else{
+					newElement.attr('class', " childfieldClass"+index+"");
+					newElement.attr('name', field.databaseColumnName+"_"+index);
+				}
+				newElement.attr('ng-disabled', false );
+				
+				newElement.attr('style', "text-decoration:none;color:#2084c9;font-weight:600;font-size:12px;cursor:pointer;" );
+				newElement.attr('id', field.databaseColumnName+"_"+index);
+			
+				newElement.attr('ng-click' , "getNominationForm(leave.leaveList1["+index+"].newLeave.id);");
+				if("57"==$scope.leave.leaveList1[index].newLeave.countryLeaveTypeId || "260"==$scope.leave.leaveList1[index].newLeave.countryLeaveTypeId)
+				{
+					newElement.attr('ng-show' , "leave.leaveList1["+index+"].newLeave.noOfDays >=30");
+				}
+			    newElement.html("Click here to view");
+				return  $compile(tempElement1.add(newElement))($scope); 
+				
+				
+					
+						
+					};	
+					
+this.countryLeaveTypeId;
+//method that returns leave type ID from leave type name		
+this.getlevIdFromName=function(leaveTypes,leaveTypeName){
+	
+	for(var i=0; i<leaveTypes.length;i++){
+			if(leaveTypes[i].countryLeaveTypeName==leaveTypeName)
+				{
+				this.countryLeaveTypeId=leaveTypes[i].countryLeaveTypeId;
+				break;
+				
+				}
+		}
+	
+	return this.countryLeaveTypeId;
+	
+};
+////to get country code
+this.countryCode;
+
+//function to convert to moment object when input date is in form of dd-mmm-yyyy
+this.convertToMomentObj=function(date){
+	
+	var editedSDate=moment(date ,"DD MMM YYYY");
+	return editedSDate;
+	
+};
+
+
+this.reflectVal = function(dateId, newVal) {
+	var scope = jquery(dateId);
+    scope.attr("start-date", newVal);
+    scope.val(newVal);
+};
+
+
+
+this.convertToString=function(date){
+	var StrDate=moment(date).format('DD-MMM-YYYY');
+	return StrDate;
+};
+
+this.convertToDate=function(date){
+	
+	var editedSDate=moment(date ,"x");
+	return editedSDate;
+	
+};
+
+this.convertDateToISTDate=function(date){
+	return moment(date,"DD-MMM-YYYY").tz("Asia/Kolkata").format("DD-MMM-YYYY");
+};
+
+this.convertMilliToISTMilli=function(time){
+	var momObj=moment.tz(time,"Asia/Kolkata").format("DD-MMM-YYYY");
+	return moment(momObj,"DD-MMM-YYYY")._d.getTime();
+};
+
+this.convertMilliToLocalMilli=function(momObj){
+	
+	return moment(moment.tz(momObj, "Asia/Kolkata").format("DD-MMM-YYYY"),"DD-MMM-YYYY")._d.getTime();
+};
+
+this.convertMomentToISTMoment=function(momObj){
+	var ObjTemp=momObj.tz("Asia/Kolkata").format("DD-MMM-YYYY");
+	//var momObjInMilli=moment(momObjTemp,"DD-MMM-YYYY")._d.getTime();
+	return moment(ObjTemp ,"DD-MMM-YYYY");
+};
+
+this.tester=function(time){
+	return moment(time).hours(0).minutes(0).seconds(0)._d.getTime();
+};
+
+// function to check format is DD-MMM-YYYY or not
+this.isValidDate=function(date)
+{
+	
+    var matches = /^(\d{2})[-\/](\w{3})[-\/](\d{4})$/.exec(date);
+    if (matches == null) {return false;}
+    else{
+    	return true;
+    };
+	
+    
+};
+
+this.isValidEmailFrmt=function(emailId){
+	var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(emailId);
+};
+
+
+	});
+	
+//Service 2 for Quick apply leave--------------------------------	
+app.service('quickLeaveService',function(){
+		var quickDateList= [];
+		this.getquickLevDates=function(date,yearlist)
+           {
+			var isValidquickDate;
+			var temp=null;
+			temp=date.clone();
+     		var temp1;
+     		if( quickDateList.length==1){
+     			temp1=angular.copy(quickDateList[0]);
+     		}
+     		
+     		var idDateMatched=false;
+			  loop1:for(year in yearlist)
+			  {
+				 idDateMatched=false;
+	           for(index in yearlist[year])
+	           {
+		        if((yearlist[year][index].holLevStartDate==temp.toDate().getTime() ))
+		        {
+		        	 idDateMatched=true;
+			    }
+		        
+		        if(idDateMatched){
+		        	break;
+		        }
+		
+	          }
+	           if(idDateMatched){
+	        	   break;
+	           }
+			 }
+     		
+     		if(idDateMatched){
+     			if((quickDateList.length<=1) && quickDateList.length<3){
+     				var temp3=temp.subtract(1,'d');
+         			this.getquickLevDates(temp3.minute(0).hours(0).seconds(0),yearlist);
+     				
+     			}else if(quickDateList.length<3){
+     				/*temp1=temp1.add(1,'d');
+     				this.getquickLevDates(temp1.minute(0).hours(0).seconds(0),yearlist);*/
+     				var kunal2=angular.copy(temp);
+     				kunal2=kunal2.add(1,'d');
+     				this.getquickLevDates(kunal2.minute(0).hours(0).seconds(0),yearlist);
+     			}
+     			
+     		}else{
+     			var kunal=angular.copy(temp);
+     			quickDateList.push(kunal);
+     			
+     			if((quickDateList.length<=1) && quickDateList.length<3){
+     			var temp2=temp.subtract(1,'d');
+     			this.getquickLevDates(temp2.minute(0).hours(0).seconds(0),yearlist);
+     			}else if(quickDateList.length<3){
+     				var kunal1=angular.copy(temp1);
+     				kunal1=temp1.add(1,'d');
+     				//quickDateList.push(kunal1);
+     				this.getquickLevDates(kunal1.minute(0).hours(0).seconds(0),yearlist);
+     			}
+     		}
+     	return quickDateList;
+	};
+	
+});
+
+//Srvice 3 common service for apply leave-------------------
+app.service('commonAppLevService',['$rootScope', function($rootScope){
+	this.yearlist;
+	this.selectedDates=[];
+	this.selectedPlanDates=[];
+	this.quickDate=[];
+    this.isValidField;
+	this.copyToNewList = [];
+	this.maternityDetails;
+	this.lwpDetails;
+	this.appLevDetails;
+	this.copyToNew=function(listToPushToNew){
+		$rootScope.isCopyToNew = true;
+		this.copyToNewList = listToPushToNew;
+		/*$rootScope.$emit("copyToNew", {
+			levObj : listToPushToNew
+		});*/
+	}; 
+	this.rowIndex;
+}]);
+
+
+
+//Service 4 service for calendar in apply leave----------------
+app.service('leaveCalendarService',function($rootScope,applyLevService,commonAppLevService,AddClassService){
+	this.valSd=false;
+	this.checkFlag=false;
+	this.endDateEqual=false;
+//method to validate dates selected from main calendar
+	this.validSelectedDate=function(day,rowId){
+		var isValid=true;
+	    var index=rowId*2;
+	    if(index<commonAppLevService.selectedDates.length){
+	    Array.prototype.insert = function (index, item) {
+				  this.splice(index,0,item);
+		};
+        if(!(""==commonAppLevService.selectedDates[index]) && !(undefined==commonAppLevService.selectedDates[index])){
+			var newdate=applyLevService.convertToString(day.date);
+			var finaldate=applyLevService.convertToMomentObj(newdate);
+		if(day.date==commonAppLevService.selectedDates[index]._d.getTime()){
+			var createId = (index - (index % 2)) / 2;
+			 $("#lev_end_Error_"+createId).css('display', 'block'); // added by Nidhi
+			
+			if(rowId==createId){//when both start & end date is der nd splice end date
+		        if(commonAppLevService.selectedDates[index+1]!=undefined){
+					if($(".day"+ day.date).hasClass("hoverDivEnd")){
+						$(".day"+ day.date).removeClass("hoverDivEnd");
+						commonAppLevService.selectedDates.splice(index+1,1);
+					    applyLevService.reflectVal('#endDate_'+createId, undefined);
+					    $("#lev_end_Error_"+createId).css('display', 'none'); // added by Nidhi
+					    $('#endDate_'+createId).removeClass('dirty-field');
+				     }else if($(".day"+ day.date).hasClass("hoverDivStart")){
+				    	 if(commonAppLevService.selectedDates.length%2==0){
+				    		/* var sdTime=commonAppLevService.selectedDates[index];
+							 var edTime=commonAppLevService.selectedDates[index+1];
+							 $(".day"+ edTime).removeClass("hoverDivEnd");
+							 AddClassService.removeHoverDivCss(sdTime,edTime);
+					    	 commonAppLevService.selectedDates.splice(index+1,1);
+					    	 commonAppLevService.selectedDates.insert(index+1,undefined);
+					    	 applyLevService.reflectVal('#endDate_'+createId, undefined); 
+					    	 */
+					    	 var sdTime=commonAppLevService.selectedDates[index];
+							var edTime=commonAppLevService.selectedDates[index+1];
+					
+								if(edTime!=undefined){
+								    	$(".day"+ sdTime).removeClass("hoverDivStart");
+										$(".day"+ edTime).removeClass("hoverDivEnd");
+										AddClassService.removeHoverDivCss(sdTime,edTime);
+										for(var i=0;i<commonAppLevService.selectedDates.length;){
+											if(i!=index)
+											if(commonAppLevService.selectedDates[index]._d.getTime()<commonAppLevService.selectedDates[i]._d.getTime() &&
+													commonAppLevService.selectedDates[index+1]._d.getTime()>=commonAppLevService.selectedDates[i+1]._d.getTime())
+										    {
+												var sTime=commonAppLevService.selectedDates[i];
+												var eTime=commonAppLevService.selectedDates[i+1];
+												AddClassService.addHoverDivCss(sTime,eTime);
+												if(commonAppLevService.selectedDates[index+1]._d.getTime()==commonAppLevService.selectedDates[i+1]._d.getTime()){
+													$(".day"+ edTime).addClass("hoverDivEnd");
+													this.endDateEqual=true;
+												}
+											}else if(commonAppLevService.selectedDates[index]._d.getTime()<commonAppLevService.selectedDates[i]._d.getTime() &&
+													commonAppLevService.selectedDates[index+1]._d.getTime()>=commonAppLevService.selectedDates[i]._d.getTime() &&
+													commonAppLevService.selectedDates[index+1]._d.getTime()<=commonAppLevService.selectedDates[i+1]._d.getTime())
+										    {
+												var sTime=commonAppLevService.selectedDates[i];
+												var eTime=commonAppLevService.selectedDates[index+1];
+												AddClassService.addHoverDivCss(sTime,eTime);
+											}
+											i+=2;
+										}
+								        commonAppLevService.selectedDates.splice(index,2);
+									    commonAppLevService.selectedDates.insert(index,finaldate);
+									    commonAppLevService.selectedDates.insert(index+1,undefined);
+										$(".day"+ day.date).addClass("hoverDivStart");
+										applyLevService.reflectVal('#startDate_'+createId, newdate);
+										applyLevService.reflectVal('#endDate_'+createId, undefined);
+										this.checkFlag=true;
+										
+								}
+				    	 
+				    	 }else{
+				    		 commonAppLevService.selectedDates.insert(index+1,finaldate);
+							  $(".day"+ day.date).addClass("hoverDivEnd");
+							  applyLevService.reflectVal('#endDate_'+createId, newdate);
+				    	 }
+				    	
+				     }
+			    }else{//if after third click same date is there..to select end adte
+			         if($(".day"+ day.date).hasClass("hoverDivStart")){
+						$(".day"+ day.date).addClass("hoverDivEnd");
+						if(commonAppLevService.selectedDates[index+1]==undefined){
+							commonAppLevService.selectedDates.splice(index+1,1);
+						}
+						commonAppLevService.selectedDates.insert(index+1,finaldate);
+						applyLevService.reflectVal('#endDate_'+createId, newdate);
+						$("#lev_end_Error_"+createId).css('display', 'block');
+			           }
+			    } 
+		    }
+		 }else{
+			 
+			    var createId = (index - (index % 2)) / 2;
+			    if(commonAppLevService.selectedDates.length%2==0){
+			    	//To flush both dates nd make new start date
+			    	var sdTime=commonAppLevService.selectedDates[index];
+					var edTime=commonAppLevService.selectedDates[index+1];
+		
+					if(edTime!=undefined){
+					    	$(".day"+ sdTime).removeClass("hoverDivStart");
+							$(".day"+ edTime).removeClass("hoverDivEnd");
+							AddClassService.removeHoverDivCss(sdTime,edTime);
+							for(var i=0;i<commonAppLevService.selectedDates.length;){
+								if(i!=index)
+								if(commonAppLevService.selectedDates[index]._d.getTime()<commonAppLevService.selectedDates[i]._d.getTime() &&
+										commonAppLevService.selectedDates[index+1]._d.getTime()>=commonAppLevService.selectedDates[i+1]._d.getTime())
+							    {
+									var sTime=commonAppLevService.selectedDates[i];
+									var eTime=commonAppLevService.selectedDates[i+1];
+									AddClassService.addHoverDivCss(sTime,eTime);
+									if(commonAppLevService.selectedDates[index+1]._d.getTime()==commonAppLevService.selectedDates[i+1]._d.getTime()){
+										$(".day"+ edTime).addClass("hoverDivEnd");
+										this.endDateEqual=true;
+									}
+								}else if(commonAppLevService.selectedDates[index]._d.getTime()<commonAppLevService.selectedDates[i]._d.getTime() &&
+										commonAppLevService.selectedDates[index+1]._d.getTime()>=commonAppLevService.selectedDates[i]._d.getTime() &&
+										commonAppLevService.selectedDates[index+1]._d.getTime()<=commonAppLevService.selectedDates[i+1]._d.getTime())
+							    {
+									var sTime=commonAppLevService.selectedDates[i];
+									var eTime=commonAppLevService.selectedDates[index+1];
+									AddClassService.addHoverDivCss(sTime,eTime);
+								}else if(commonAppLevService.selectedDates[index]._d.getTime()==commonAppLevService.selectedDates[i]._d.getTime() &&
+										commonAppLevService.selectedDates[index+1]._d.getTime()>=commonAppLevService.selectedDates[i+1]._d.getTime())
+									    {
+									var sTime=commonAppLevService.selectedDates[i];
+									var eTime=commonAppLevService.selectedDates[i+1];
+									AddClassService.addHoverDivCss(sTime,eTime);
+									$(".day"+ sdTime).addClass("hoverDivStart");
+								}else if(commonAppLevService.selectedDates[index]._d.getTime()>commonAppLevService.selectedDates[i]._d.getTime() &&
+										commonAppLevService.selectedDates[index+1]._d.getTime()>=commonAppLevService.selectedDates[i+1]._d.getTime()){
+									var sTime=commonAppLevService.selectedDates[index];
+									var eTime=commonAppLevService.selectedDates[i+1];
+									AddClassService.addHoverDivCss(sTime,eTime);
+								}
+								i+=2;
+							}
+					        commonAppLevService.selectedDates.splice(index,2);
+						    commonAppLevService.selectedDates.insert(index,finaldate);
+							$(".day"+ day.date).addClass("hoverDivStart");
+							applyLevService.reflectVal('#startDate_'+createId, newdate);
+							applyLevService.reflectVal('#endDate_'+createId, undefined);
+							this.checkFlag=true;
+					    }else{
+					    	oldDate=commonAppLevService.selectedDates[index];
+					    	 
+					    	 if(day.date<oldDate._d.getTime()){
+					    		 $(".day"+ oldDate._d.getTime()).removeClass("hoverDivStart");
+								 commonAppLevService.selectedDates.splice(index,2);
+								 $(".day"+ day.date).addClass("hoverDivStart");
+								 commonAppLevService.selectedDates.insert(index,finaldate);
+								applyLevService.reflectVal('#startDate_'+rowId, newdate);
+								this.checkFlag=true;
+					    	 }else{
+					    		 $(".day"+ finaldate).addClass("hoverDivEnd");
+					    		    commonAppLevService.selectedDates.splice(index+1,1);
+							        commonAppLevService.selectedDates.insert(index+1,finaldate);
+							        var sdTime=commonAppLevService.selectedDates[index];
+									var edTime=commonAppLevService.selectedDates[index+1];
+							        AddClassService.addHoverDivCss(sdTime,edTime);
+									applyLevService.reflectVal('#endDate_'+createId, newdate);
+					    	 }
+					     }
+			    }else{
+			    	if(createId==rowId){ //rowId
+						   oldDate=commonAppLevService.selectedDates[index];
+							if(day.date<commonAppLevService.selectedDates[index]._d.getTime()){
+								//to make a new start date if date is less than start date 
+								$(".day"+ oldDate._d.getTime()).removeClass("hoverDivStart");
+								 commonAppLevService.selectedDates.splice(index,1);
+								$(".day"+ day.date).addClass("hoverDivStart");
+							    commonAppLevService.selectedDates.insert(index,finaldate);
+								applyLevService.reflectVal('#startDate_'+rowId, newdate);
+								this.checkFlag=true;
+							}else{
+								//if start date der then select end date
+								$(".day"+ day.date).addClass("hoverDivEnd");
+							    commonAppLevService.selectedDates.insert(index+1,finaldate);
+								var sdTime=commonAppLevService.selectedDates[index];
+								var edTime=commonAppLevService.selectedDates[index+1];
+								AddClassService.addHoverDivCss(sdTime,edTime);
+								applyLevService.reflectVal('#endDate_'+rowId, newdate);
+							
+							}
+				    }
+			    }
+		
+	      }
+	    }else{
+	    	////when already end date is der
+	    	index=index+1;
+	    	
+			var newdate=applyLevService.convertToString(day.date);
+			var finaldate=applyLevService.convertToMomentObj(newdate);
+		    
+			///to make a new End date
+			if(day.date>commonAppLevService.selectedDates[index]._d.getTime()){
+				oldDate=commonAppLevService.selectedDates[index];
+				if($(".day"+ oldDate).hasClass("hoverDivEnd"))
+					$(".day"+ oldDate).removeClass("hoverDivEnd");
+					commonAppLevService.selectedDates.splice(index,1);
+					$(".day"+ day.date).addClass("hoverDivEnd");
+					commonAppLevService.selectedDates.push(finaldate);
+					applyLevService.reflectVal('#endDate_'+rowId, newdate);
+					
+			}else{   //to add startdate with end date already selected
+				$(".day"+ day.date).addClass("hoverDivStart");
+				commonAppLevService.selectedDates.splice(index-1,1);
+			    commonAppLevService.selectedDates.insert(index-1,finaldate);
+			    applyLevService.reflectVal('#startDate_'+rowId, newdate);
+			    this.valSd=true;
+			}
+	    }
+		
+	}else{
+		if(!((index==0) || (index==2)))
+		 this.valSd=true;
+	}
+	return isValid;
+	};
+	
+//method to remove timestamp from calendar date.
+this._removeTime=function(date){
+		return date.day(0).hour(0).minute(0).second(0).millisecond(0);
+};
+	
+//method to buildMonth for calendars
+this._buildMonth=function (scope, start, month,yearlist) {
+   	 scope.holidayList=[];
+  
+   var lookupValuesList=angular.copy(yearlist);
+	angular.forEach(lookupValuesList, function (option, year){
+		angular.forEach(lookupValuesList[year], function (option, index1){
+			lookupValuesList[year][index1].sd=applyLevService.convertMilliToISTMilli(yearlist[year][index1].sd);
+ 		 if(!(0==yearlist[year][index1].ed))
+ 			lookupValuesList[year][index1].ed=applyLevService.convertMilliToISTMilli(yearlist[year][index1].ed);
+		});
+	});
+   	 
+   	 
+   	 
+   	 
+   	 
+   	var strtMnthDate=start.clone();
+   	
+   	this._removeTime(strtMnthDate.month(strtMnthDate.month()+1).date(1));
+   	var currentMonth=month.clone();
+   	var tempYearList=yearlist;
+       scope.weeks = [];
+       var done = false, date = start.clone(), monthIndex = date.month(), count = 0;
+       //console.log("Before while loop: done: "+done+"date "+ date+"monthIndex "+monthIndex+"count "+count+" scope.weeks  "+ scope.weeks);
+       while (!done) {
+           scope.weeks.push({ days: this._buildWeek(date.clone(), month,lookupValuesList,scope) });
+           date.add(1, "w");
+           done = count++ > 2 && monthIndex !== date.month();
+           monthIndex = date.month();
+         //  console.log("inside while loop :done: "+done+"date "+ date+"monthIndex "+monthIndex+"count "+count+ " date.month():"+date.month());
+       }
+   };
+   
+//method to build weeks for calendar months
+  this._buildWeek= function (date, month,yearlist,scope) {
+  var days = [];
+  for (var i = 0; i < 7; i++) 
+  {
+    var dayPushed=false;
+    days.push({
+                   name: date.format("dd").substring(0, 1),//
+                   number: date.date(),//days like 01 15 28 etc
+                   isCurrentMonth: date.month() === month.month(),
+                   isToday: date.isSame(moment(), "day"),
+                   /*dateInMilliSecs:date._d.getTime(),*/
+                   date: date._d.getTime(),
+           });
+       	
+   //   var year=date.year() 	
+     loop1:	for(year in yearlist){
+    	loop2: for(index in yearlist[year]){
+    		
+    		var localEDate=null,localSDate;
+    		var dateToCompare =date.toDate().getTime();
+    		 //&& !("P"==yearlist[year][index].typ) test 
+    		 //date=applyLevService.convertMomentToISTMoment(date.clone());
+    		localSDate=yearlist[year][index].sd;
+    		 if(!(0==yearlist[year][index].ed))
+    			 localEDate=yearlist[year][index].ed;
+    		
+    		 if((localSDate<=dateToCompare && localEDate>=dateToCompare ) && !("P"==yearlist[year][index].typ)){
+    			 
+       			 days[days.length-1].holLevDescription=yearlist[year][index].desc;
+       				days[days.length-1].holLevType=yearlist[year][index].typ;
+       				days[days.length-1].status=yearlist[year][index].status;
+       				if(!(undefined==yearlist[year][index].sdd || 0==yearlist[year][index].sdd) && (localSDate==dateToCompare))
+					{
+				days[days.length-1].sDuration=yearlist[year][index].sdd;
+				};
+					if(!(undefined==yearlist[year][index].edd || 0==yearlist[year][index].edd) && (localEDate==dateToCompare )){
+	   					days[days.length-1].eDuration=yearlist[year][index].edd;
+	   					
+	   						};
+					
+       				
+       		 }; 
+    		 //Weekend, Holiday,approved Leave, applied Leave, planned , Flexi
+   			if((localSDate==dateToCompare) && !("P"==yearlist[year][index].typ)){	
+   				
+   				days[days.length-1].holLevDescription=yearlist[year][index].desc;
+   				days[days.length-1].holLevType=yearlist[year][index].typ;
+   				days[days.length-1].status=yearlist[year][index].status;
+   				
+   				if(yearlist[year][index].typ=='F' || yearlist[year][index].typ=='H'){
+   					
+   					for(var j=0;j<scope.holidayList.length;j++){
+   						if(scope.holidayList[j].sd==localSDate){
+   							scope.holidayList.splice(j,1);
+   						};
+   					};
+   					var tempList=angular.copy(yearlist[year][index]);
+   					tempList.sd=localSDate;
+   					scope.holidayList.push(tempList);}
+   				dayPushed=true;
+   				//break loop1;
+   		};
+   		if((localSDate<=dateToCompare && localEDate>=dateToCompare) && "P"==yearlist[year][index].typ){
+   			days[days.length-1].holLevType=yearlist[year][index].typ;
+   		}
+   		
+   	};
+  };
+       date = date.clone();
+       date.add(1, "d");
+           
+  };
+   return days;
+   };
+   
+   //input moment object and yearlist---
+  this.validateDate=function(date,yearlist){
+	  var matchedData=null;
+	//  var year=moment(date).year();
+	  var lookupValuesList=angular.copy(yearlist);
+		angular.forEach(lookupValuesList, function (option, year){
+			angular.forEach(lookupValuesList[year], function (option, index1){
+				lookupValuesList[year][index1].sd=applyLevService.convertMilliToISTMilli(yearlist[year][index1].sd);
+	 		 if(!(0==yearlist[year][index1].ed))
+	 			lookupValuesList[year][index1].ed=applyLevService.convertMilliToISTMilli(yearlist[year][index1].ed);
+			});
+		});
+	  
+		loop1:	for(year in lookupValuesList){
+	    	loop2: for(index in lookupValuesList[year]){
+	    		var localEDate=null,localSDate;
+	    		var dateToCompare =date._d.getTime();
+	    		localSDate=lookupValuesList[year][index].sd;
+	    		if(!(0==lookupValuesList[year][index].ed))
+	    			 localEDate=lookupValuesList[year][index].ed;
+	    		
+ 		 if(((localSDate==dateToCompare) 
+				|| (localEDate==dateToCompare)
+				|| ((localSDate<=dateToCompare) && (localEDate>=dateToCompare)))
+				&& lookupValuesList[year][index].typ=="L"
+				){
+				matchedData=lookupValuesList[year][index];
+				break;
+		};
+	};
+		};
+	  return matchedData;
+  }; 
+
+ });
+/*--------------------------------------------service for multiple apply--------------------------*/
+/*app.service('multipleLevService',function($rootScope,commonAppLevService){
+	
+
+	this.isOverlappingDates=function(day,index){
+		index=index*2;
+		
+		for(var i=0;i<commonAppLevService.selectedDates.length;i++){
+			if(commonAppLevService.selectedDates[i]==undefined){
+				commonAppLevService.selectedDates.splice(i,1);
+			}
+		}
+		 var listSize =commonAppLevService.selectedDates.length ;
+		if(listSize<=1){
+		  return true;
+		}else{
+			 Array.prototype.insert = function (index, item) {
+				  this.splice(index,0,item);
+		     };
+		    
+			if(listSize%2!=0){
+				commonAppLevService.selectedDates.insert(index+1,undefined)
+			
+            for (var i=0;i<listSize;){
+			       if(i==0){
+			    	   if(index!=i)
+			    	   if(commonAppLevService.selectedDates[index]._d.getTime()<=commonAppLevService.selectedDates[i]._d.getTime() && day.date>=commonAppLevService.selectedDates[i]._d.getTime()){
+	    				   if(commonAppLevService.selectedDates[index+1]==undefined){
+	    	    				commonAppLevService.selectedDates.splice(index+1,1);
+	    	    			}
+	    				 //  return false;     
+	    			     }else{
+	    			    	   if(listSize>=3){
+		    					   //do nothing
+		    				   }else{
+		    					   if(commonAppLevService.selectedDates[index+1]==undefined){
+			    	    				commonAppLevService.selectedDates.splice(index+1,1);
+			    	    			}
+			    				   return true; 
+		    				   }
+	    			     }
+			       }
+			       if(i==2){
+			    	   if(index!=i)
+			           if(commonAppLevService.selectedDates[index]._d.getTime()<=commonAppLevService.selectedDates[i]._d.getTime() && day.date>=commonAppLevService.selectedDates[i]._d.getTime()){
+			    				   if(commonAppLevService.selectedDates[index+1]==undefined){
+			    	    				commonAppLevService.selectedDates.splice(index+1,1);
+			    	    			}
+			    				//   return false;     
+			    			   }else{
+			    				   if(listSize>=5){
+			    					   //do nothing
+			    				   }else{
+			    					   if(commonAppLevService.selectedDates[index+1]==undefined){
+				    	    				commonAppLevService.selectedDates.splice(index+1,1);
+				    	    			}
+				    				   return true; 
+			    				   }
+			    				  
+			    			 }
+			    		} 
+			       if(i==4){
+			    	   if(index!=i)
+				           if(commonAppLevService.selectedDates[index]._d.getTime()<=commonAppLevService.selectedDates[i]._d.getTime() && day.date>=commonAppLevService.selectedDates[i]._d.getTime()){
+				    				   if(commonAppLevService.selectedDates[index+1]==undefined){
+				    	    				commonAppLevService.selectedDates.splice(index+1,1);
+				    	    			}
+				    			//	   return false;     
+				    			   }else{
+				    				   if(listSize>=7){
+				    					   //do nothing
+				    				   }else{
+				    					   if(commonAppLevService.selectedDates[index+1]==undefined){
+					    	    				commonAppLevService.selectedDates.splice(index+1,1);
+					    	    			}
+					    				   return true; 
+				    				   }
+				    				  
+				    			 }
+				       }
+			         if(i==6){	   
+			        	   if(index!=i)
+				           if(commonAppLevService.selectedDates[index]._d.getTime()<=commonAppLevService.selectedDates[i]._d.getTime() && day.date>=commonAppLevService.selectedDates[i]._d.getTime()){
+		    				   if(commonAppLevService.selectedDates[index+1]==undefined){
+		    	    				commonAppLevService.selectedDates.splice(index+1,1);
+		    	    			}
+		    				//   return false;     
+		    			   }else{
+		    			
+		    					   if(commonAppLevService.selectedDates[index+1]==undefined){
+			    	    				commonAppLevService.selectedDates.splice(index+1,1);
+			    	    			}
+			    				   return true; 
+		    				}
+			         }
+  
+			      i+=2;
+			}
+       return true;
+	}else{
+			  return true;
+			  }
+		}
+	};
+		
+		
+		});*/
+
+});

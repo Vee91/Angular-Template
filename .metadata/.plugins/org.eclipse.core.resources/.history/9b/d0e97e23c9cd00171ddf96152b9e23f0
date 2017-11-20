@@ -1,0 +1,84 @@
+@CHARSET "ISO-8859-1";
+
+
+
+
+
+input[type=text]:disabled {
+    background: #dddddd;
+}
+
+
+
+.tableHeight {
+	padding-bottom:5px
+	
+}
+
+.quick-small-div {
+	/* background-color: #363636; */
+	position: relative;
+	overflow: hidden;
+	min-height: 40px;
+	cursor: pointer;
+	
+}
+
+.quick-small-div-selected {
+	/* background-color: #363636; */
+	position: relative;
+	overflow: hidden;
+	outline: 1px solid #3770A2;
+	/* box-shadow: 1px 1px 6px 1px white; */
+	/* width: 173px;
+	height: 150px; */
+}
+
+.quick-tile-margin {
+	padding-top:3px;
+	margin-left: 12px;
+	margin-right: 12px;
+	/* padding: 10px; */
+	
+}
+
+.quick-color-1 {
+	background-color: #70ad47;
+	color: #fcfcfc;
+}
+
+.quick-color-2 {
+	background-color: #ff0000;
+	color: #fcfcfc;
+}
+.quick-date {
+	background-color: #D4E2CF;
+	margin-top: 2px;
+}
+
+
+.favourites-hover {
+	background-color: white;
+}
+.col-width {
+  position: relative;
+  min-height: 20px;
+  padding: 0;
+  float: left;
+  width: 25.0%;
+}
+
+
+.carousel-inner .active.left {
+    left: -25%;
+}
+.carousel-inner .active.right {
+    left: 25%;
+}
+.carousel-inner .next {
+    left: 25%;
+}
+.carousel-inner .prev {
+    left: -25%;
+}
+

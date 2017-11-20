@@ -1,0 +1,5 @@
+'use strict';
+angular.module('todoService', ['ngResource']).
+        factory('Todo', function ($resource) {
+            return $resource('/leaveRest/rest/todo/:id', {id:'@id'});
+        });

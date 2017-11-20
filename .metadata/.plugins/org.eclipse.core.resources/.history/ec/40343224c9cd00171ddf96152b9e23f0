@@ -1,0 +1,9 @@
+
+<link href="appResources/css/approverHome.css" rel="stylesheet" />
+
+<div ng-controller="LeaveApproverController">
+	<div data-ng-include data-src="'pages/leave/CommonEmployeeSearch.html'">
+	
+	</div>
+
+</div>

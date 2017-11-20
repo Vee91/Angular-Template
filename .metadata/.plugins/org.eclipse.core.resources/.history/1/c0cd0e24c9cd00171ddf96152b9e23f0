@@ -1,0 +1,33 @@
+function helpcenterController($scope, $http, $location) {	
+	$scope.showtabF=true;
+	$scope.showtabT=false;
+	$scope.showtabH=false;
+	$scope.showFAQ = function(flag) {
+		if ('F'==flag) {
+			$scope.showtabF=true;
+			$scope.showtabT=false;
+			$scope.showtabH=false;
+			$("#training").addClass("TrainingcenterTab");
+			$("#myhr").addClass("TrainingcenterTab");
+			$("#faq").removeClass("TrainingcenterTab");
+			$("#faq").addClass("helpcenterTab");
+		} else if('T'==flag) {
+			$scope.showtabT=true;
+			$scope.showtabF=false;
+			$scope.showtabH=false;
+			$("#faq").addClass("TrainingcenterTab");
+			$("#myhr").addClass("TrainingcenterTab");
+			$("#training").removeClass("TrainingcenterTab");
+			$("#training").addClass("helpcenterTab");
+		}else if('H'==flag){
+			$scope.showtabH=true;
+			$scope.showtabF=false;
+			$scope.showtabT=false;
+			$("#training").addClass("TrainingcenterTab");
+			$("#faq").addClass("TrainingcenterTab");
+			$("#myhr").removeClass("TrainingcenterTab");
+			$("#myhr").addClass("helpcenterTab");
+		}
+	};
+
+}

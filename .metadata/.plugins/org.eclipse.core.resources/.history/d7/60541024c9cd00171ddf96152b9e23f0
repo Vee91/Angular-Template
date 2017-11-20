@@ -1,0 +1,48 @@
+define(
+		[ 'angular', 'app' ],
+		function(angular, app) {
+
+			app.config(function($compileElementProvider) {
+				// $compileElementProvider.setElement(null);
+			});
+
+			app
+					.provider(
+							'$compileElement',
+
+							function() {
+
+								this.reqRecArch = '<div class="row"><div class="col-lg-12"><ul class="nav nav-tabs"><li class="active"><a id="recentReq"	ng-click="showRecentRequests()">Recent Requests</a></li>'
+										+ '<li><a id="archReq" ng-click="showArchievedRequests()">Archieved</a></li></ul></div></div>';
+
+								this.buttons = "abcd";
+								this.compileDep = null;
+
+								this.$get = [
+										'$compile',
+										function($compile) {
+											var element = this.element;
+											this.compileDep = $compile;
+											return {
+												compileElement : function(
+														$compile) {
+													this.compileDep = $compile(this.element);
+													return compileElement;
+												},
+												setElement : setElement
+											};
+										} ];
+
+								var compileElement = function($scope) {
+									return this.compileDep($scope);
+								};
+
+								var setElement = function(flag) {
+									if (flag === 'reqListRecArch') {
+										this.element = this.reqRecArch;
+									}
+
+								};
+							});
+			return app;
+		});

@@ -1,0 +1,85 @@
+
+<div id="userProfile">
+    <h3>User Profile Management</h3>
+
+
+	
+
+    <form name="usrProfForm">
+         <div>
+           <span class="text">Configuration Setup</span>
+        </div>
+        <div class="formField">
+            <label for="settings.SIZE_FYI">No of Request in FYI List</label>
+            <input name="SIZE_FYI" type="text" ng-model="settings.SIZE_FYI" required ng-pattern="/^[0-9]+$/"/>
+            <span ng-show="usrProfForm.SIZE_FYI.$error.pattern">Please Enter Numeric Value</span> 
+            <span ng-show="usrProfForm.SIZE_FYI.$error.required">Please Enter Value</span>
+        </div>
+
+		<div class="formField">
+            <label for="settings.SIZE_FYA">No of Request in FYA List</label>
+            <input name="SIZE_FYA" type="text" ng-model="settings.SIZE_FYA" required ng-pattern="/^[0-9]+$/"/>
+             <span ng-show="usrProfForm.SIZE_FYA.$error.pattern">Please Enter Numeric Value</span> 
+             <span ng-show="usrProfForm.SIZE_FYA.$error.required">Please Enter Value</span> 
+        </div>
+
+		<div class="formField">
+            <label for="settings.SIZE_ESC">No of Request in Escalation List</label>
+            <input name="SIZE_ESC" type="text" ng-model="settings.SIZE_ESC"  required ng-pattern="/^[0-9]+$/"/>
+             <span ng-show="usrProfForm.SIZE_ESC.$error.pattern">Please Enter Numeric Value</span> 
+             <span ng-show="usrProfForm.SIZE_ESC.$error.required">Please Enter Value</span>
+        </div>
+
+		<div class="formField">
+            <label for="settings.SIZE_REM">No of Request in Reminder List</label>
+            <input name="SIZE_REM" type="text" ng-model="settings.SIZE_REM"  required ng-pattern="/^[0-9]+$/"/>
+             <span ng-show="usrProfForm.SIZE_REM.$error.pattern">Please Enter Numeric Value</span> 
+             <span ng-show="usrProfForm.SIZE_REM.$error.required">Please Enter Value</span> 
+        </div>
+
+		<div class="formField">
+            <label for="settings.SIZE_REP">No of Request in Reports List</label>
+            <input name="SIZE_REP" type="text" ng-model="settings.SIZE_REP"  required ng-pattern="/^[0-9]+$/"/>
+             <span ng-show="usrProfForm.SIZE_REP.$error.pattern">Please Enter Numeric Value</span> 
+             <span ng-show="usrProfForm.SIZE_REP.$error.required">Please Enter Value</span>
+		  </div>
+        
+       <div class="formField">
+            <label for="settings.FYI_NOTIFICATION_REQD">FYI Notification Required</label>
+            <input type="checkbox" id="settings.FYI_NOTIFICATION_REQD" ng-checked="settings.FYI_NOTIFICATION_REQD" ng-model="settings.FYI_NOTIFICATION_REQD">
+       </div>
+       
+          <div class="formField">
+            <label for="settings.FYI_EMAIL_NOTIFICATION_REQD">FYI Email Notification Required</label>
+            <input type="checkbox" id="settings.FYI_EMAIL_NOTIFICATION_REQD" ng-model="settings.FYI_EMAIL_NOTIFICATION_REQD" ng-checked="settings.FYI_EMAIL_NOTIFICATION_REQD">
+
+        </div>
+        
+         <div class="formField">
+            <label for="settings.FYA_EMAIL_NOTIFICATION_REQD">FYA Email Notification Required</label>
+            <input type="checkbox" ng-checked="settings.FYA_EMAIL_NOTIFICATION_REQD" ng-model="settings.FYA_EMAIL_NOTIFICATION_REQD" id="settings.FYA_EMAIL_NOTIFICATION_REQD">
+
+        </div>
+		 
+		<div>
+		 <select ng-model="settings.DATEFMT">
+        		<option ng-repeat="fmt in dataFmts" ng-init="settings.DATEFMT">{{fmt.format}}</option>
+     	 </select>
+      </div>
+    
+      <div>
+     	<select ng-model="settings.LOCALE" >
+        		<option ng-repeat="locale in locales" ng-init="settings.LOCALE">{{locale.description}}</option>
+     	 </select>
+
+     	 
+		 
+      </div>
+        <hr/>
+		 <button class="button" ng-disabled="!usrProfForm.$valid" ng-click="submit()">Submit</button>
+        <button class="button" ng-click="reload()">Cancel</button> &nbsp;
+       
+
+    </form>
+
+</div>

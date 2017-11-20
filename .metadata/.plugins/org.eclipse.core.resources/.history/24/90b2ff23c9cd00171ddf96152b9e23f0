@@ -1,0 +1,31 @@
+/*$.i18n.properties({
+	       name: 'siteMinder',
+	        path: 'appResources/properties/',
+	        mode: 'map',
+	     }); */
+
+var jqueryhead= document.getElementsByTagName('head')[0];
+var script= document.createElement('script');
+script.type= 'text/javascript';
+//script.src= $.i18n.prop('jqueryJsPath');
+//script.src='https://auth.ultimatix.net//logout/js/jquery-latest.pack.js';
+script.src='https://authappsit.ultimatix.net/logout/js/jquery-latest.pack.js';
+jqueryhead.appendChild(script);
+
+var sspopuphead= document.getElementsByTagName('head')[0];
+var script= document.createElement('script');
+script.type= 'text/javascript';
+//script.src= $.i18n.prop('sspopupJsPath');
+//script.src='https://auth.ultimatix.net//logout/js/ssopopup.js';
+script.src='https://authappsit.ultimatix.net/logout/js/ssopopup.js';
+sspopuphead.appendChild(script);
+
+var sspopuplink= document.getElementsByTagName('head')[0];
+var link= document.createElement('link');
+link.rel  = 'stylesheet';
+link.type = 'text/css';
+//link.href = $.i18n.prop('sspopupCssPath');
+//link.href = 'https://auth.ultimatix.net/logout/css/ssopopup.css';
+link.href = 'https://authappsit.ultimatix.net/logout/css/ssopopup.css';
+sspopuplink.appendChild(link);
+

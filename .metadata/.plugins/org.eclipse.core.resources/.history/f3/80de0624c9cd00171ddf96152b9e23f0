@@ -1,0 +1,128 @@
+define(
+		[ 'angular', 'app', 'LeaveServices' ],
+		function(angular, app) {
+
+			app
+					.controller(
+							'CmnReqListCtrl',
+							[
+									'$scope',
+									'$compile',
+									'levCommonServices',
+									'$rootScope',
+									function($scope, $compile,
+											levCommonServices, $rootScope) {
+
+										$scope.reqListActive = false;
+										$scope.delLevActive = false;
+										$scope.empReqListActive = false;
+										$rootScope.isCopyToNew = false;
+										var filterSort = '<div class="col-md-6 col-lg-6 col-xs-6 paddingLeftZero" style="text-align: left;"  ng-if="recentFlag || archievedFlag"><a class="filterSort paddingLeftZero" ng-click="chkFilterCollapse();" style="color: black;padding: 6px 0px;"><span'
+												+ ' style="padding-right: 6px; font-size: 15px;cursor:pointer;color: #454545;" class="clm-icon-filter"></span><label style="font-weight: bold;cursor:pointer">FILTER</label></a></div>'
+												+ '<div class="col-md-6 col-lg-6 col-xs-6 paddingLeftZero" style="text-align: left;"  ng-if="recentFlag || archievedFlag"><a class="dropdown-toggle filterSort paddingLeftZero" data-toggle="dropdown" style="color: black;padding: 6px 0px;" ng-click="closeFilterSection();"><span'
+												+ ' style="padding-right: 6px; font-size: 15px;cursor:pointer;color: #454545;" class="clm-icon-sort"></span><label style="font-weight: bold;cursor:pointer;">SORT</label></a>'
+												+ '<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu" style="text-align: left; cursor: pointer;"><li><a tabindex="-1" ng-click="sortList(\'DEFAULT\')">Default</a></li>'
+												+ '<li><a tabindex="-1" ng-click="sortList(\'status\', false)">Status</a></li><li><a tabindex="-1" ng-click="sortList(\'leaveType\')">Leave Type</a></li></ul></div>';
+
+										var archRec = '<div class="row"><div class="col-lg-12" style="padding-left:0px;padding-right:0px;"><ul class="nav nav-pills"><li class="active"><a id="recentReq" class="topNavPills" ng-click="showRecentRequests()">Recent Requests</a></li>'
+												+ '<li><a id="archReq"  class="topNavPills" ng-click="showArchievedRequests()">Archived</a></li>'
+												+ '<li><a id="sysArchReq"  class="topNavPills" ng-click="showSysArchievedRequests()">System Archived</a></li></ul></div></div>';
+
+										if ($scope.isLevReqList) {
+											$scope.reqListActive = true;
+
+											var actionBtn = '<div class="col-lg-3 col-md-3 col-xs-6 padding0 floatRight" ng-if="archievedFlag">'
+													+ '<button type="button" class="btn btnActionButton" data-ng-click="unarchiveRequest();" style="padding-bottom:4px"><span style="padding-right:6px;font-size:15px;"'
+													+ 'class="clm-icon-unarchive"></span><label style="font-weight:bold;" class="labelAnchor">UNARCHIVE</label></button></div> '
+													+ '<div class="col-lg-3 col-md-3 col-xs-6 padding0 floatRight" ng-if="recentFlag"><button type="button" class="btn btnActionButton" style="padding-top:8px;padding-bottom:4px"'
+													+ 'data-ng-click="archiveRequest();"><span style="padding-right:6px;font-size:15px;"'
+													+ 'class="clm-icon-archive"></span><label style="font-weight:bold; vertical-align: middle;" class="labelAnchor">ARCHIVE</label></button></div>'
+													+ '<div class="col-lg-3 col-md-3 col-xs-6 padding0 floatRight" ng-if="recentFlag">'
+													+ '<button type="button" class="btn btnActionButton" data-ng-click="deleteDraftReq();" style="padding-top:8px;padding-bottom:4px"><span style="padding-right:6px;font-size:15px;"'
+													+ 'class="clm-icon-delete"></span><label style="font-weight:bold; vertical-align: middle;" class="labelAnchor">DELETE DRAFT</label></button></div>'
+													+ '<div class="col-lg-3 col-md-3 col-xs-6 padding0 floatRight" ng-if="recentFlag || archievedFlag">'
+													+ '<button type="button" class="btn btnActionButton" data-ng-click="copyToNew();" style="padding-top:8px;padding-bottom:4px"><span style="padding-right:6px;font-size:15px;"'
+													+ 'class="glyphicon glyphicon-duplicate"></span><label style="font-weight:bold; vertical-align: middle;" class="labelAnchor">COPY TO NEW</label></button></div> '
+													+ '<div class="col-lg-3 col-md-3 col-xs-6 padding0 floatRight"  ng-if="recentFlag || archievedFlag"><button type="button" class="btn btnActionButton"'
+													+ 'data-ng-click="deleteRequest();" style="padding-top:8px;padding-bottom:4px"><span style="padding-right:6px;font-size:15px;"'
+													+ 'class="clm-icon-cancel"></span><label style="font-weight:bold;vertical-align: middle;" class="labelAnchor">CANCEL</label></button></div>'
+													+ '<div class="col-lg-3 col-md-3 col-xs-6 padding0" ng-if="!archievedFlag && !recentFlag && pagedItems.length > 0"'
+													+ ' style="float:right;right:15px;">'
+													+ '<button type="button" class="btn btnActionButton" data-ng-click="exportSysArch();" style="padding-top:8px;padding-bottom:4px"><span style="padding-right:6px;font-size:15px;"'
+													+ 'class="clm-icon-excel-download"></span><label style="font-weight:bold;" class="labelAnchor">Export to excel</label></button></div>';
+
+											handleRecentArchived();
+											handleActionBtnDiv(actionBtn);
+											handleFilterSort();
+
+										} else if ($scope.isdeleteLeave) {
+											$scope.delLevActive = true;
+											var actionBtn = '<div class="col-lg-3 col-md-3 col-xs-6 padding0 floatRight" >'
+												+ '<button type="button" class="btn btnActionButton" data-ng-click="deleteRequest();" style="padding-bottom:4px"><span style="padding-right:6px;font-size:15px;"'
+												+ 'class="clm-icon-unarchive"></span><label style="font-weight:bold;" class="labelAnchor">DELETE</label></button></div>';
+												
+					
+											handleActionBtnDiv(actionBtn);
+											handleFilterSort();
+
+										} else if ($scope.isEmpLevReqList) {
+											$scope.empReqListActive = true;
+											handleRecentArchived();
+											handleFilterSort();
+
+										} else if ($scope.isReAssignLevReqList) {
+											
+											var actionBtn = '<div class="col-lg-3 col-md-3 col-xs-6 padding0 floatRight" >'
+												+ '<button type="button" class="btn btnActionButton" data-ng-click="reassignRequest();" style="padding-bottom:4px"><span style="padding-right:6px;font-size:15px;"'
+												+ 'class="clm-icon-reassigncopy"></span><label style="font-weight:bold;" class="labelAnchor">REASSIGN</label></button></div>';
+												
+					
+											handleActionBtnDiv(actionBtn);
+											handleFilterSort();
+
+										}else if ($scope.isAmendLevReqList) {
+											
+											var actionBtn = '<button type="button" id="amendButton" class="btn btn-primary btn-lg" style="margin-right: 10px; margin-top: 5px;padding-top: 3px;padding-bottom: 3px;" data-ng-click="open()" translate>Open for amendment</button>';
+												
+					
+											addBtns(actionBtn);
+											
+											//handleFilterSort();
+										}
+										
+										function addBtns(actionBtn){
+											actionBtn = compileElement(actionBtn);
+											var actionBtnDiv = angular
+													.element($('#amendBtnSec'));
+											actionBtnDiv.append(actionBtn);
+											
+										}
+										
+										function handleActionBtnDiv(actionBtn) {
+											actionBtn = compileElement(actionBtn);
+											var actionBtnDiv = angular
+													.element($('#actionBtnDiv'));
+											actionBtnDiv.append(actionBtn);
+										}
+
+										function handleFilterSort() {
+											filterSort = compileElement(filterSort);
+											var filterSortDiv = angular
+													.element($('#filterSortDiv'));
+											filterSortDiv.append(filterSort);
+										}
+
+										function handleRecentArchived() {
+											archRec = compileElement(archRec);
+											var archRecentDiv = angular
+													.element($('#archRecentDiv'));
+											archRecentDiv.append(archRec);
+										}
+
+										function compileElement(element) {
+											return $compile(element)($scope);
+										}
+
+									} ]);
+			return app;
+		});

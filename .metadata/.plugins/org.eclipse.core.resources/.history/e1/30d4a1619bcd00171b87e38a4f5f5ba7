@@ -1,0 +1,225 @@
+package com.ultimatix.gess.leave.controller;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.plagiarism.leave.sessionbean.UserDetailsSessionBean;
+import com.ultimatix.gess.leave.dto.CommonDTO;
+import com.ultimatix.gess.leave.dto.FyaLeaveDTO;
+import com.ultimatix.gess.leave.dto.LeaveRequest;
+import com.ultimatix.gess.leave.exception.LeaveValidationException;
+import com.ultimatix.gess.leave.message.FieldErrorResource;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.FyaService;
+import com.ultimatix.gess.leave.service.WorkListService;
+import com.ultimatix.gess.leave.util.CollectionUtility;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.LeaveConstants;
+import com.ultimatix.gess.leave.util.LeaveSecurityUtility;
+import com.ultimatix.gess.leave.util.LerfLeaveUtils;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class WorkListController {
+	
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(DataFixController.class);
+	
+	@Autowired
+	private FyaService fyaService;
+	
+	@Autowired
+	private UserDetailsSessionBean userBean;
+	
+	@Autowired
+	private WorkListService workListService;
+	
+	/**
+	 * rest/leaveRequests/SUPERVISOR_EMPLOYEE_ID/LEAVE_PARENT_ID, LIST OF DATA
+	 **/
+	@RequestMapping(value={"/leaveRequests/{levParentId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<ResponseResource> getLeaveApproval(@PathVariable(value="levParentId") Integer levParentId, @RequestBody List<LeaveRequest> leaveRequests) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("WorkListController | getLeaveApproval | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		FyaLeaveDTO dto = new FyaLeaveDTO();
+		dto.setLevParentId(levParentId);
+		dto.setLeaveRequests(leaveRequests);
+		dto.setCategory(userBean.getCategory());
+		dto.setSupervisorId(loginId);
+		List<ResponseResource> resources = new ArrayList<ResponseResource>();
+		if(CollectionUtility.isNotEmpty(leaveRequests)) {
+			resources = this.fyaService.updateFyaLeaveRequest(dto);
+			LOG.info("WorkListController | getLeaveApproval | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | COMPLETED");
+		} else {
+			LOG.info("WorkListController | getLeaveApproval | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | ELSE_NOT_FOUND");
+			resources.add(resourceNotFound(String.valueOf(levParentId)));
+		}
+		LOG.info("WorkListController | getLeaveApproval | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return resources;
+	}
+	
+	/**
+	 * Note:
+	 * @throws SQLException 
+	 **/
+	@RequestMapping(value={"/reassignLeave/{leaveParentId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<ResponseResource> reassignLeave(@PathVariable(value="leaveParentId") Integer leaveParentId, @RequestParam(value="reassignFrom", required=false) String reassignFrom, @RequestParam(value="reassignTo") String reassignTo, @RequestBody List<LeaveRequest> leaveRequestList) throws SQLException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("WorkListController | reassignLeave | leaveParentId:"+leaveParentId+" | reassignFrom:"+reassignFrom+" | reassignTo:"+reassignTo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		FyaLeaveDTO dto = new FyaLeaveDTO();
+		dto.setSupervisorId(loginId);
+		dto.setLevParentId(leaveParentId);
+		dto.setCategory(userBean.getCategory());
+		dto.setReassignTo(reassignTo);
+		dto.setLeaveRequests(leaveRequestList);
+		List<ResponseResource> resources = this.fyaService.updateReassignLeaveRequest(dto);
+		LOG.info("WorkListController | reassignLeave | leaveParentId:"+leaveParentId+" | reassignFrom:"+reassignFrom+" | reassignTo:"+reassignTo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return resources;
+	}
+	
+	@RequestMapping(value={"/worklistAction"}, method={RequestMethod.POST, RequestMethod.GET})
+	@ResponseBody
+	public List<ResponseResource> actOnLeaveRequest(@RequestParam(value="comment",required=false) String comment, @RequestParam(value="reassignTo", required=false) String reassignTo) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("WorkListController | actOnLeaveRequest | comment:"+comment+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		List<FyaLeaveDTO> dtos = workListService.fetchBulkActionRecord(comment);
+		List<ResponseResource> resources = new ArrayList<ResponseResource>();
+		if(CollectionUtility.isNotEmpty(dtos)) {
+			int size =dtos.size();
+			LOG.info("WorkListController | actOnLeaveRequest | IF | comment:"+comment+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | size:"+size);
+			for(FyaLeaveDTO dto:dtos) {
+				dto.setReassignTo(reassignTo);
+				ResponseResource resource = worklistApproval(dto, comment);
+				resources.add(resource);
+			}
+		} else {
+			LOG.info("WorkListController | actOnLeaveRequest | comment:"+comment+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | ELSE_NOT_FOUND");
+		}
+		LOG.info("WorkListController | actOnLeaveRequest | comment:"+comment+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return resources;
+	}
+	
+	public ResponseResource worklistApproval(FyaLeaveDTO leaveDTO, String comment) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("WorkListController | worklistApproval | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		String action = leaveDTO.getActList();
+		if(CollectionUtility.isNotEmpty(leaveDTO.getLeaveRequests())) {
+			LeaveRequest request = leaveDTO.getLeaveRequests().get(0);
+			String levRequestNo = request.getLevRequestNo();
+			try {
+				leaveDTO.setFlow(LeaveConstants.WORKLIST);
+				leaveDTO.setCategory(userBean.getCategory());
+				LOG.info("WorkListController | worklistApproval | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" | levRequestNo:"+levRequestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | TRY_BLOCK | REASSIGN:"+leaveDTO.getReassignTo());
+				List<ResponseResource> resources = null;
+				if(LerfLeaveUtils.approveReject().contains(leaveDTO.getActList())) {
+					LOG.info("WorkListController | worklistApproval | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" | levRequestNo:"+levRequestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | APPROVE_REJECT | REASSIGN:"+leaveDTO.getReassignTo());
+					resources = this.fyaService.updateFyaLeaveRequest(leaveDTO);
+					ResponseResource resource = resources.get(0);
+					workListService.actedRequest(action+"P", action+"C", levRequestNo, resource.getMessage(), comment);
+					return resource;
+				} else {
+					LOG.info("WorkListController | worklistApproval | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" | levRequestNo:"+levRequestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | REASSIGN:"+leaveDTO.getReassignTo());
+					resources = this.fyaService.updateReassignLeaveRequest(leaveDTO);
+					ResponseResource resource = resources.get(0);
+					workListService.actedRequest(action+"P", action+"C", levRequestNo, resource.getMessage(), comment);
+					return resource;
+				}
+			} catch(LeaveValidationException ex) {
+				LOG.error("WorkListController | worklistApproval | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" levRequestNo:"+levRequestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | LeaveValidationException:", ex);
+				ResponseResource resource = ex.getErrors().get(0);
+				List<FieldErrorResource> reFields = resource.getFieldErrors();
+				String message = resource.getMessage();
+				if(CollectionUtility.isNotEmpty(reFields)) {
+					FieldErrorResource errorResource = reFields.get(0);
+					message = errorResource.getMessage();
+				} else {
+					LOG.info("WorkListController | worklistApproval | ELSE | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" levRequestNo:"+levRequestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | LeaveValidationException:");
+				}
+				workListService.actedRequest(action+"P", action+"C", levRequestNo, message, comment);
+				return resource;
+			} catch(Exception ex) {
+				LOG.error("WorkListController | worklistApproval | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" levRequestNo:"+levRequestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | Exception:", ex);
+				ResponseResource resource = new ResponseResource(request.getLevRequestNo());
+				resource.setCode("422");
+				resource.setMessage(ex.getMessage()==null?ex.getClass().getName():ex.getMessage());
+				workListService.actedRequest(action+"P", action+"E", levRequestNo, resource.getMessage(), comment);
+				return resource;
+			}
+		} else {
+			LOG.info("WorkListController | worklistApproval | ELSE_404_NO_RECORD_FOUND | backupId:"+leaveDTO.getBackupEmpId()+" | action:"+leaveDTO.getActList()+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | Exception:");
+			ResponseResource resource = new ResponseResource("404");
+			resource.setCode("422");
+			resource.setMessage("No Request Found");
+			return resource;
+		}
+	}
+	
+	
+	private ResponseResource resourceNotFound(String uniqueId) {
+		ResponseResource resource = new ResponseResource("No Record Found");
+		resource.setCode("404");
+		resource.setMessage("No Record Found for Approval/Reject/SeekClarication for leave RequestNo:"+uniqueId);
+		return resource;
+	}
+	
+	
+	/**
+	 * rest/fyaDetailPage?levParentId=10&supervisorId=1020989
+	 **/
+	@RequestMapping(value={"/fyaDetailPage/{levParentId}/{supervisorId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<ResponseResource> fetchLeaveDetailFromChildRequest(@PathVariable(value="levParentId") String levParentId, @PathVariable(value="supervisorId") String supervisorId) {
+		String loginId =(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("WorkListController | fetchLeaveDetailFromChildRequest | levParentId:"+levParentId+" | supervisorId:"+supervisorId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		List<ResponseResource> resource=new ArrayList<ResponseResource>();
+		ResponseResource response = new ResponseResource(String.valueOf(levParentId));
+		response.setCode("200");
+		resource.add(response);
+		List<CommonDTO> fyaLeaveRequestList = new ArrayList<CommonDTO>();
+		if(LeaveSecurityUtility.isLeaveRequestNoRegex(levParentId)) {
+			LOG.info("WorkListController | fetchLeaveDetailFromChildRequest | INSIDE_CHILD_NO | LevRequestNo.:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+			fyaLeaveRequestList = this.fyaService.fetchLeaveRequest(levParentId,  supervisorId, false);
+		} else {
+			LOG.info("WorkListController | fetchLeaveDetailFromChildRequest | INSIDE_PARENT_NO | LevRequestNo.:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+			fyaLeaveRequestList = this.fyaService.getFyaLeaveRequestList(Integer.valueOf(levParentId),  supervisorId, false);
+		}
+		this.fyaService.isBenSpec(fyaLeaveRequestList);
+		if(CollectionUtility.isNotEmpty(fyaLeaveRequestList)) {
+			response.setSuccess("fyaList", fyaLeaveRequestList.get(0));
+		}
+		return resource;
+	}
+	
+	/**
+	 * rest/trackReq?levParentId=10&supervisorId=1020989
+	 **/
+	@RequestMapping(value={"/trackReq/{levParentId}/{supervisorId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<ResponseResource> getTrackLeaveRequestList(@PathVariable(value="levParentId") Integer levParentId, @PathVariable(value="supervisorId") String supervisorId) {
+		String loginId =(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("WorkListController | getTrackLeaveRequestList | levParentId:"+levParentId+" | supervisorId:"+supervisorId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		List<ResponseResource> resource=new ArrayList<ResponseResource>();
+		ResponseResource response = new ResponseResource(String.valueOf(levParentId));
+		response.setCode("200");
+		resource.add(response);
+		List<CommonDTO> fyaLeaveRequestList = this.fyaService.getFyaLeaveRequestList(levParentId,  supervisorId, true);
+		if(CollectionUtility.isNotEmpty(fyaLeaveRequestList)) {
+			response.setSuccess("fyaList", fyaLeaveRequestList.get(0));
+		}
+		LOG.info("WorkListController | getTrackLeaveRequestList | levParentId:"+levParentId+" | supervisorId:"+supervisorId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return resource;
+	}
+}

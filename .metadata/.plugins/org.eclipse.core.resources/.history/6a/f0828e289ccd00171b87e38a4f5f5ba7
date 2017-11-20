@@ -1,0 +1,131 @@
+package com.plagiarism.controller;
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ultimatix.gess.leave.dto.CommonDTO;
+import com.ultimatix.gess.leave.dto.EmployeeDTO;
+import com.ultimatix.gess.leave.dto.LeaveRequest;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.MyTeamCalendarService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.DateUtils;
+import com.ultimatix.gess.leave.util.LeaveConstants;
+import com.ultimatix.gess.leave.util.ObjectUtility;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+@RequestMapping(value={"/teamCalendar"})
+public class MyTeamCalendarController {
+	
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(MyTeamCalendarController.class);
+	
+	@Autowired
+	private MyTeamCalendarService calendarService;
+
+	@RequestMapping(value="/tx", method={RequestMethod.POST})
+	@ResponseBody
+	public List<CommonDTO> teamcalendar(HttpServletRequest request, HttpServletResponse response) throws SQLException {
+		final String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		long startTime = System.currentTimeMillis();
+		String timesStart = request.getParameter("startDate"), timesEnd = request.getParameter("endDate");
+		String supervisorId = request.getParameter("supervisorNumber");
+		String employeeId = request.getParameter("employeeId");
+		
+		supervisorId = !ObjectUtility.isNullSafe(supervisorId)?loginId: supervisorId;
+		
+		Date startDate = ObjectUtility.isNullSafe(timesStart) ? DateUtils.getDateFromString(timesStart, LeaveConstants.DATE_FORMAT_MMM): new Date();
+		Date endDate = (ObjectUtility.isNullSafe(timesEnd) && Long.valueOf(timesEnd)>0) ? DateUtils.getDate(Long.valueOf(timesEnd)): DateUtils.incDate(startDate, LeaveConstants.TEAM_CALENDAR_MAX_DAYS);
+		LOG.info("MyTeamCalendarController | teamcalendar | loginId:"+loginId+" | supervisorId:"+supervisorId+" | employeeId:"+employeeId+" | startDate:"+timesStart+" | endDate:"+timesEnd+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		List<CommonDTO> employeeCalendars = calendarService.getLeaveCalendar(supervisorId, employeeId,  startDate, endDate, false);
+		
+		double executedTime = System.currentTimeMillis() - startTime;
+		double finalTime = (double) executedTime / 1000;
+		LOG.info("MyTeamCalendarController | teamcalendar | loginId:"+loginId+" | supervisorId:"+supervisorId+" | employeeId:"+employeeId+" | startDate:"+timesStart+" | endDate:"+timesEnd+" | Total_Time:"+finalTime+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return employeeCalendars;
+	}
+	
+	@RequestMapping(value={"/employeeApprovalList"}, method={RequestMethod.GET})
+	@ResponseBody
+	public List<EmployeeDTO> getEmployeeApprovalList(@RequestParam(value="employeeId") String employeeId, @RequestParam(value="cd", required=false) Long cd) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String actId = !ObjectUtility.isNullSafe(employeeId)?loginId:employeeId;
+		LOG.info("MyTeamCalendarController | getEmployeeApprovalList | employeeId:"+employeeId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		List<EmployeeDTO> employeeDTOs = this.calendarService.getEmployeeApprovalList(actId);
+		LOG.info("MyTeamCalendarController | getEmployeeApprovalList | employeeId:"+employeeId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return employeeDTOs;
+	}
+	
+	@RequestMapping(value={"/approvalChange"}, method = {RequestMethod.POST})
+	@ResponseBody
+	public ResponseResource approvalChange(@RequestBody List<EmployeeDTO> employeeDTOs) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("MyTeamCalendarController | approvalChange | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		ResponseResource resource = this.calendarService.approvalChange(employeeDTOs);
+		LOG.info("MyTeamCalendarController | approvalChange | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return resource;
+	}
+	
+	@RequestMapping(value={"/updatePlanned"}, method = {RequestMethod.POST})
+	@ResponseBody
+	public ResponseResource updatePlannedLeave(@RequestBody LeaveRequest leaveRequest) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("MyTeamCalendarController | updatePlannedLeave | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		ResponseResource resource = calendarService.updatePlannedLeave(leaveRequest);
+		LOG.info("MyTeamCalendarController | updatePlannedLeave | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return resource;
+	}
+	
+	@RequestMapping(value={"/getPlannedLeave"}, method = {RequestMethod.GET})
+	@ResponseBody
+	public LeaveRequest fetchPlannedLeave(@RequestBody LeaveRequest leaveRequest) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("MyTeamCalendarController | fetchPlannedLeave | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		LeaveRequest request = calendarService.getPlannedLeave(leaveRequest);
+		LOG.info("MyTeamCalendarController | fetchPlannedLeave | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return request;
+	}
+	
+	@RequestMapping(value={"/report"}, method={ RequestMethod.GET,RequestMethod.POST})
+	public void teamCalendarReport(HttpServletRequest request, HttpServletResponse response) throws SQLException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("MyTeamCalendarController | teamCalendarReport | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		String timesStart = request.getParameter("startDate"), timesEnd = request.getParameter("endDate");
+		String supervisorId = request.getParameter("supervisorId");
+		supervisorId = supervisorId==null?loginId: supervisorId;
+		
+		String employeeId = request.getParameter("employeeId");
+		employeeId = ObjectUtility.isNullSafe(request.getParameter("employeeId"))?employeeId:null;
+		
+		String fileName = request.getParameter("fileName"); 
+		fileName = fileName==null?supervisorId+".xls":"TeamCalendarReport-"+supervisorId+".xls";
+
+
+		
+		Date startDate = ObjectUtility.isNullSafe(timesStart) ? DateUtils.getDateFromString(timesStart, LeaveConstants.DATE_FORMAT_MMM): new Date();
+		Date endDate = (ObjectUtility.isNullSafe(timesEnd) && Long.valueOf(timesEnd)>0) ? DateUtils.getDate(Long.valueOf(timesEnd)): DateUtils.incDate(startDate, LeaveConstants.TEAM_CALENDAR_MAX_DAYS);
+
+		List<CommonDTO> employeeCalendars = calendarService.getLeaveCalendar(supervisorId, employeeId,  startDate, endDate, true);
+		try {
+			calendarService.teamCalendarReport(fileName, employeeCalendars, startDate, endDate, request, response);
+		} catch (IOException e) {
+			LOG.error("MyTeamCalendarController | teamCalendarReport | loginId:"+loginId+" | IOException:",e);
+		}
+		LOG.info("MyTeamCalendarController | teamCalendarReport | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+	}
+}

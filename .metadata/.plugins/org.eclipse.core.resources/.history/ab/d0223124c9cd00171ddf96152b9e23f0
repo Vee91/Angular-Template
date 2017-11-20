@@ -1,0 +1,6 @@
+<div class="row topPanel" style="padding-bottom: 30px;"
+	ng-controller="empLerfReqDtlsCtrl">
+	
+	<div data-ng-include data-src="'pages/leave/cmnLerfReqDetails.html'">
+
+</div>

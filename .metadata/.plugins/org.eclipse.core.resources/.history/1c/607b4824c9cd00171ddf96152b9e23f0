@@ -1,0 +1,15 @@
+
+<div data-ng-controller="MyCalenderController">
+<div>
+  <label>Select Date: </br></label>
+ 
+  <div compile="datePickervar"></div>
+  
+  </div>
+ 
+ <script>
+ /* window.setTimeout(function(){
+  $( "#date1" ).triggerHandler( "focus" );
+  },200); */
+  </script>
+ </div> 

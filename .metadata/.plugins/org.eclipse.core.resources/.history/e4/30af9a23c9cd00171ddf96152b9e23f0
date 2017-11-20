@@ -1,0 +1,20 @@
+<!--Variables used to print everything in German -->
+
+#Keys for Todo---Start
+newTodoLabel=neue zu tun
+todoTitle=Titel
+todoDescription=Beschreibung
+successTodo=AHinzufügen Neue Zu Tun erfolgreich
+#Keys for Todo---End
+
+
+
+#Keys for Menus----Start
+TodoSample=Zu Tun Sample
+MenuAdminUtility=Menu Admin Utility
+MenuAdminUtiltyChild=Menu AdminUtiltyChild
+Add New Todo=Hinzufügen Neue Zu Tun
+View All Todo=ansehen alle zu tun
+LoadMonitorUtility=Load Monitor Utility
+#Keys for Menus----End
+

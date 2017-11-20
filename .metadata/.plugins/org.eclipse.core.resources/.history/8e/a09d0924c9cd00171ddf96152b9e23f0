@@ -1,0 +1,397 @@
+define(['utils','jqueryui','enscroll'], function(utils) {
+  var showing = -1;
+  var menuWidth = 219;
+  var time = 300;
+  function animateMenu() {
+    if (showing == -1) {
+      showing = 0;
+
+      $('#menuPage').show("slide", {
+        direction: "left"
+      }, time, function() {
+        showing = 1;
+      });
+
+      $(".shortcutMenu").animate({
+        left: menuWidth + "px"
+      }, time, function() {
+        showing = 1;
+      });
+
+    } else if (showing == 1) {
+      showing = 0;
+
+      $('#menuPage').hide("slide", {
+        direction: "left"
+      }, time, function() {
+        showing = -1;
+      });
+
+      $(".shortcutMenu").animate({
+        left: "0px"
+      }, time, function() {
+        showing = -1;
+      });
+    }
+  }
+
+  // to convert space into underscore for images
+  function getImageFromTitle(title) {
+    if (!utils.isNull(title)) return title.replace(/ /g, "_");
+  }
+
+  // landing page menus
+  function buildMenu(data, appAvail) {
+    var menuList = data;
+
+    // build hierarchical menu.
+    $("#menuLeft").html("");
+    $(".shortcutMenu").css("left", "0px");
+
+    var gParent = "";
+    var menuCount = 0;
+    var columnCount = 0;
+
+    var prevSecondLevelMenuId = 0;
+
+    var firstLevelMenusCount = [];
+
+    var anchorTagStyle = "default";
+
+    var firstLabelId = 0;
+    var firstLabelTitle = "";
+
+    // margin between two 2nd level menu
+    var marginSecondLevel = 20;
+
+    // one column total width
+    var maxColWidth = 260;
+
+    // column container total height
+    var maxColumnContainerHeight = 380;
+
+    // 2nd-level menu title max length
+    var max2ndLevelMenuTitleLength = 30;
+
+    // 3rd-level menu title max length
+    var max3rdLevelMenuTitleLength = 37;
+
+    // To get height in the menu logic
+    var previousCss = $("#menuPage").attr("style");
+
+    // for admin menus
+    adminMenuAccess = false;
+
+    $("#menuPage").css({
+      visibility: 'hidden',
+      display: 'block'
+    });
+
+    for (var i = 0; i < menuList.length; i++) {
+      var item = menuList[i];
+      var title = item["localeTitle"];
+      var actionName = item["action"];
+      var menuId = parseInt(item["menuId"]);
+      var type = item["type"];
+      var level = item["level"];
+
+      // if admin-menus are accessible
+      if (menuId == 8500) adminMenuAccess = true;
+
+      // to remove pointer cursor for menus having null as url
+      if (utils.isNull(actionName)) {
+        actionName = "";
+        anchorTagStyle = "default";
+      } else {
+        anchorTagStyle = "pointer";
+      }
+
+      if (type != 'P') {
+        if (level == 1) {
+          firstLevelMenusCount.push(menuId);
+
+          // adding 1st-level menu element
+          $("#menuLeft").append("<li class='menuLI' id='li" + menuId + "'><span></span><div><span id='normal' class='" + getImageFromTitle(title) + "'></span><span id='hover' class='" + getImageFromTitle(title) + "_hover'></span><a id='a" + menuId + "' " + " >" + title + "</a><ul id=" + menuId
+
+          + " style='margin:0px'></ul></div>" + "<div id='subMenuPage" + menuId + "' class='subMenu'>" + "<div class='row' id='subMenuLeft'>" + "<div class='col-xs-12 col-md-12' id='megaMenuCol1' style='border-right: 2px solid #012943;'></div>" + "</div></div></li>");
+
+          $('#subMenuPage' + menuId).css({
+            opacity: 0
+          });
+
+          firstLabelId = menuId;
+          firstLabelTitle = title;
+
+          /*
+           * $("#li" + menuId).hover(function(){ var id =
+           * (this.id).substring(2); $("#subMenuPage" + id).css({'opacity': 1});
+           * $("#subMenuPage" + id).show(); });
+           */
+
+          // function to add hover effect
+          $("#li" + menuId).hover(function() {
+            var id = (this.id).substring(2);
+
+            $("#subMenuPage" + id).clearQueue().stop();
+
+            if ($("#subMenuPage" + id + " >.row").text().length > 0) {
+
+              $("#subMenuPage" + id).show();
+              $("#subMenuPage" + id).animate({
+                'opacity': 1
+              }, 650);
+
+            }
+          }, function() {
+            var id = (this.id).substring(2);
+
+            $("#subMenuPage" + id).clearQueue().stop();
+            if ($("#subMenuPage" + id + " >.row").text().length > 0) {
+              $("#subMenuPage" + id).animate({
+                'opacity': 0
+              }, 0, function() {
+                $("#subMenuPage" + id).hide();
+              });
+
+            }
+          });
+          menuCount = 0;
+          columnCount = 1;
+          prevSecondLevelMenuId = 0;
+        } else if (level == 2) {
+
+          gParent = menuId;
+          // to break 2nd-level menu title start added by Amjad
+          if ($("#li" + prevSecondLevelMenuId + "_" + columnCount + ">ul").text() == "") {
+            var textData = $("#li" + prevSecondLevelMenuId + "_" + columnCount + ">a").text();
+            $("#li" + prevSecondLevelMenuId + "_" + columnCount + ">a").html((textData.trim().length > max2ndLevelMenuTitleLength ? stringDivider(textData.trim(), max2ndLevelMenuTitleLength, "<br/>\n") : textData.trim()) + '<span id="anchorHoverImageSecondLevel" class="icon-megamenu" style="display: inline-block;"></span>');
+          }
+          // to break 2nd-level menu title end added by Amjad
+
+          // calculating content height till previous 2nd-level for the
+          // particular column
+          menuCount += $("#li" + prevSecondLevelMenuId + "_" + columnCount).height();
+
+          // checking if the 2nd-level is new
+          if (prevSecondLevelMenuId != menuId) {
+
+            // checking if the 2nd-level menu is not the first element in column
+            // and adding
+            if (prevSecondLevelMenuId != 0) menuCount += marginSecondLevel;
+            // assigning current level menu id to previous 2nd-level
+            prevSecondLevelMenuId = menuId;
+          }
+
+          // adding 2nd-level in the column
+          $("#subMenuPage" + firstLabelId + " #megaMenuCol" + columnCount).append("<li id='li" + menuId + "_" + columnCount + "'><a id='a" + menuId + "' style='cursor:" + anchorTagStyle + "'" + "href=" + actionName + " >" + title + " <span id='anchorHoverImageSecondLevel' class='icon-megamenu' style='display: inline-block;'></span></a><ul id=" + menuId + " style='margin:0px'></ul>" + "</li>");
+
+          // checking height after addition of new 2nd-level menu element
+          if ((menuCount + $("#li" + menuId + "_" + columnCount).height() > maxColumnContainerHeight) && columnCount < 3) {
+            // total height for breaking found is
+            // console.log(title+" "+(menuCount+$("#li" + menuId + "_" +
+            // columnCount).height()));
+
+            // removing the added 2nd-level menu element
+            $("#li" + menuId + "_" + columnCount).detach();
+            columnCount++;
+
+            // updating current columns css
+            var j = 1;
+            var spanWidth = 12 / columnCount;
+            while (j < columnCount) {
+              $("#subMenuPage" + firstLabelId + " #megaMenuCol" + j).removeClass();
+              $("#subMenuPage" + firstLabelId + " #megaMenuCol" + j).addClass("col-xs-" + spanWidth + " col-md-" + spanWidth);
+              j++;
+            }
+            // adding one more column for new menu elements
+            $("#subMenuPage" + firstLabelId).width($("#subMenuPage" + firstLabelId).width() + maxColWidth);
+            $("#subMenuPage" + firstLabelId + " #subMenuLeft").append("<div class='col-xs-" + spanWidth + " col-md-" + spanWidth + "' id='megaMenuCol" + columnCount + "' style='border-right: 2px solid #012943;'></div>");
+            // detaching element from one row and adding to other
+            $("#li" + prevSecondLevelMenuId).detach().appendTo("#subMenuPage" + firstLabelId + " #megaMenuCol" + columnCount);
+
+            // adding new menu element to new column
+            $("#subMenuPage" + firstLabelId + " #megaMenuCol" + columnCount).append("<li id='li" + menuId + "_" + columnCount + "'><a id='a" + menuId + "' style='cursor:" + anchorTagStyle + "'" + "href=" + actionName + " >" + title + " <span id='anchorHoverImageSecondLevel' class='icon-megamenu' style='display: inline-block;'></span></a><ul id=" + menuId + " style='margin:0px'></ul>" + "</li>");
+
+            // reseting column height and assigning current menu id to previous
+            // 2nd-level menu id
+            menuCount = 0;
+            prevSecondLevelMenuId = menuId;
+          }
+
+        }
+
+        else if (level == 3) {
+
+          // hiding hover image of its parent 2-nd level menu
+          if ($('#a' + gParent + ">span").css('display') == 'inline-block') $('#a' + gParent + ">span").css('display', 'none');
+
+          // adding 3rd-level in the column
+          // $("#li" + gParent + "_" + columnCount + " #" + gParent).append(
+          // //doesnt work in ghcm
+          $("#li" + gParent + "_" + columnCount + " ul").append("<li style='list-style-type:none;' id='li" + menuId + "'><a id='a" + menuId + "' href=" + actionName + ">" + (title.length > max3rdLevelMenuTitleLength ? stringDivider(title, max3rdLevelMenuTitleLength, "<br/>\n") : title) + "<span id='anchorHoverImage' class='icon-megamenu' style='display: none;'></span>" + "</a></li>");
+
+          // checking height after addition of new 3rd-level menu element
+          if (((menuCount + $("#li" + prevSecondLevelMenuId + "_" + columnCount).height()) > maxColumnContainerHeight) && columnCount < 3) {
+            // total height for breaking found is
+            // console.log(title+" "+(menuCount + $("#li" +
+            // prevSecondLevelMenuId + "_" + columnCount).height()));
+
+            // removing the added 3rd-level menu element
+            $("#li" + menuId).detach();
+            columnCount++;
+
+            // updating current columns css
+            var j = 1;
+            var spanWidth = 12 / columnCount;
+            while (j < columnCount) {
+              $("#subMenuPage" + firstLabelId + " #megaMenuCol" + j).removeClass();
+              $("#subMenuPage" + firstLabelId + " #megaMenuCol" + j).addClass("col-xs-" + spanWidth + " col-md-" + spanWidth);
+              j++;
+            }
+            // adding one more column for new menu elements
+            $("#subMenuPage" + firstLabelId).width($("#subMenuPage" + firstLabelId).width() + maxColWidth);
+            $("#subMenuPage" + firstLabelId + " #subMenuLeft").append("<div class='col-xs-" + spanWidth + " col-md-" + spanWidth + "' id='megaMenuCol" + columnCount + "' style='border-right: 2px solid #012943;'></div>");
+            // adding new dummy 2nd-level element in new column
+            $("#subMenuPage" + firstLabelId + " #megaMenuCol" + columnCount).append("<li id='li" + prevSecondLevelMenuId + "_" + columnCount + "'><ul id=" + prevSecondLevelMenuId + " style='margin:0px'></ul>" + "</li>");
+            // adding new menu element to new column
+            // $("#li" + gParent + "_" + columnCount + " #" + gParent).append(
+            // //doesnt work in ghcm
+            $("#li" + gParent + "_" + columnCount + " ul").append("<li style='list-style-type:none;' id='li" + menuId + "'><a id='a" + menuId + "' href=" + actionName + ">" + (title.length > max3rdLevelMenuTitleLength ? stringDivider(title, max3rdLevelMenuTitleLength, "<br/>\n") : title) + "<span id='anchorHoverImage' class='icon-megamenu' style='display: none;'></span>" + "</a></li>");
+
+            menuCount = 0;
+          }
+          // for ie-8 css change for line break
+          // if (navigator.userAgent.match(/MSIE\s(?!9.0)/)) {
+          // ie less than version 9
+          if (title.length > max3rdLevelMenuTitleLength) {
+            $("#li" + menuId + ">a").css({
+              "height": "26px"
+            });
+          }
+          // }
+
+        }
+        item["moduleName"] = firstLabelTitle;
+
+      }
+
+    }
+
+    $("#menuPage").attr("style", previousCss ? previousCss : "");
+
+    // to hide all the subMenu divs after rendering
+    $(".subMenu").css("display", "none");
+
+    // to change background-color of 2nd-level and 3rd-level menus with no
+    // sub-links
+    $('#subMenuLeft li,#subMenuLeft li>ul>li').hover(function() {
+
+      // if($(this).find('ul').text()==""){ //commented to remove hover from
+      // the 2nd-level element having no child in the same column but in
+      // different column
+      var idArray = $(this).attr('id').split("_");
+      if ($('#' + idArray[0] + "_1").find('ul').text() == "" && $('#' + idArray[0] + "_2").find('ul').text() == "" && $('#' + idArray[0] + "_3").find('ul').text() == "") {
+        if (!$(this).parent().parent().hasClass('menuLI')) $(this).css({
+          'background-color': "#07334f"
+        });
+        $(this).find('#anchorHoverImage').show();
+      }
+    }, function() {
+      $(this).css({
+        'background-color': ""
+      });
+      $(this).find('#anchorHoverImage').hide();
+    });
+
+    // to hide 1-level menus with no sub-links
+    for (var j = 0; j < firstLevelMenusCount.length; j++) {
+      if (0 == $("#li" + firstLevelMenusCount[j] + " .subMenu").text().trim().length) {
+        $("#li" + firstLevelMenusCount[j]).hide();
+      }
+    }
+
+  }
+
+  // function to Split Menu title
+  function stringDivider(str, width, spaceReplacer) {
+    if (str.length > width) {
+      var p = width;
+      for (; p > 0 && str[p] != ' '; p--) {
+      }
+      if (p > 0) {
+        var left = str.substring(0, p);
+        var right = str.substring(p + 1);
+        return left + spaceReplacer + stringDivider(right, width, spaceReplacer);
+      }
+    }
+    return str;
+
+    $('.subMenu').enscroll({
+      showOnHover: true,
+      verticalTrackClass: 'track3',
+      verticalHandleClass: 'handle3'
+    });
+
+  }
+  
+  
+
+  var url = window.location.href;
+  if ((url.indexOf("?cd=") <= -1)) {
+	  window.location.href = "index.html?cd=" + (new Date()).getTime();
+  }
+
+  jQuery(document).ready(function($) {
+    $('#autocompleteInputDiv').keypress(function(event) {
+      var keycode = (event.keyCode ? event.keyCode : event.which);
+      if (keycode == '13') {
+        angular.element("#searchInnerDiv").scope().searchMoreMenus();
+      }
+
+    });
+
+    $('#autocompleteInputDiv').focus(function() {
+      $(this).data('placeholder', $(this).attr('placeholder'))
+      $(this).attr('placeholder', '');
+    });
+    $('#autocompleteInputDiv').blur(function() {
+      $(this).attr('placeholder', $(this).data('placeholder'));
+    });
+
+    // hide #back-top first
+    $("#back-top").hide();
+
+    // fade in #back-top
+    $(function() {
+      $(window).scroll(function() {
+        if ($(this).scrollTop() > 150) {
+          $('#back-top').fadeIn();
+        } else {
+          $('#back-top').fadeOut();
+        }
+      });
+
+      // scroll body to 0px on click
+      $('#back-top a').click(function() {
+        $('body,html').animate({
+          scrollTop: 0
+        }, 800);
+        return false;
+      });
+    });
+
+  });
+  
+  
+  $('.shortcutMenu').click(function(){
+    animateMenu();
+  });
+
+  return {
+    buildMenu: buildMenu,
+    stringDivider: stringDivider,
+    getImageFromTitle: getImageFromTitle,
+    animateMenu: animateMenu
+  };
+
+});

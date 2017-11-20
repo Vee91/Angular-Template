@@ -1,0 +1,145 @@
+
+<link href="appResources/css/applyLev.css" rel="stylesheet" /> 
+<link href="appResources/css/angular-datepicker.css" rel="stylesheet" /> 
+
+
+<div ng-controller="commonCtrl" style="overflow:hidden;">
+<form name="form">
+	<div class="row header-main-row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 header-main-column text-left">
+   
+    <div class="row header-childrow" style="margin:0px;">
+
+    <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2">
+    <span class="header-pagetitle" translate=""><span class="ng-scope">RTT France</span></span>
+    </div>
+    </div>
+    </div>
+    </div>
+	
+    <div class="row">   
+     <div class="col-xs-9"  style="background-color:#f7f7f7;box-shadow:0px 1px 4px 1px #999999;padding:22px 10px 10px 10px;margin-left:38px;margin-bottom:100px;">
+         <div class="col-xs-12 col-sm-12  col-md-12 col-lg-12 text-left">
+          <span style="margin-top:10px;font-size:12px;font-weight:bold;font-family:segoe UI;">Number of RTT default days to be defined:</span>
+          <span>
+          <input style=" margin-left:15px;text-align:center;width:50px;" type="number" min="0" max="15" id="val"  ng-change="change()" string-to-number  ng-model="rttVal" value={{rttVal}} />
+          </span>
+         
+	
+            <!-- row 1 -->
+            <div class="col-xs-12"  style="background-color:#ffffff;box-shadow:0px 1px 4px 1px #999999; margin-top:25px;margin-bottom:10px;">
+            <div class="row" ng-repeat="date in listOfDates track by $index" style="margin:0px" >
+            
+	          <div class="col-xs-12 col-sm-3 col-md-2 col-lg-1 text-left " style="padding-top:15px;">
+             
+              
+               <span style="font-size:12px;font-weight:bold;font-family:segoe UI;color:#6e6e6e;"> Date<span style="color:red;">*</span>:</span>
+              </div>
+              <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2 text-left " style="max-height: 50px;padding-top:10px;padding-bottom:10px;width:16.666667%;">
+               <span>
+               <kunalsdatepicker date-format="dd-MMM-yyyy"  >
+		       <input  style="margin-top:5px;margin-bottom:5px;margin-left:0px; width:120px;" ng-disabled="tempDate[$index] < date2" ng-change="dateValidator();" type="text" class="form-control applyLeaveInputField date-property " placeholder="DD-MMM-YYYY" name="datesVal" id="dateVal_{{index}}" ng-model="listOfDates[$index]"   value={{listOfDates[$index]}}
+		      required/>
+		       </kunalsdatepicker>
+		       
+		       <div ng-show="form.$submitted || form.datesVal.$touched">
+               <span ng-show="form.datesVal.$error.required"></span>
+               </div>
+               </span> 
+            </div>
+          
+          </div>
+       
+
+          <!-- extra dates to be added comes from here -->
+          
+     
+          <div ng-show="show">
+          <div class="row" ng-repeat="date in dateList track by $index" style="margin:0px" >
+	        
+	       <div class="col-xs-12 col-sm-3 col-md-2 col-lg-1 text-left " style="padding-top:13px;"> 
+             
+              
+               <span style="font-size:12px;font-weight:bold;font-family:segoe UI;color:#6e6e6e;"> Date<span style="color:red;">*</span>:</span>
+              
+           </div>
+           <div class="col-xs-12 col-sm-3 col-md-2 col-lg-2 text-left " style="max-height: 50px;padding-top:10px;padding-bottom:10px;width:16.666667%;">
+               <span>
+               <kunalsdatepicker date-format="dd-MMM-yyyy">
+		       <input  style="margin-top:5px;margin-bottom:5px;margin-left:0px; width:120px;" ng-change="dateValidator($index);" 
+		       type="text" class="form-control applyLeaveInputField date-property " placeholder="DD-MMM-YYYY" 
+		       name="datesVal" id="dateVal_{{index}}" ng-model="dateList[$index]"   value={{dateList[$index]}} required/>
+		       </kunalsdatepicker>
+		       
+		       <div ng-show="form.$submitted || form.datesVal.$touched">
+               <span ng-show="form.datesVal.$error.required"></span>
+               </div>
+              
+            </span>
+          
+          </div>
+         
+          </div>
+		  <div ng-show="sign"  class="col-xs-12 col-sm-3 col-md-2 col-lg-6 text-left "  style="padding-top:13px;">
+          <span style="font-size:12px;font-weight:bold;font-family:segoe UI;color:#6e6e6e;">Note:</span>
+          <span style="font-size:12px;font-weight:bold;font-family:segoe UI;color:red;">Date is repeated.Please choose a new date.</span>
+          </div>
+        
+         </div>
+         
+          </div>
+    
+      
+        <div class="row"  style="margin:0px">
+         <div  class="col-xs-12 col-sm-12 col-lg-12 text-left" margin-left:42px >
+         <br>
+         <button type="button" class="btn btn-primary btn-lg"  style="margin-left:42px;margin-bottom:10px;color:#ffffff;background-color:#2084c9;margin-bottom:40px;" ng-click="insertDates()" data-toggle="modal" data-target="#archiveSuccessModal" ng-disabled="form.$invalid">Submit</button> 
+        
+         <button style="margin-left:0px;margin-bottom:40px;" type="reset"  class="btn btn-default btn-lg" ng-click="resetForm()">Reset</button>
+      
+         <div  id="archiveSuccessModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" aria-hidden="false">
+				
+					<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+						<div class="modal-header" style="background-color: #427cb2; text-align: left; color: white;">
+	            <h3 class="modal-title" style="padding-left: 20px;">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span class="popUpTitleText ng-binding">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="min-height: 130px; padding-left: 30px; padding-right: 30px;padding-bottom: 30px; text-align: left; padding-top: 12px;">
+							<div>
+								<span>Dates has been submitted succesfully.</span>
+							</div>
+							<div style="padding-top: 20px; padding-bottom: 20px;">
+							<button class="leave-modal-button"
+								ng-Click="reloadTest();" data-dismiss="modal" >OK</button>
+								
+						</div>
+						</div>
+					</div>
+				</div>
+				
+				
+				
+			</div> 
+			
+        </div>
+       </div>
+    </div> 
+   </div> 
+   </div> 
+   
+         <script>
+			$('.applyLeaveInputField').keypress(
+			function(event) {
+					event.preventDefault();
+				});
+         </script>
+         
+          
+		       
+		       
+   </form>
+
+</div>

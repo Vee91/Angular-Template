@@ -1,0 +1,62 @@
+
+<link href="appResources/css/applyCalendar.css" rel="stylesheet"/>
+
+
+<div  class="" ng-blur="hideCalendar()" id="calenderdiv">
+<div class="row content-main-row calendar-header-color">
+<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 cal-previous-month" data-ng-click="previousYear();">
+<span href=""  style="text-decoration:none;color:#ffffff;"><span ng-show="previousYearPresent"> << </span></span>
+</div>
+<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 cal-previous-month" data-ng-click="previous()">
+<span href=""  style="text-decoration:none;color:#ffffff;"><span> < </span></span>
+</div>
+<div class="col-xs-2 col-sm-2 col-md-2 col-lg-4 calendar-header text-center">
+ <span class="calendar-header text-center">{{month.format("MMMM, YYYY")}}</span>
+</div>
+<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 cal-next-month" data-ng-click="next();">
+<span href=""  style="text-decoration:none;color:#ffffff;"><span> > </span></span>
+</div>
+<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 cal-next-month" data-ng-click="nextYear();">
+<span  style="text-decoration:none;color:#ffffff;"><span  ng-show="nextYearPresent"> >> </span></span>
+</div>
+
+</div>
+<div class="row content-main-row calendar-days-color">
+<div class="col-lg-12 padding-zero">
+    <span class="cal-day">Su</span>
+    <span class="cal-day">Mo</span>
+    <span class="cal-day">Tu</span>
+    <span class="cal-day">We</span>
+    <span class="cal-day">Th</span>
+    <span class="cal-day">Fr</span>
+    <span class="cal-day">Sa</span>
+
+</div>
+</div>
+
+
+<div>
+<div  class="week" ng-repeat="week in weeks">
+    <span class="kukie"  style="border-width: 1px; border-top-style: solid;border-left-style: solid;border-color: #f7f7f7;height:43px;" data-toggle="tooltip" title="{{day.holLevDescription}}" ng-repeat="day in week.days" ng-class="{'weekend-box1':(day.holLevType=='W'),'weekend-box2': !day.isCurrentMonth}">
+    <div style="position: relative;" class="calendar-tile-css day{{day.date}}" id="day{{day.date}}" name="{{endDate._d.getTime()}}" ng-class="{'hide-date': !day.isCurrentMonth,'disable-date':(day.date._d.getTime() < startDate._d.getTime() || day.date._d.getTime() > endDate._d.getTime() || $parent.$parent.$parent.isFlexi)}" ng-mouseover="hoverDates($event,day);" data-ng-click="($parent.$parent.$parent.isFlexi ||  $parent.$parent.$parent.isAmend) || selectStartOrEndDate(day,$event)" >
+    <div style="height:25px;"  ng-class="{ today: day.isToday,  selected: day.date.isSame(selected) ,'sd-first-half':(day.sDuration=='1'),'sd-second-half':(day.sDuration=='2'),'ed-first-half':(day.eDuration=='1'),'ed-second-half':(day.eDuration=='2'),'day-pendingleave':(day.holLevType=='L' && day.status=='2'),'day-approvedleave':(day.holLevType=='L' && (day.status=='3' || day.status=='13' || day.status=='10' || day.status=='14' || day.status=='15' || day.status=='17')),'day-flexi':(day.holLevType=='F'),'day-holiday':(day.holLevType=='H'),'day-plannedleave':(day.holLevType=='P')}"><div style="padding-top:4px;">{{day.number}}</div></div>
+    </div>
+    </span>
+    
+</div>
+
+
+
+</div>
+<script>
+
+$(document).ready(function(){
+	$('#calenderdiv').tooltip({
+		  selector: "span[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+
+
+

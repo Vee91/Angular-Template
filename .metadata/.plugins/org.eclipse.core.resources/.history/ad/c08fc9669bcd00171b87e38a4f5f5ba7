@@ -1,0 +1,35 @@
+package com.ultimatix.gess.leave;
+
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
+
+import com.plagiarism.controller.FileController;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+public class MultipartResolver {
+
+	private MultipartResolver multipartResolver;
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(FileController.class);
+	
+
+	private void initMultipartResolver(ApplicationContext context)
+	  {
+	    try
+	    {
+	      this.multipartResolver = ((MultipartResolver)context.getBean("multipartResolver", MultipartResolver.class));
+	      if (this.LOG.isDebugEnabled()) {
+	        this.LOG.debug("Using MultipartResolver [" + this.multipartResolver + "]");
+	      }
+	    }
+	    catch (NoSuchBeanDefinitionException ex){
+	    	LOG.error("Exception",ex);
+	    	 this.LOG.error("Using MultipartResolver in Exception [" + this.multipartResolver + "]");
+	      this.multipartResolver = null;
+	      if (this.LOG.isDebugEnabled()){
+	    	  this.LOG.debug("Unable to locate MultipartResolver with name 'multipartResolver': no multipart request handling provided");
+	      }
+	    }
+	  }
+	
+}

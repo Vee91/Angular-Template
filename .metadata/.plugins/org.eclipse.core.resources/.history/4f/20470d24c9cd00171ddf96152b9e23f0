@@ -1,0 +1,141 @@
+
+define(['angular','app','jqueryui'], function(angular,app,jqueryui) {
+	 
+	
+	app.controller('empSearchController',['$scope','$rootScope','$location','$filter','$http',
+	                                      
+    function($scope, $rootScope,$location, $filter, $http) {
+		var prefix = "/leaveRest/rest/";
+		
+		$rootScope.showEmployeeSearch=true;
+		//Search functionalities starts here
+
+		$scope.searchEmployee=function(searchData){
+			//$scope.IncludePage="pages/leave/balance_leaveReportHome.html";
+			$rootScope.urlSrc ="";
+			$scope.empDetails="";
+			$rootScope.IncludePage="";
+			$rootScope.urlSrc ="";
+			//$scope.urlSrc="";
+			$scope.searchButtonCliked = "true";
+			$rootScope.showbalReportStatus=false;
+			$scope.empDetailsOnSearchNomination="";
+			$rootScope.showEmployeeSearch=true;
+			if(null!=searchData && undefined!=searchData && ""!=searchData){
+				if (isNaN(searchData)) {
+					$scope.searchByEmpName(searchData);
+				} else {
+					$scope.searchByEmpNo(searchData);
+				}	
+			}
+			
+		};
+		
+		
+		
+		
+		//  Apply on Behalf search by employeeName
+		$scope.searchByEmpName = function(empName) {
+			if (checkOnName(empName)) {
+				$scope.disableSearchButton= "True";
+				$scope.empSearchResultList ="";
+				//$scope.userData = myService.getter();
+				$scope.empSearchDataStatus = 'Pending';
+				$rootScope.showEmployeeSearch=true;
+				var SearchByEmpName = prefix + "SearchByEmpName";
+				$http.post(SearchByEmpName, {
+					"name" : empName
+				})
+				.success(function(data) {
+					$scope.empSearchResultList = data.empList;
+					$scope.empSearchDataStatus = 'Complete';
+					if($scope.empSearchResultList.length==1){
+						$scope.searchByEmpNo(empName);
+					}else{
+						$rootScope.pagination($scope.empSearchResultList,10, 'paginationSelect');
+					}
+					$scope.disableSearchButton = "False";
+				}).error(function(data){
+					$scope.empSearchDataStatus = 'Complete';
+					$scope.empSearchResultList = data;
+					$scope.disableSearchButton = "False";
+				});			
+			}
+		};
+		
+		$scope.SearchSingleClick = function(item, value) {
+			$("#empSearchErrorControl").removeClass("error");
+			$("#empSearchErrorControl .controls").text("");
+			if (value == "True") {
+				$scope.item = item;
+			} else {
+				$scope.item = null;
+			}
+		};
+
+		$scope.showProceedDetails =function(){
+			if (checkOnProceed($scope.item)) {
+				$scope.empDetails="";
+				$scope.urlSrc="";
+				$scope.empId = $scope.item.empNo;
+				$scope.empDetailsOnSearchNomination = $scope.item;
+				$scope.searchByEmpNo($scope.item.empNo);
+			}
+		};
+	
+		function checkOnProceed(item) {
+			// alert(item.employeeNo)
+			if (item == undefined || item == "") {
+				$("#empSearchErrorControl").addClass("error");
+				$("#empSearchErrorControl .controls").text(
+						"Select at least one employee to proceed.");
+				return false;
+			}
+
+			else if (item.empNo < 0) {
+				$("#empSearchErrorControl").addClass("error");
+				$("#empSearchErrorControl .help-inline").text(
+						"Select at least one employee to proceed.");
+				document.getElementById('empSearchErrorControl').scrollIntoView(false);
+				return false;
+			} else {
+				$("#empSearchErrorControl").removeClass("error");
+				$("#empSearchErrorControl .help-inline").text("");
+				return true;
+			}
+
+		}
+		
+		function checkOnName(empName) {
+			var regex = /^[a-zA-Z ]*$/;
+			var flag1 = 1;
+			if (null == empName || undefined == empName || empName == "") {
+				flag1 = 0;
+			} else {
+				if (!(empName.match(regex))) {
+					$("#empSearchErrorControl").addClass("error");
+					$("#empSearchErrorControl .help-inline").text(
+							"Enter characters only.");
+					return false;
+				}
+			}
+			if (flag1 == 0)/* if(flag1==0 && flag2==0 && flag3==0) */
+			{
+				$("#empSearchErrorControl").addClass("error");
+				$("#empSearchErrorControl .help-inline").text(
+						"Enter Name of the Employee to be searched.");
+				return false;
+			} else {
+				$("#empSearchErrorControl").removeClass("error");
+				$("#empSearchErrorControl .help-inline").text("");
+				return true;
+			}
+			return false;
+		}
+	
+		
+		
+	}]);
+	return app;
+});
+						

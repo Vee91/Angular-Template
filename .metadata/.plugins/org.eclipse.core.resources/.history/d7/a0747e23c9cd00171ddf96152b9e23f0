@@ -1,0 +1,286 @@
+
+.calendar-tile-css{
+	padding:8px 9.3425px 7px 9.3425px; /* 12px 7px 2px 7px; */
+	cursor:pointer;
+} 
+
+
+@media (min-width: 992px) {
+  .calendar-tile-css{
+   padding:8px 9.344px 7px 9.344px;/* 12px 7px 2px 7px; */
+	cursor:pointer;
+  }
+}
+
+@media (min-width: 1200px) {
+  .calendar-tile-css{
+   padding:8px 9.3425px 7px 9.3425px; /* 12px 7px 2px 7px; */
+	cursor:pointer;
+  }
+}
+
+
+
+
+
+
+
+
+
+.calendar-header-color{
+	background-color:#da532c;/* background-color:#08997b; */
+	height:30px;
+}
+
+.calendar-header{
+	padding:6px 0px 6px 0px;
+	width:60%;
+	font-size:14px;
+	color:#ffffff;
+}
+
+.cal-previous-month{
+	height:30px;
+	padding:3px 0px 3px 0px;
+	width:10%;
+	font-size:14px;
+	color:#ffffff;
+	border-right-color:#ae4223;
+	border-right-width: 1px;
+	border-right-style:solid;
+	cursor:pointer;
+	opacity:0.6;
+	font-weight: bold;
+}
+
+
+.cal-previous-month:hover{
+	opacity:1.0;
+}
+
+.cal-next-month{
+	height:30px;
+	padding:3px 0px 3px 0px;
+	width:10%;
+	font-size:14px;
+	color:#ffffff;
+	border-left-color:#ae4223;/*#056b56  */
+	border-left-width: 1px;
+	border-left-style:solid;
+	cursor:pointer;
+	opacity:0.6;
+	font-weight: bold;
+}
+
+
+
+.cal-next-month:hover{
+	opacity:1.0;
+}
+
+.calendar-days-color{
+	background-color:#dd634f;/* background-color:#09a887; */
+	height:25px;
+	padding:5px 0px 5px 0px;
+}
+
+.cal-day{
+	font-size:12px;
+	color:#ffffff;
+    float: left;
+    width: 14.28%;
+}
+
+div.week {
+    float:left;
+    width:100%; 
+    height:43px;
+       
+}
+
+span.kukie{
+    float:left; 
+    width: 14.28%;
+    font-size:12px;
+  /*   cursor:pointer; */
+    background-color:#ffffff;
+    color:#808080;
+
+} 
+
+
+.day-pendingleave{
+
+/* border-bottom: 3px solid #f37735 !important; */ 
+	/* background-color:red !important; */
+	 background-color:#ee411f;
+	 color:#ffffff;
+font-weight:bold;
+}
+
+.day-weekend{
+border-bottom: 3px solid #9EA9B5 !important; 
+	/* background-color:rgb(34, 176, 187) !important; rgb(34, 176, 187)*/
+	
+}
+.weekend-box1{
+background-color:#cdcdcd !important; 
+	/* background-color:rgb(34, 176, 187) !important; rgb(34, 176, 187)*/
+	color:#555555;
+font-weight:bold;
+}
+.weekend-box2{
+	border-width: 1px;
+	border-top-style: solid;border-left-style: solid;
+	 border-color: #f7f7f7 !important;
+background-color: #ffffff !important;  
+	/* background-color:rgb(34, 176, 187) !important; rgb(34, 176, 187)*/
+}
+.day-flexi{
+/*  border-bottom: 3px solid #5435ae;  */
+/*  text-decoration: underline;  */
+ /* background-color:green !important; */
+  background-color:#9a62ff;
+  color:#ffffff;
+font-weight:bold;
+}
+
+.day-holiday{
+ /* border-bottom: 3px solid #46dbc6 !important; */
+	/* background-color:orange !important; */
+	background-color:#24c9e1;
+	color:#ffffff;
+font-weight:bold;
+}
+
+.day-approvedleave{
+/*  border-bottom: 3px solid #8cb61d !important; */
+	/* background-color:orange !important; */
+	 background-color:#91b450;
+	color:#ffffff;
+font-weight:bold;
+}
+
+.day-plannedleave{
+ /* border-bottom: 3px solid #f0c000 !important; */
+	/* background-color:orange !important; */
+	 background-color:#f5b81b;
+	 color:#ffffff;
+font-weight:bold;
+}
+
+
+.hide-date {
+ visibility: hidden;
+}
+    
+.disable-date{
+	color: #c6c6c6;
+    cursor: default !important;
+    font-weight: normal;
+} 
+
+
+    
+.hoverDivStart{
+   z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+  /* color: #fff; */
+ /* background-color: grey !important; */
+  opacity: .7;
+ /*  background: #800000 !important;
+   */
+   border-width: 1px;
+   border-style:solid;
+   border-color:#dd634f;/* border-color: #09a887; */
+  color:#da532c; /* color:#08997b; */
+    font-weight: bold;
+    /* background-color:#f2fdfb; */
+}
+
+
+
+
+.hoverDivEnd{
+    z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+ /*  color: #fff;
+  background-color: grey !important; */
+  opacity: .7;
+ /*  background: #800000 !important;
+   */
+   border-width: 1px;
+   border-style:solid;
+    border-color:#dd634f;/* border-color: #09a887; */
+    color:#da532c; /* color:#08997b; */
+    font-weight: bold;
+	/* background-color:#f2fdfb; */
+}
+
+.hoverDivStart:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 19px solid transparent;
+  border-bottom: 19px solid transparent;
+  border-left: 10px solid #dd634f;/*#09a887  */
+  
+  } 
+ /* div {
+  
+  position : relative;
+  } */
+  
+  .hoverDivEnd:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  height: 0;
+  border-top: 19px solid transparent;
+  border-bottom: 19px solid transparent;
+  border-right: 10px solid #dd634f;/* #09a887 */
+}
+
+ .hoverDivMid{
+   z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+ /*  color: #fff; */
+   /* background-color: grey !important; */
+  opacity: .7;
+ /*  background: #800000 !important;
+   */
+   border-width: 1px;
+   border-style:solid;
+    border-color:#dd634f;/* border-color: #09a887; */
+   /* background-color:#f2fdfb; */
+}   
+ 
+   .hoverDiv{
+  z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+ /*  color: #fff;
+  background-color: grey !important; */
+   border-width: 1px;
+   border-style:solid;
+   font-weight: bold; /*Added by 742954  */
+   border-color:#dd634f;/* border-color: #09a887; */
+  opacity: .7;
+  /* background-color:#f2fdfb; */
+}
+
+
+
+

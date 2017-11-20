@@ -1,0 +1,81 @@
+/**
+ * 
+ */
+define(['utils','jqueryui','enscroll','displayMenu'], function(utils) {
+	
+//to hide menu on click on the application pages
+$("body").click(function(evt){
+	if($('#menuPage').css('display')=='none'){
+	
+}else{
+	var excludedClassItems=['menu','ui-autocomplete-input'];
+	var excludedIdItems=['headerTableHomeLink','menuPage'];
+	if(!utils.isNull(evt.target.getAttribute('class'))){
+		if(showing==1 && !classOrIdMatcher(evt,excludedClassItems,'class'))		{
+			$('#menuPage').hide("slide", {
+				direction : "left"
+			}, 300, function() {
+				showing = -1;
+			});
+
+			$(".shortcutMenu").animate({
+				left : "0px"
+			}, 300, function() {
+				showing = -1;
+			});
+			}
+	}
+	else{
+		if(!utils.isNull(evt.target.getAttribute('id'))){
+		if(showing==1 && !classOrIdMatcher(evt,excludedIdItems,'id'))		{
+			$('#menuPage').hide("slide", {
+				direction : "left"
+			}, 300, function() {
+				showing = -1;
+			});
+
+			$(".shortcutMenu").animate({
+				left : "0px"
+			}, 300, function() {
+				showing = -1;
+			});
+			}}
+		else{
+			if(showing==1)		{
+				$('#menuPage').hide("slide", {
+					direction : "left"
+				}, 300, function() {
+					showing = -1;
+				});
+
+				$(".shortcutMenu").animate({
+					left : "0px"
+				}, 300, function() {
+					showing = -1;
+				});
+				}
+		}
+	}
+		
+}
+	
+});
+
+
+function classOrIdMatcher(evt,list,flag){
+	if (flag == 'class') {
+			for ( var x = 0; x < list.length; x++) {
+				if ($(evt.target).hasClass(list[x]))
+					return true;
+			}
+		} else {
+			for ( var x = 0; x < list.length; x++) {
+				if ($(evt.target).attr('id') == list[x])
+					return true;
+			}
+		}
+		return false;
+	}
+
+});
+

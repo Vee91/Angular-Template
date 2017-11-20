@@ -1,0 +1,45 @@
+
+
+
+<link href="appResources/css/leaveReqList.css" rel="stylesheet"
+	type="text/css" />
+<link href="appResources/css/timeLine.css" rel="stylesheet"
+	type="text/css" />
+
+<style type="text/css">
+.nav-tabs>li.active>a,.nav-tabs>li.active>a:focus,.nav-tabs>li.active>a:hover
+	{
+	color: #fff;
+	cursor: pointer;
+	background-color: transparent;
+	border: none;
+	border-bottom-color: transparent;
+	/*border-bottom: 2px solid gray;*/
+}
+
+.nav-tabs>li>a:hover {
+	background-color: #F3D07E;
+	border: none;
+}
+
+.nav-tabs>li>a {
+	margin-right: 2px;
+	line-height: 1.428571429;
+	border: 1px solid transparent;
+	border-radius: 4px 4px 0 0;
+	cursor: pointer;
+}
+
+.nav-tabs {
+	border: none;
+}
+</style>
+
+<div class="row topPanel" style="padding-bottom: 30px;"
+	ng-controller="ReassignReqDetailsController">
+	
+	<div data-ng-include data-src="'pages/leave/CmnReqDetails.html'"></div>
+
+</div>
+
+ 

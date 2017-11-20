@@ -1,0 +1,163 @@
+
+define(['angular','app','jqueryui'], function(angular,app,jqueryui) {
+	var prefix = "/leaverest/rest/";
+	
+	app.controller('lerfHistoryController',['$scope','$rootScope','$location','$filter','$http','$routeParams',
+    function($scope, $rootScope,$location, $filter, $http,$routeParams) {
+		
+		$scope.showPage=" ";
+		$scope.lerfHistoryList="";
+		$scope.showProcessingFlag=true;
+		$scope.lerfPageName="Leave End Reporting Form -History";
+		
+		$scope.lerfObj = {};
+		$scope.lerfObj.lerfData = [];
+		$scope.lerfObj.lerfData.workflowData = [];
+		$scope.lerfObj.basicWorkFlowData=[];
+		$scope.lerfObj.workFlowData=[];
+		$scope.lerfObj.workFlowDetail="/leaverest/rest/levWorkflow";
+		$scope.lerfObj.basicWorkFlowData = [];
+		$scope.masterChk="";
+		
+		var fetchLERFHistoryDetails=prefix+ "fetchLERFHistoryDetails";
+		$http.post(fetchLERFHistoryDetails).success(function(data) {
+			$scope.showProcessingFlag=false;
+			if(null!=data && undefined!=data && ""!=data){
+				$scope.showPage="historyPage";
+				$scope.lerfHistoryList=data;
+			}
+		}).error(function(data) {
+		})	;	
+		
+		$scope.clickedOnSingleRequest=function(lerfObj){
+			$scope.lerfPageName="LERF Request Details";
+			$scope.lerfObj.lerfData=lerfObj;
+			$scope.showProcessingFlag=true;
+			var fetchSingleLerfDetails=prefix+ "fetchSingleLerfDetails";
+			$http.post(fetchSingleLerfDetails,{
+				"lerfId" : lerfObj.lerfId
+			}).success(function(data) {		
+				if(undefined!=data && ""!=data && null!=data){
+					$scope.showProcessingFlag=false;
+					$scope.showPage="detailsPage";
+					$scope.singleLerfDetails=data;
+					$scope.lerfObj.selctedReq=$scope.singleLerfDetails[0].subRequest;
+					$scope.getWorkFlowdtls($scope.lerfObj.selctedReq,$scope.singleLerfDetails[0].masterRequest);
+				}
+				
+			}).error(function(data) {
+				alert("Error in getting Lerf Details");
+			})	;	
+		};
+		
+		
+		$scope.getWorkFlowdtls=function(val,empNo){
+			$scope.lerfObj.lerfData.workflowData = [];
+			$scope.lerfObj.basicWorkFlowData=[];
+			
+			++$scope.wrkflowDivCount;
+			$http.post($scope.lerfObj.workFlowDetail+ '/'+ empNo+ '?levRequestNo='+ val)
+			.success(function(data) {
+
+			$scope.lerfObj.workFlowData[0] = data;
+
+						for ( var i = 0; i < $scope.lerfObj.workFlowData[0].length; i++) {
+							$scope.tracker = {};
+
+							$scope.tracker.htmlTextBox = "<p class='nodeNameText leftAlign'>"
+									+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].employeeRole
+									+ "</p>"
+									+ "<p class='nodeNameText leftAlign'>"
+									+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].appliedDate
+									+ "</p><br/>"
+									+ "<p class='nodeNameTextDetails leftAlign'>"
+									+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].fullName
+									+ " | "
+									+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].employeeNo
+									+ "</p>"
+									+ "<p class='nodeNameTextEmail leftAlign'>"
+									+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].contactDTO.emailId
+									+ "</p>"
+									+ "<p class='nodeNameTextDetails leftAlign'>"
+									+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].contactDTO.contactNumberCell
+									+ "</p>"
+									+ "<p class='nodeNameTextDetails leftAlign'> Status: "
+									+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].leaveStatus.name
+									+ "</p>";
+
+							if ($scope.lerfObj.workFlowData[0][i].levWorkflow[0].approvalComment !== undefined) {
+								$scope.tracker.htmlTextBox += "<p class='nodeNameTextDetails leftAlign'> Comment: "
+										+ $scope.lerfObj.workFlowData[0][i].levWorkflow[0].approvalComment
+										+ "</p>";
+							}
+							;
+
+							if (i === $scope.lerfObj.workFlowData[0].length - 1 && $scope.lerfObj.workFlowData[0][i].levWorkflow.length > 1) {
+								$scope.workFlowPush = [];
+								$scope.workFlowPush.push($scope.lerfObj.workFlowData[0][i].levWorkflow.slice(1,$scope.lerfObj.workFlowData[0][i].levWorkflow.length));
+
+								$scope.tracker.htmlTextBox += "<a class='leftAlign testNidhi' onclick='showFaltuDtls();' style='cursor: pointer;'>Others +"
+										+ parseInt($scope.lerfObj.workFlowData[0][i].levWorkflow.length - 1)
+										+ "</a>";
+								$scope.tracker.htmlTextBox += "<div id='faltuID' class='tempTestDiv' >";
+								for ( var c = 0; c < $scope.workFlowPush[0].length; c++) {
+
+									$scope.tracker.htmlTextBox += "<p class='testP'>"
+											+ $scope.workFlowPush[0][c].employeeRole
+											+ " | "
+											+ $scope.workFlowPush[0][c].fullName
+											+ " | "
+											+ $scope.workFlowPush[0][c].employeeNo
+											+ " | "
+											+ $scope.workFlowPush[0][c].contactDTO.emailId
+											+ " | "
+											+ $scope.workFlowPush[0][c].contactDTO.contactNumberCell
+											+ "</p>";
+
+								}
+								$scope.tracker.htmlTextBox += "</div>";
+								$compile($scope.tracker.htmlTextBox)($scope);
+
+							}
+
+							if (i === $scope.lerfObj.workFlowData[0].length - 1) {
+								if ($scope.lerfObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 14) {
+									$scope.tracker.status = "ACTED";
+								} else if ($scope.lerfObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 15) {
+									$scope.tracker.status = "REJECTED";
+								} else {
+									$scope.tracker.status = "PENDING";
+								}
+
+							} else {
+								$scope.tracker.status = "ACTED";
+							}
+
+							$scope.lerfObj.basicWorkFlowData.push($scope.tracker);
+
+						}
+					})
+			.error(
+					function(data) {
+					
+						$location.path("/cmnError");
+					});
+			
+		};
+		
+		$scope.backToRequestList=function(){
+			$scope.showPage="historyPage";
+			$scope.lerfPageName="Leave End Reporting Form -History";
+		};
+		
+		$scope.redirectSingleRequest=function(request){
+			$routeParams.parentReqNo = request.masterRequest;
+			$location
+					.path("/levReqDetails/"
+							+ $routeParams.parentReqNo);
+		};
+		
+	}]);
+	return app;
+});
+						

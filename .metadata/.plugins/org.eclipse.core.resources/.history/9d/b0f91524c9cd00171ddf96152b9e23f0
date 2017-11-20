@@ -1,0 +1,8 @@
+define([ 'angular', 'app' ], function(angular, app) {
+
+	app.controller('trackReqDtlsCtrl', [ '$scope', '$compile',
+			function($scope, $compile) {
+				$scope.isTrackReqDtls = true;
+			} ]);
+	return app;
+});

@@ -1,0 +1,793 @@
+
+<link rel="stylesheet" href="appResources/css/Custom_font-awesome.css">
+<link rel="stylesheet" href="appResources/css/build.css">
+<link rel="stylesheet" href="appResources/css/clm-icons.css">
+<style>
+.nav-pills>li.active>a,.nav-pills>li.active>a:hover,.nav-pills>li.active>a:focus
+	{
+	background-color: #044b90;
+	color: #ffffff;
+	font-size: 12px;
+	font-weight: bold;
+	border-radius: 0px;
+	border-right-width: 0px;
+	margin-right: 4px;
+	border-left-width: 0px;
+	cursor: pointer;
+	padding: 14px 10px 6px 10px;
+}
+
+.nav-pills {
+	border-bottom: 3px solid #044B90;
+	/*padding-bottom: 1px;*/
+}
+
+.nav-pills>li>a {
+	color: #555555;
+	background-color: #d9d9d9;
+	font-size: 12px;
+	font-weight: bold;
+	border-radius: 0px;
+	border-right-width: 0px;
+	margin-right: 4px;
+	border-left-width: 0px;
+	cursor: pointer;
+}
+
+.container-fluid {
+	padding-left: 0px;
+	padding-right: 0px;
+}
+
+.paginateBtn {
+	color: #2093D8;
+}
+
+select {
+	border: 1px #999999 solid;
+	background-color: #F3F2F2;
+	font-size: 13px;
+	color: #b8b8b8;
+	border-radius: 3px;
+}
+
+select.dropdown {
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	background-position: 22px 3px;
+	background-size: 13px 13px;
+	width: 100%;
+	height: 26px;
+	cursor: pointer;
+	/* background-color: rgba(243, 242, 242, 0.72); */
+}
+
+.arrow {
+	font-size: 12px;
+	color: #3E3E3E;
+	position: absolute;
+	right: 5px;
+	top: 11px;
+	cursor: default;
+	line-height: 1px;
+}
+
+.parent {
+	position: relative;
+	width: 80%;
+	height: 26px;
+	float: left;
+	margin: 0px;
+	padding: 0px;
+}
+
+select:active,select.dropdown:focus,select.dropdown:active,select.dropdown:active:focus,select.dropdown.active:focus,select.dropdown.focus,select.dropdown:active.focus,select.dropdown.active.focus,select.dropdown:hover,select.dropdown:focus,select.dropdown.focus
+	{
+	border: 1px #62a9d9 solid;
+}
+
+select>option {
+	height: 26px;
+	background-color: #ffffff;
+	color: #555555;
+	font-size: 12px;
+	font-style: initial;
+}
+
+.form-control[disabled],.form-control[readonly],fieldset[disabled] .form-control
+	{
+	background-color: #ffffff;
+}
+
+.reqListTitleBarFont {
+	font-size: 11px !important;
+	color: #ffffff;
+}
+
+.reqListTitleBar {
+	height: 33px;
+	background-color: #4F82B1;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+}
+
+.customCheckbox label:after {
+	border: 3px solid #337AB7;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	filter: alpha(opacity =             0);
+	opacity: 0;
+	content: '';
+	position: absolute;
+	width: 10px;
+	height: 7px;
+	background: transparent;
+	top: 3px;
+	left: 3px;
+	border-top: none;
+	border-right: none;
+	-webkit-transform: rotate(-45deg);
+	-moz-transform: rotate(-45deg);
+	-o-transform: rotate(-45deg);
+	-ms-transform: rotate(-45deg);
+	transform: rotate(-45deg);
+}
+
+.customCheckbox label {
+	border-radius: 0px;
+	border: black 1px solid;
+	background: -webkit-linear-gradient(top, #222 0%, #FFFFFF 0%);
+}
+
+a:hover,a:focus {
+	text-decoration: none;
+}
+
+.radio,.checkbox {
+	margin-top: 0px;
+}
+
+input[type='checkbox'] {
+	cursor: pointer;
+}
+
+.dropdown-menu>li>a:focus,.dropdown-menu>li>a:hover {
+	color: #fff;
+	text-decoration: none;
+	background-color: #2084c9;
+}
+</style>
+<div ng-controller="CmnReqListCtrl">
+	<div class="col-lg-12">
+
+
+		<div id="reqListParentDiv">
+			<div id="archRecentDiv"></div>
+			<!-- Recent requests -->
+			<div class="row"
+				style="margin-top: 2px; border-bottom: 1px solid #EEE;">
+
+				<div class="container-fluid col-lg-12 col-md-12 col-xs-12"
+					style="margin-left: 0px; margin-bottom: 5px;">
+
+					<div class="col-md-3 col-lg-3 col-xs-6 paddingLeftZero"
+						id="filterSortDiv" style="margin-top: 9px;"></div>
+					<div class="col-md-3 col-lg-3"></div>
+					<div class="col-md-6 col-lg-6 col-xs-12 paddingRightZero"
+						style="left: 19px;">
+						<div id="actionBtnDiv"></div>
+					</div>
+				</div>
+			</div>
+
+
+			<div class="panel panel-default addPopoverReq col-xs-12"
+				ng-if="isCollapsed">
+				<div class="triangle">
+					<div class="panel-body panel-body-filter padding0px">
+						<form name="filterForm" role="form" novalidate>
+							<div class="container-fluid"
+								style="margin-left: 0px; margin-right: 0px;">
+
+								<div class="col-md-3 col-xs-6 padding0px marginTop14px"
+									style="text-align: left; color: #555555; font-size: 11px; padding-left: 15px; padding-right: 15px;">
+									<div class="col-md-12 row padding0px">
+										<div class="col-md-12 paddingLeftZero"
+											style="font-size: 11px; text-align: left;">
+											<label>Submission Date</label>
+										</div>
+										<div class="col-md-6 padding0px" style="padding-bottom: 2px;">
+											<kunalsdatepicker date-format="dd-MMM-yyyy"> <input
+												type="text" class="form-control input-sm date-property"
+												name="subStartDate" style="cursor: pointer;"
+												placeholder="DD-MMM-YYYY"
+												ng-model="filter.submissionStartDate" readonly /> </kunalsdatepicker>
+
+										</div>
+
+										<div class="col-md-6 padding0px">
+											<kunalsdatepicker date-format="dd-MMM-yyyy"> <input
+												type="text" class="form-control input-sm date-property"
+												style="cursor: pointer;" placeholder="DD-MMM-YYYY"
+												ng-model="filter.submissionEndDate" readonly /> </kunalsdatepicker>
+
+										</div>
+										<span class="col-md-12 error paddingLeftZero"
+											ng-if="notPristine" id="submissionError">{{errorList[0]}}</span>
+									</div>
+
+								</div>
+
+								<div class="col-md-2 col-xs-6 padding0 marginTop14px">
+									<div style="font-size: 11px; text-align: left;">
+										<label>Request Status</label>
+									</div>
+									<select class="form-control"
+										style="padding: 2px 0px 2px 0px; width: 85%;"
+										id="subReqStatus" data-ng-model="filter.subReqStatus"
+										data-ng-options="sub for sub in
+											subReqStatusList">
+										<option value="" label="Select">Select</option>
+									</select>
+								</div>
+
+								<div class="col-md-3 col-xs-6 padding0px marginTop14px"
+									style="text-align: left; color: #555555; font-size: 11px; padding-left: 15px; padding-right: 15px;">
+									<div class="col-md-12 padding0px">
+										<div style="font-size: 11px; text-align: left;">
+											<label>Leave Duration</label>
+										</div>
+										<div class="col-md-6 padding0px" style="padding-bottom: 2px;">
+											<kunalsdatepicker date-format="dd-MMM-yyyy"> <input
+												type="text" class="form-control input-sm date-property"
+												style="cursor: pointer;" placeholder="DD-MMM-YYYY"
+												ng-model="filter.leaveStartDate" readonly /> </kunalsdatepicker>
+										</div>
+
+										<div class="col-md-6 padding0px">
+											<kunalsdatepicker date-format="dd-MMM-yyyy"> <input
+												type="text" class="form-control input-sm date-property"
+												style="cursor: pointer;" placeholder="DD-MMM-YYYY"
+												ng-model="filter.leaveEndDate" readonly /> </kunalsdatepicker>
+
+										</div>
+
+									</div>
+									<span class="col-md-12 error paddingLeftZero"
+										ng-if="notPristine" id="leaveDurationError">{{errorList[1]}}</span>
+								</div>
+
+								<div class="col-md-2 col-xs-6 padding0 marginTop14px">
+									<div style="font-size: 11px; text-align: left;">
+										<label>Leave Type</label>
+									</div>
+									<select class="form-control"
+										style="padding: 2px 0px 2px 0px; width: 85%;"
+										id="subReqStatus" id="leaveType"
+										data-ng-model="filter.leaveType"
+										data-ng-options="sub for sub in leaveTypes">
+
+										<!-- 	<option label="Select" selected
+											style="display: none;">Select</option> -->
+										<option value="" label="Select">Select</option>
+									</select>
+								</div>
+
+								<div class="col-md-2" style="margin-top: 30px;">
+									<button class="btn btn-primary" ng-click="applyFilter()"
+										style="font-weight: bold; width: 90px; font-size: 12px;"
+										value="Apply">Apply</button>
+									<button class="btn btn-default"
+										style="padding-left: 10px; font-weight: bold; width: 90px; font-size: 12px;"
+										ng-click="resetFilter()" value="Reset">Reset</button>
+								</div>
+
+								<div class="col-md-12 col-xs-12"
+									style="text-align: left; padding-top: 10px;">
+									<span ng-if="notPristine" class="error"
+										style="text-align: left; color: red;">{{errMessage}}</span>
+								</div>
+
+							</div>
+
+						</form>
+					</div>
+				</div>
+			</div>
+
+			<div class="row" id="myRequestErrorControl" ng-if="showErrorMsg">
+				<div class="col-lg-12 alert alert-dismissible" role="alert">
+					<button type="button" class="close" data-dismiss="alert"
+						aria-label="Close" ng-click="closeAlert();">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					{{msgError}}
+				</div>
+			</div>
+
+			<div class="row" style="margin-top: 2px;">
+				<div class="col-md-9 col-lg-9"></div>
+				<div class="col-md-3 col-lg-3 col-xs-10" style="left: 10px;">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-xs-3"></div>
+						<div class="col-lg-3 col-md-3 col-xs-3  paginateHover"
+							data-ng-click="prevPage('paginationSelect')">
+							<p data-ng-disabled="currentPage == 0" verticalalign>
+								<a href class="paginateBtn">PREVIOUS </a>
+							</p>
+						</div>
+						<div class="col-lg-4 col-md-4 col-xs-4 "
+							style="text-align: center; margin-top: 5px;">
+							<span data-ng-hide="pageSize.length>0" class="paginateText">No
+								Records</span> <span data-ng-hide="items.length==0"
+								data-ng-model="selectedPage" id="paginationSelect"
+								class="paginateText">{{pageSize[currentPage].label}}</span>
+						</div>
+						<div class="col-lg-2 col-md-2 col-xs-2  paginateHover"
+							style="margin-top: 0px;"
+							data-ng-click="nextPage('paginationSelect')">
+							<p style="margin-top: 5px;"
+								data-ng-disabled="(currentPage >= (pageSize.length-1))||(0 == pageSize.length)">
+								<a href class="paginateBtn">NEXT</a>
+							</p>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+			<!-- Phase 1 -->
+			<div class="row" id="recentRequests"
+				style="min-width: 1272px; overflow-x: auto;">
+				<div class="col-lg-12"
+					style="margin-top: 2px; border: 1px solid #D5D5D5; padding-left: 0px; padding-right: 0px;">
+					<!-- margin-top: -30px; -->
+
+					<div class="row reqListTitleBar reqListTitleBarFont"
+						style="padding-left: 10px; padding-right: 10px;">
+						<div class="col-lg-1 col-md-1 col-xs-1 row marginTop9px"
+							style="padding-left: 0px; padding-right: 0px; width: 4.17%">
+							<div
+								ng-if="pagedItems.length > 0 && (recentFlag || archievedFlag)"
+								style="padding-top: 0px;">
+								<div class="checkbox checkbox-primary">
+									<input type="checkbox" name="check" ng-model="masterChk"
+										id="masterChkBox"
+										data-ng-click="selectAllMasterRequest(masterChk)"
+										data-ng-true-value="'YES'" data-ng-false-value="'NO'">
+									<label for="masterChkBox"></label>
+								</div>
+							</div>
+						</div>
+
+						<div class="col-lg-10 col-md-10 col-xs-10 row padding0px"
+							style="text-align: left; width: 83.33%">
+							<!--  style="width:930px;max-width:930px;" margin-left:12px; -->
+							<div class="col-lg-1 col-md-1 col-xs-1 marginTop9px padding0px"
+								style="width: 12%">Request Type</div>
+							<div class="col-lg-2 col-md-2 col-xs-2 marginTop9px padding0px"
+								style="width: 12%">Leave Request</div>
+							<div class="col-lg-2 col-md-2 col-xs-2 marginTop9px padding0px"
+								style="width: 14%">
+								Leave Type<a ng-if="predicateSelected === 'leaveType'"
+									ng-click="sortList('leaveType')"
+									ng-class="{reverse:reverse}; setPredicateIcon();"
+									style="cursor: pointer; color: #ffffff;"></a>
+							</div>
+
+							<div class="col-lg-2 col-md-2 col-xs-2 marginTop9px padding0px"
+								style="width: 12%">Start Date</div>
+							<div class="col-lg-2 col-md-2 col-xs-2 marginTop9px padding0px"
+								style="width: 12%">End Date</div>
+							<div class="col-lg-1 col-md-2 col-xs-2 marginTop9px padding0px"
+								style="width: 10%">No of Days</div>
+							<div class="col-lg-2 col-md-2 col-xs-2 marginTop9px padding0px"
+								style="width: 12%">
+								<!-- width:123px; -->
+								Status <a ng-if="predicateSelected === 'status'"
+									ng-click="sortList('status')"
+									ng-class="{reverse:reverse}; setPredicateIcon();"
+									style="cursor: pointer; color: #ffffff;"></a>
+							</div>
+							<div class="col-lg-1 col-md-2 col-xs-2 marginTop9px padding0px"
+								style="width: 15%">Recovery Status</div>
+						</div>
+						<div
+							class="col-lg-1 col-md-1 col-xs-1 row marginTop9px padding0px"
+							style="width: 12.5%">
+							<div style="text-align: left;">Submit Date</div>
+						</div>
+					</div>
+
+					<div class="row requestBar" id="mainRequestBar"
+						ng-if="recentFlag || archievedFlag">
+
+						<!-- Default sorting -->
+						<div id="defaultSorting"
+							ng-repeat="subData in pagedItems[currentPage] track by $index"
+							ng-if="!isSorted && !isFiltered"
+							class="subRequestRow alternative_cls"
+							style="margin-left: 10px; margin-right: 10px;">
+							<div class="whiteBarReqList " id="whitebar{{$index}}"
+								ng-mouseenter="$emit('setDivHoverStyle', $index, 'whitebar','enter')"
+								ng-mouseleave="$emit('setDivHoverStyle', $index, 'whitebar','leave')"
+								style="padding-top: 10px;">
+								<div class="col-lg-1 col-md-1 col-xs-1 row "
+									style="padding-left: 0px; padding-right: 0px; width: 4.17%">
+									<div ng-if="pagedItems.length > 0" style="padding-top: 5px;">
+										<div class="checkbox checkbox-primary">
+											<input type="checkbox" id="childUnfilterChk{{$index}}"
+												name="requestSelect" ng-model="subData.childChk"
+												data-ng-click="selectMasterRequest(subData,subData.childChk,$index)"
+												data-ng-true-value="'YES'" data-ng-false-value="'NO'"
+												ng-value="subdata.masterRequest" /> <label
+												for="childUnfilterChk{{$index}}"></label>
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-10 col-md-10 col-xs-10 padding0px"
+									style="margin-top: 4px; width: 83.33%">
+									<!-- width: 930px; max-width: 930px; -->
+
+									<div
+										ng-repeat="subReq in detailsList | myRequestFilter:subData.masterRequest">
+										<div id="subReqDiv_{{$parent.$index}}_{{$index}}"
+											class="subReqData row padding0px"
+											style="max-height: 50px; min-height: 33px; text-align: left;">
+											{{applyDivBorder("whitebar"+$parent.$index,
+											subData.masterRequest)}}
+											<div class="col-lg-1 col-md-1 col-xs-1 padding0px"
+												style="width: 12%">{{subReq.reqType}}</div>
+											<div class="col-lg-2 col-md-2 col-xs-1 padding0px row"
+												style="width: 12%">
+												<div class="col-md-8" style="padding-left: 0px;">
+													<a ng-click="reqDetailsRedirect(subData.masterRequest)" class="reqNoClass"
+														style="cursor: pointer;">{{subReq.subRequest}}</a>
+												</div>
+												<div class="col-md-1 padding0"
+													style="font-size: 14px; color: #337ab7;">
+													<span ng-if="subReq.attFlag === 'Y'"
+														class="glyphicon glyphicon-paperclip"></span>
+												</div>
+												<div class="col-md-1 padding0"
+													style="font-size: 14px; color: #337ab7;">
+													<span ng-if="subReq.lerfFillFlag === '*'"
+														class="clm-icon-Flag_LERF"
+														style="padding: 0px 0px 0px 7px;"></span>
+												</div>
+											</div>
+											<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+												style="width: 14%">{{subReq.leaveType}}</div>
+											<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+												style="width: 12%">{{subReq.startDate |
+												istDateFormat}}</div>
+											<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+												style="width: 12%">{{subReq.endDate |
+												istDateFormat}}</div>
+											<div class="col-lg-1 col-md-1 col-xs-1 padding0px "
+												style="width: 10%;">
+												<span style="padding-left: 15px">{{subReq.numOfDays}}</span>
+											</div>
+											<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+												ng-style="setStatusColor(subReq.status)"
+												style="width: 12%; font-weight: bold;"
+												tooltip="Pending with: {{subReq.pendingWith}}"
+												tooltip-placement="left" tooltip-trigger="mouseenter"
+												tooltip-enable="{{subReq.status === 'Pending Approval' || subReq.status === 'LERF Pending Approval'}}">
+												{{subReq.status}}</div>
+											<div class="col-lg-1 col-md-1 col-xs-1 padding0px "
+												style="width: 15%;">
+												<span style="padding-left: 15px">{{subReq.recoveryStatus}}</span>
+											</div>
+									
+										</div>
+									</div>
+								</div>
+
+								<div class="col-lg-1 col-md-1 col-xs-1 row padding0px"
+									style="width: 12.5%; text-align: left;">
+									<div class="masterParamValue">{{subData.submitDate |
+										istDateFormat}}</div>
+								</div>
+
+							</div>
+
+						</div>
+
+
+
+						<!-- sorted -->
+						<div ng-if="isSorted || isFiltered">
+							<div id="afterSorting"
+								data-ng-repeat="subData in pagedItems[currentPage]"
+								ng-mouseenter="$scope.$emit('setDivHoverStyle', $index, 'whitebar','enter')"
+								ng-mouseleave="$scope.$emit('setDivHoverStyle', $index, 'whitebar','leave')"
+								class="alternative_cls"
+								style="margin-left: 10px; margin-right: 10px;">
+								<!--  | twoDateFilter:leaveStartDate:leaveEndDate -->
+								<div class="whiteBarReqList" style="padding-top: 10px;">
+
+									<div class="col-lg-1 col-md-1 col-xs-1 row"
+										style="padding-left: 0px; padding-right: 0px; width: 4.17%">
+										<div ng-if="pagedItems.length > 0" style="padding-top: 5px;">
+											<div class="checkbox checkbox-primary">
+												<input type="checkbox" id="childFilterChk{{$index}}"
+													name="requestSelect" ng-model="subData.childChk"
+													data-ng-click="selectMasterRequest(subData,subData.childChk, $index)"
+													data-ng-true-value="'YES'" data-ng-false-value="'NO'"
+													ng-value="subdata.masterRequest" /> <label
+													for="childFilterChk{{$index}}"></label>
+											</div>
+										</div>
+									</div>
+									<div
+										class="col-lg-10 col-md-10 col-xs-10 row subReqIter subReqData padding0px"
+										style="max-height: 50px; min-height: 33px; text-align: left; margin-top: 4px; width: 83.33%"">
+										<!--  -->
+										<div class="col-lg-1 col-md-1 col-xs-1 padding0px"
+											style="width: 15%">{{subData.reqType}}</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											style="width: 15%">
+											<div class="col-md-8" style="padding-left: 0px;">
+												<a ng-click="reqDetailsRedirect(subData.masterRequest)"
+													style="cursor: pointer;">{{subData.subRequest}}</a>
+											</div>
+											<div class="col-md-1">
+												<span ng-if="subData.lerfFillFlag === '*'"
+													class="lerfToFill" style="padding: 0px 0px 2px 22px;"></span>
+											</div>
+										</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											style="width: 15%">{{subData.leaveType}}</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px "
+											style="width: 15%">{{subData.startDate |
+											istDateFormat}}</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											style="width: 15%">{{subData.endDate |
+											istDateFormat}}</div>
+										<div class="col-lg-1 col-md-1 col-xs-1 padding0px"
+											style="width: 10%">
+											<span style="padding-left: 10px;">{{subData.numOfDays}}
+
+
+
+
+
+											
+										</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											ng-style="setStatusColor(subData.status)"
+											style="width: 15%; font-weight: bold;"
+											tooltip="Pending with : {{subReq.pendingWith}}"
+											tooltip-placement="left" tooltip-trigger="mouseenter"
+											tooltip-enable="{{subReq.status === 'Pending Approval' || subReq.status === 'LERF Pending Approval'}}">
+											{{subData.status}}</div>
+										<!-- <div class="col-lg-2 padding0px" verticalalign>{{subData.pendingWith}}</div> -->
+									</div>
+
+									<div class="col-lg-1 col-md-1 col-xs-1 row padding0px"
+										style="width: 12.5%">
+										<div class="masterParamValue">{{subData.submitDate |
+											istDateFormat}}</div>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+					</div>
+
+
+					<!-- sys archived -->
+					<div class="row requestBar" id="mainRequestBar"
+						ng-if="!recentFlag && !archievedFlag">
+
+						<!-- Default sorting -->
+						<div id="defaultSorting"
+							ng-repeat="subData in pagedItems[currentPage] track by $index"
+							ng-if="!isSorted && !isFiltered"
+							class="subRequestRow alternative_cls"
+							style="margin-left: 10px; margin-right: 10px;">
+							<div class="whiteBarReqList " id="whitebar{{$index}}"
+								ng-mouseenter="$emit('setDivHoverStyle', $index, 'whitebar','enter')"
+								ng-mouseleave="$emit('setDivHoverStyle', $index, 'whitebar','leave')"
+								style="padding-top: 10px;">
+								<div class="col-lg-1 col-md-1 col-xs-1 row "
+									style="padding-left: 0px; padding-right: 0px; width: 4.17%">
+								</div>
+
+								<div class="col-lg-10 col-md-10 col-xs-10 padding0px"
+									style="margin-top: 4px; width: 83.33%">
+									<!-- width: 930px; max-width: 930px; -->
+									<div id="subReqDiv_{{$parent.$index}}_{{$index}}"
+										class="subReqData row padding0px"
+										style="max-height: 50px; min-height: 33px; text-align: left;">
+										{{applyDivBorder("whitebar"+$parent.$index,
+										subData.masterRequest)}}
+										<div class="col-lg-1 col-md-1 col-xs-1 padding0px"
+											style="width: 15%">{{subData.reqType}}</div>
+										<div class="col-lg-2 col-md-2 col-xs-1 padding0px"
+											style="width: 15%">
+											{{subData.subRequest}}<span
+												ng-if="subReq.lerfFillFlag === '*'" class="lerfToFill"
+												style="padding-left: 2px;"></span>
+										</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											style="width: 15%">{{subData.leaveType}}</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											style="width: 15%">{{subData.startDate |
+											istDateFormat}}</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											style="width: 15%">{{subData.endDate |
+											istDateFormat}}</div>
+										<div class="col-lg-1 col-md-1 col-xs-1 padding0px "
+											style="width: 10%;">
+											<span style="padding-left: 15px">{{subData.numOfDays}}</span>
+										</div>
+										<div class="col-lg-2 col-md-2 col-xs-2 padding0px"
+											ng-style="setStatusColor(subData.status)"
+											style="width: 15%; font-weight: bold;"
+											tooltip="Pending with: {{subData.pendingWith}}"
+											tooltip-placement="left" tooltip-trigger="mouseenter"
+											tooltip-enable="{{subData.status === 'Pending Approval' || subReq.status === 'LERF Pending Approval'}}">
+											{{subData.status}}</div>
+										<!-- <div class="col-lg-2"
+												style="padding-left: 20px; text-align: left;" verticalalign>{{subReq.pendingWith}}</div> -->
+									</div>
+								</div>
+
+								<div class="col-lg-1 col-md-1 col-xs-1 row padding0px"
+									style="width: 12.5%; text-align: left;">
+									<div class="masterParamValue">{{subData.submitDate |
+										istDateFormat}}</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+			<div class="container-fluid col-xs-12 col-md-12 col-lg-12"
+				style="margin-left: 0px; margin-right: 0px; margin-top: 2px;">
+				<div class="col-md-2 col-lg-2 col-xs-12 paddingLeftZero row"
+					ng-if="recentFlag || archievedFlag">
+					<div class="col-md-2 paddingLeftZero" style="padding-right: 1px">
+						<span class="lerfToFill"
+							style="color: #3E7CEE; padding: 0px 0px 3px 22px;"></span>
+					</div>
+					<div class="col-md-10 paddingLeftZero"
+						style="padding-top: 3px; font-size: 12px; font-style: italic; right: 20px;">
+						indicates LERF to be filled</div>
+				</div>
+				<div class="col-md-7 col-lg-7" id="amendBtnSec">
+							
+				</div>
+
+				<div class="col-md-3 col-lg-3 col-xs-10"
+					style="left: 10px; float: right;">
+					<div class="row">
+						<div class="col-lg-3 col-md-3 col-xs-3"></div>
+						<div class="col-lg-3 col-md-3 col-xs-3  paginateHover"
+							data-ng-click="prevPage('paginationSelect')">
+							<p data-ng-disabled="currentPage == 0" verticalalign>
+								<a href class="paginateBtn">PREVIOUS </a>
+							</p>
+						</div>
+						<div class="col-lg-4 col-md-4 col-xs-4 "
+							style="text-align: center; margin-top: 5px;">
+							<span data-ng-hide="pageSize.length>0" class="paginateText">No
+								Records</span> <span data-ng-hide="items.length==0"
+								data-ng-model="selectedPage" id="paginationSelect"
+								class="paginateText">{{pageSize[currentPage].label}}</span>
+						</div>
+						<div class="col-lg-2 col-md-2 col-xs-2  paginateHover"
+							style="margin-top: 0px;"
+							data-ng-click="nextPage('paginationSelect')">
+							<p style="margin-top: 5px;"
+								data-ng-disabled="(currentPage >= (pageSize.length-1))||(0 == pageSize.length)">
+								<a href class="paginateBtn">NEXT</a>
+							</p>
+						</div>
+					</div>
+
+				</div>
+			</div>
+
+
+
+			<div id="messageModal" class="modal fade leave-modal">
+				<div class="modal-dialog leave-modal-dialog"
+					style="padding-top: 206px;">
+					<div class="modal-content leave-modal-content">
+						<div class="modal-header ng-scope"
+							style="background-color: #427cb2; text-align: left; color: white; padding-left: 30px">
+							<h3 class="modal-title">
+								<img src="appResources/img/please_note_icon_success.png"
+									style="vertical-align: middle;"> <span
+									style="vertical-align: middle;">Please Note!</span>
+							</h3>
+						</div>
+						<div class="modal-body leave-modal-body leave-modal-text"
+							style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+							<div ng-repeat="msg in outputMesg track by $index">
+								<p style="word-wrap: break-word;">{{msg}}</p>
+							</div>
+							<div style="padding-top: 20px; padding-bottom: 20px;">
+								<button class="leave-modal-button"
+									onclick="$('#messageModal').modal('hide');">OK</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+			<div id="commentsModal" class="modal fade leave-modal">
+				<div class="modal-dialog leave-modal-dialog"
+					style="padding-top: 206px;">
+					<div class="modal-content leave-modal-content">
+						<!-- <div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-hidden="true">&times;</button>
+
+						</div> -->
+						<div class="modal-body leave-modal-body leave-modal-text"
+							style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+							<div>
+								<form role="form" name="putComments" ng-submit="" novalidate>
+									<span>Please enter comments here: </span><br /> <span>
+										<textarea ng-model="cancelComments"
+											class="form-control feedBackLettersChars" ng-minlength="1"
+											ng-maxlength="300" style="overflow: auto; resize: none"
+											name="commentsBox" rows="4" cols="50" ng-required="true"
+											id="commentsBox"></textarea>
+									</span>
+									<div class="row-fluid">
+										<div class="span12 feedbackcount">
+
+											<span data-ng-bind-template="{{250-commentBoxTextlength}}"
+												style="font-size: 12px; background-color: Color:#1c66a9;">
+											</span> Characters left
+										</div>
+									</div>
+									<span style="color: red;"
+										ng-if="putComments.commentsBox.$dirty && putComments.commentsBox.$error.required">Please
+										ente the comments!</span>
+									<div style="padding-top: 20px; padding-bottom: 20px;">
+										<button class="leave-modal-button"
+											ng-click="putCommentsCancel(cancelComments);"
+											ng-disabled="putComments.$invalid">OK</button>
+										<button class="leave-modal-button"
+											onclick="$('#commentsModal').modal('hide');">Cancel</button>
+									</div>
+								</form>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+<script>
+	$('.modal').bind('cut copy paste', function(e) {
+		e.preventDefault();
+	});
+
+	$(document).ready(function() {
+		$('.modal').on('hidden.bs.modal', function() {
+			$('body').css("padding-right", "0px");
+		})
+	})
+</script>
+<div data-ng-include="'xssValidate.html'"></div>
+<div data-ng-include="'CommentsValidate.html'"></div>

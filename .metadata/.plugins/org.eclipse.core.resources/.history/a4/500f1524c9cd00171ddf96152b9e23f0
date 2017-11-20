@@ -1,0 +1,137 @@
+require.config({
+  baseUrl: '',
+  //urlArgs: "bust=" + (new Date()).getTime(), // TODO Remove bust when going to prod
+  paths: {
+	'jquery': 'extResources/jquery/jquery-2.1.4.min',  
+	'jqueryui':'extResources/jquery/jquery-1.11.4.ui.min',
+    'angular': 'extResources/angular/angular-1.3.15.min',
+    'tmhDynamicLocale':'extResources/angular/tmhDynamicLocale.min',
+    'angularResource':'extResources/angular/angular-resource',
+    'commonHomeController': 'appResources/js/commonHomeController',
+    'domReady': 'extResources/require/domready',
+    'angularRoute':'extResources/angular/angular-route',
+    'angularSanitize':'extResources/angular/angular-sanitize',
+    'angularTouch':'extResources/angular/angular-touch',
+    'angularCookies':'extResources/angular/angular-cookies',
+    'angularAnimate':'extResources/angular/angular-animate',
+    'gettext': 'extResources/angular/angular-gettext-master/angular-gettext.min',
+    'bootstrap':'extResources/TwitterBootstrap/js/bootstrap3.0/bootstrap.min',
+	'uibootstrap':'extResources/angular/ui-bootstrap-tpls-0.9.0',
+    'uibootstrap_upd':'extResources/angular/ui-bootstrap-0.13.4',
+    'enscroll':'extResources/scroller/enscroll-0.6.1.min',
+    'routes':'appResources/js/routes',	
+    'app':'appResources/js/application',
+    'commonController':'appResources/js/Controller',
+    'moment':'extResources/TwitterBootstrap/js/datetime-picker/moment',
+    'timeZone':'extResources/TwitterBootstrap/js/datetime-picker/moment-timezone',
+    'angular-datepicker':'appResources/js/angular-datepicker',
+    'applyLevController':'appResources/js/applyLevController',
+    'calendar':'appResources/js/calender',
+    'applyLevServices':'appResources/js/applyLevServices',
+    'applyLevDirectives':'appResources/js/applyLevDirectives',
+    'applyLevFactories':'appResources/js/applyLevFactories',
+    'displayMenu': 'appResources/js/displayMenu',
+    'utils': 'appResources/js/utils',
+    'intro':'extResources/angular/intro.min',
+   'angularIntro':'extResources/angular/angular-intro',
+   'leaveApproverController':'appResources/js/leaveApproverController',
+   'LeaveServices':'appResources/js/LeaveServices',
+   'cmnEmpSearchCtrl':'appResources/js/cmnEmpSearchCtrl',
+   'LeaveCommonDirectives':'appResources/js/LeaveCommonDirectives',
+   'LeaveServices':'appResources/js/LeaveServices',
+   'LeaveFilters':'appResources/js/LeaveFilters',
+   'myReqListController' : 'appResources/js/myReqListController',
+   'reqDetailsController':'appResources/js/reqDetailsController',
+   'deleteLeave':'appResources/js/delLeaveController',
+   'balReportHomeController':'appResources/js/balanceReport_controller',
+   'empSearchController':'appResources/js/employeeSearch_controller',
+   'lerfHistoryController':'appResources/js/lerf_controller',
+   'myTeamCalendarController':'appResources/js/myTeamCalendarController',
+   'dragDropController':'appResources/js/dragDrop_controller',
+   'leaveApproverController':'appResources/js/leaveApproverController', 
+   'commonCtrl':'appResources/js/RttController', 
+   'empReqListController':'appResources/js/empReqListController',
+   'commonReqListController':'appResources/js/cmnReqController',
+   'commonReqDetailsController':'appResources/js/cmnReqDetailsController',
+   'intTestingController':'appResources/js/intTestingController',
+   'leaveProvider':'appResources/js/leaveProvider',
+   'lerfController':'appResources/js/lerfController',
+   'teamCalTest':'appResources/js/TeamCalTest',
+   'empDetailsController':'appResources/js/empDetailsController',
+   'delDetailsController':'appResources/js/delDetailsController',
+   'fyaService':'appResources/js/fyaService',
+   'cmnLerfReqDtlsCtrl':'appResources/js/cmnLerfReqDtlsCtrl',
+   'reqLerfReqDtlsCtrl':'appResources/js/reqLerfReqDtlsCtrl',
+   'empLerfReqDtlsCtrl':'appResources/js/empLerfReqDtlsCtrl',
+   'fileUploadScript':'appResources/js/fileUploadScript',
+   'fileDragDropCtrl':'appResources/js/dragDrop_controller',
+   'd3': 'extResources/d3/d3.min',
+   'raphael': 'extResources/raphael/raphael',
+   'leaveBasicTracker':'appResources/js/leaveBasicTracker',
+   'dragDropServices':'appResources/js/dragDropServices',
+   'empPostponementReqCtrl':'appResources/js/empPostponementReqCtrl',
+   'cmnPostponementReqCtrl':'appResources/js/cmnPostponementReqCtrl',
+   'postponementReqCtrl':'appResources/js/postponementReqCtrl',
+   'trackReqDtlsCtrl':'appResources/js/trackReqDtlsCtrl',
+   'ngFile':'extResources/angular/ng-file-upload',
+	'columbiaEncashCtrl':'appResources/js/columbiaEncashCtrl',
+   'dataFixCtrl':'appResources/js/dataFixController',
+	'onBehalfApplyLeaveCtrl':'appResources/js/onBehalfApplyLevController',
+	'DeleteLeaveCtrl':'appResources/js/onBehalfDeleteLevCtrl',
+	'onBehalfRequestServices':'appResources/js/onBehalfRequestServices',
+	'reassignServices':'appResources/js/onBehalfReassignServices', 
+	'reAssignOnBehalfCtrl':'appResources/js/onBehalfReassignLeaveCtrl',
+	 'entTitlemntCtrl':'appResources/js/entitleMentController',
+	 'onBehalfSearchController':'appResources/js/onBehalfSearchController',
+	 'creditEntController':'appResources/js/creditEntController',
+	 'approveLerfCtrl':'appResources/js/approveLerfCtrl',
+	   'amendReqListCtrl' : 'appResources/js/amendReqListCtrl',
+	   'lerfBehalfController':'appResources/js/lerfBehalfController' ,
+	   'bulkAppController':'appResources/js/bulkActionController',
+	   'behalfService':'appResources/js/behalfService'
+
+  },
+  shim: {
+	    'angular': {
+	      'deps': ['jquery'],
+	      'exports': 'angular'
+	    },
+	    
+	    'bootstrap': {
+	      'deps': ['jquery']
+	    },
+	    'uibootstrap': {
+	      'deps': ['jquery', 'angular']
+	    },
+	    'angularResource': ['angular'],
+	    'angularRoute': ['angular'],
+	    'gettext': ['angular'],
+	    'enscroll': ['jquery'],
+	    'tmhDynamicLocale': ['angular'],
+	    'angularIntro':{
+	    	'deps':['angular','intro']
+	    } 
+	  },
+	  config: {
+	        moment: {
+	            noGlobal: true
+	        }
+	    },
+  
+});
+
+require(['angular', 'app','moment','calendar' ,'jqueryui', 'displayMenu', 'commonHomeController', 'commonController','leaveApproverController','dataFixCtrl','myReqListController'], function(angular, app) {
+	  angular.element().ready(function() {
+	    // bootstrap the app manually
+	    $("#mySettings").hover(function() {
+	      $("#mySettingsMenu").show();
+	    }, function() {
+	      $("#mySettingsMenu").hide();
+	    });
+
+	    require(['domReady'], function() {
+	      angular.bootstrap(document, ['myApp']);
+	    });
+
+	  });
+	});

@@ -1,0 +1,304 @@
+define(['angular','app','moment','applyLevServices'], function(angular,app,moment) {
+	//HAVE Changed all '#' to '.' for use of classes in plan as well as quick and normal apply--------------******************************
+	app.factory('ValidateDtService',['WeekendService', function(WeekendService) {
+		   var factory = {};
+		   
+//isSdValid method-------------------
+factory.isSdValid=function($scope,sDate,index)
+{
+		var sdValid=true ;
+	if(WeekendService.isSdWeekend(sDate)){
+   	 $scope.leave.leaveList1[index].errorSDate="The date selected for leave falls on a weekend. Select a different date.";
+   	 var field=angular.element($("#startDate_"+index));field.addClass('dirty-field');
+   	 sdValid=false; 
+   	 }
+	 else if(WeekendService.isSdHoliday(sDate))
+			{
+				 $scope.leave.leaveList1[index].errorSDate="The date selected for leave is a holiday. Select a different date.";
+				 var field=angular.element($("#startDate_"+index));field.addClass('dirty-field');
+				 sdValid=false; 
+			 }
+   	 else if(WeekendService.hasApprovedLev(sDate))
+		   	 {
+					 $scope.leave.leaveList1[index].errorSDate="There is an approved leave for the selected date. Select a different date.";
+					 var field=angular.element($("#startDate_"+index));field.addClass('dirty-field');
+					 sdValid=false; 
+		   	 }
+   	 else if(WeekendService.hasPendingLev(sDate))
+			 {
+				 $scope.leave.leaveList1[index].errorSDate="There is a leave pending for approval for the selected date. Select a different date.";
+				 var field=angular.element($("#startDate_"+index));field.addClass('dirty-field');
+				 sdValid=false; 
+			 };	
+			 
+			 return sdValid;
+};
+	
+//isEdValid method-------------------
+factory.isEdValid=function($scope,eDate,index)
+{
+		var edValid=true;
+		
+    	
+    	  if(WeekendService.isEdWeekend(eDate))
+			 {
+				 $scope.leave.leaveList1[index].errorEDate="The date selected for leave falls on a weekend. Select a different date.";
+				 var field=angular.element($("#endDate_"+index));field.addClass('dirty-field');
+				 edValid=false;
+			 }
+    	  else if(WeekendService.isEdHoliday(eDate))
+			 {
+				 $scope.leave.leaveList1[index].errorEDate="The date selected for leave is a holiday. Select a different date.";
+				 var field=angular.element($("#endDate_"+index));field.addClass('dirty-field');
+				 edValid=false;
+			 }
+		 else if(WeekendService.hasApprovedLev(eDate))
+	    	 {
+				 $scope.leave.leaveList1[index].errorEDate="There is an approved leave for the selected date. Select a different date.";
+				 var field=angular.element($("#endDate_"+index));field.addClass('dirty-field');
+				 edValid=false;
+			}
+		 else if(WeekendService.hasPendingLev(eDate))
+	    	 {
+				 $scope.leave.leaveList1[index].errorEDate="There is a leave pending for approval for the selected date. Select a different date.";
+				 var field=angular.element($("#endDate_"+index));field.addClass('dirty-field');
+				 edValid=false;
+			 }; 
+		return edValid;
+};
+	
+//isMidStValid method--------------------------------------------
+factory.isMidStValid=function($scope,tempDate,sDate,index)
+{
+		var isValid=true;
+		while (tempDate._d.getTime() > sDate._d.getTime()) {
+			if(WeekendService.hasApprovedLev(tempDate))
+				{
+	    			 $scope.leave.leaveList1[index].errorSDate="There is an approved leave for the selected date. Select a different date.";
+	    			 var field=angular.element($("#startDate_"+index));field.addClass('dirty-field');
+	    			 isValid=false;
+	    		}
+			else if(WeekendService.hasPendingLev(tempDate))
+			{
+    			 $scope.leave.leaveList1[index].errorSDate="There is a leave pending for approval for the selected date. Select a different date.";
+    			 var field=angular.element($("#startDate_"+index));field.addClass('dirty-field');
+    			 isValid=false;
+    		};
+			
+			/*commented as asked by BAs*/
+    			/*if( ($(".day"+ tempTimeStamp).children()).hasClass("day-holiday")){
+    				 $scope.leave.leaveList1[attrs.index].errorSDate="The date selected for leave is a holiday. Select a different date.";
+    				 element.addClass("dirty-field");
+    				 innerValidator=false;
+    				 $rootScope.startDateSelected = false;
+    			 }*/
+			/*$(".day"+ tempTimeStamp).addClass("hoverDiv");*/
+			tempDate = tempDate.add(-1,'d');
+		};
+	return isValid;
+};
+
+
+//isMidStPlanValid method--------------------------------------------
+factory.isMidStPlanValid=function($scope,tempDate,sDate,index)
+{
+		var isValid=true;
+		while (tempDate._d.getTime() > sDate._d.getTime()) {
+			if(WeekendService.hasPlanLev(tempDate))
+			{
+    			 $scope.leave.planList[index].errorSPlanDate="You are applying plan on planned leave!!";
+    			 var field=angular.element($("#startDate_"+index));field.addClass('dirty-field');
+    			 isValid=false;
+    			 break;
+    		};
+			tempDate = tempDate.add(-1,'d');
+		};
+	return isValid;
+};
+
+
+//isMidStValid method-------------------
+factory.isMidEtValid=function($scope,tempDate,eDate,index)
+{
+		var isValid=true;
+		while (tempDate._d.getTime() < eDate._d.getTime()){
+			if(WeekendService.hasApprovedLev(tempDate)){
+   			 $scope.leave.leaveList1[index].errorEDate="There is an approved leave for the selected date. Select a different date.";
+   			 var field=angular.element($("#endDate_"+index));field.addClass('dirty-field');
+   			 isValid=false;
+   		}else if(WeekendService.hasPendingLev(tempDate)){
+    			 $scope.leave.leaveList1[index].errorEDate="There is a leave pending for approval for the selected date. Select a different date.";
+    			 var field=angular.element($("#endDate_"+index));field.addClass('dirty-field');
+    			isValid=false;
+    		};
+			
+			/*commented as asked by BAs*/
+    			/*if( ($(".day"+ tempTimeStamp).children()).hasClass("day-holiday")){
+    				 $scope.leave.leaveList1[attrs.index].errorEDate="The date selected for leave is a holiday. Select a different date.";
+    				 element.addClass("dirty-field");
+    				 innerValidator=false;
+    				
+    			 }*/
+			/*$(".day"+ tempTimeStamp).addClass("hoverDiv");*/
+			tempDate = tempDate.add(1,'d');
+		  };
+		return isValid;
+};
+return factory;
+		}]); 	
+	
+//AddClassService ------------------------------------	
+app.factory('AddClassService', function() 
+{
+		   var factory = {};
+	factory.addHoverDivCss=function(start,end){
+		var sDate=start.clone();
+		var eDate=end.clone();
+		sDate = sDate.add(1,'d');
+		while(sDate._d.getTime() < eDate._d.getTime()){
+			$(".day"+ sDate._d.getTime()).addClass("hoverDiv");
+			sDate = sDate.add(1,'d');
+		};
+	};
+	factory.removeHoverDivCss=function(start,end){
+		var sDate=start.clone();
+		var eDate=end.clone();
+		sDate = sDate.add(1,'d');
+		while(sDate._d.getTime() < eDate._d.getTime()){
+			$(".day"+ sDate._d.getTime()).removeClass("hoverDiv");
+			sDate = sDate.add(1,'d');
+		};
+	};
+  return factory;
+}); 	
+	
+	
+	
+app.factory('WeekendService', ['$rootScope','applyLevService',function($rootScope,applyLevService) {
+		   var factory = {};
+		   
+		  
+	 factory.isSdWeekend = function(sDate) {
+				var levTypId= applyLevService.countryLeaveTypeId;
+			    var countryCode=applyLevService.countryCode;
+				if(($(".day"+ sDate._d.getTime()).parent()).hasClass("weekend-box1") && countryCode=="FI" && undefined==levTypId){
+					  return false;
+                     
+                 }else if(($(".day"+ sDate._d.getTime()).parent()).hasClass("weekend-box1") &&  !(("4"==levTypId) || ("5"==levTypId) || ("473"==levTypId) || ("530"==levTypId) || ("534"==levTypId)
+ 						|| ("532"==levTypId) ||  ("601"==levTypId) || ("602"==levTypId) || ("604"==levTypId) || ("250"==levTypId) || ("473"==levTypId) || ("493"==levTypId) || ("496"==levTypId) || ("497"==levTypId)|| ("503"==levTypId) 
+						||("504"==levTypId)	||("517"==levTypId)	||("691"==levTypId))){
+                	 return true;
+                 }else{
+                	 return false;
+                 }
+				
+		  			/* if( ($(".day"+ sDate._d.getTime()).parent()).hasClass("weekend-box1")
+		  					 && !(("4"==levTypId) || ("5"==levTypId) || ("473"==levTypId) || ("530"==levTypId) || ("534"==levTypId)
+				    						|| ("532"==levTypId) || ("601"==levTypId) || ("602"==levTypId) || ("604"==levTypId) || ("250"==levTypId) 
+				    						|| ("473"==levTypId) || ("493"==levTypId) || ("496"==levTypId) || ("497"==levTypId)|| ("503"==levTypId) 
+				    						||("504"==levTypId)	||("517"==levTypId)	||("691"==levTypId))		 
+		  			 ){
+		  				 return true; //not to allow
+		  			 }else{
+		  				 return false; //to allow apply on weekend
+		  			 };*/
+				   };
+
+	factory.isSdHoliday = function(sDate) {
+				var levTypId= applyLevService.countryLeaveTypeId;
+					   if( ($(".day"+ sDate._d.getTime()).children()).hasClass("day-holiday")
+		  					 && !(("493"==levTypId) || ("531"==levTypId) || ("473"==levTypId) || ("530"==levTypId) || ("534"==levTypId)
+				    						|| ("532"==levTypId) || ("4"==levTypId) || ("5"==levTypId))
+		  			){
+		  				 return true;
+		  			 }else{
+		  				 return false;
+		  			 };
+				   };
+
+
+	factory.isEdWeekend = function(eDate) {
+				var levTypId= applyLevService.countryLeaveTypeId;
+				 var countryCode=applyLevService.countryCode;
+				/*	   if( ($(".day"+ eDate._d.getTime()).parent()).hasClass("weekend-box1")
+		  					 && !(("56"==levTypId) || ("61"==levTypId) || ("601"==levTypId) || ("602"==levTypId) || ("604"==levTypId)
+		  						|| ("527"==levTypId) || ("531"==levTypId) || ("535"==levTypId) || ("560"==levTypId) || ("250"==levTypId) 
+		  						|| ("473"==levTypId) || ("493"==levTypId) || ("496"==levTypId) || ("497"==levTypId)|| ("503"==levTypId) 
+		  						||("504"==levTypId)	||("517"==levTypId)	||("691"==levTypId) || ("808"==levTypId) || ("254"==levTypId) || ("255"==levTypId) 
+								||("256"==levTypId) ||("630"==levTypId) ||("650"==levTypId) || ("627"==levTypId)))
+					   {
+			  				 return true;
+			  			 }else{
+			  				 return false;
+			  			 };*/
+		
+				if(($(".day"+ eDate._d.getTime()).parent()).hasClass("weekend-box1") && countryCode=="FI" && levTypId==undefined){
+	             
+                   return false; //allow
+                   
+                }else if(($(".day"+ eDate._d.getTime()).parent()).hasClass("weekend-box1") &&  !(("56"==levTypId) || ("61"==levTypId) || ("601"==levTypId) || ("602"==levTypId) || ("604"==levTypId)
+  						|| ("527"==levTypId) || ("531"==levTypId) || ("535"==levTypId) || ("560"==levTypId) || ("250"==levTypId) 
+  						|| ("473"==levTypId) || ("493"==levTypId) || ("496"==levTypId) || ("497"==levTypId)|| ("503"==levTypId) 
+  						||("504"==levTypId)	||("517"==levTypId)	||("691"==levTypId) || ("808"==levTypId) || ("254"==levTypId) || ("255"==levTypId) 
+						||("256"==levTypId) ||("630"==levTypId) ||("650"==levTypId) || ("627"==levTypId)|| ("73"==levTypId) ||("74"==levTypId) ||("77"==levTypId) || ("76"==levTypId)
+						||("78"==levTypId) ||("86"==levTypId) ||("228"==levTypId) || ("229"==levTypId)||("230"==levTypId) ||("231"==levTypId) ||("243"==levTypId) || ("244"==levTypId))){
+               	 return true;  //not to allow
+                }else{
+               	 return false;
+                }
+					   };
+			   
+	factory.isEdHoliday = function(eDate) {
+		var levTypId= applyLevService.countryLeaveTypeId;
+				   if( ($(".day"+ eDate._d.getTime()).children()).hasClass("day-holiday")
+	    					 && !(("527"==levTypId) || ("531"==levTypId) || ("535"==levTypId) || ("560"==levTypId) || ("250"==levTypId) 
+			    						|| ("473"==levTypId) || ("493"==levTypId) || ("496"==levTypId) || ("497"==levTypId)|| ("503"==levTypId) 
+			    						||("504"==levTypId)	||("517"==levTypId)	||("691"==levTypId))
+	    					 
+	    			 ){
+	  				 return true;
+	  			 }else{
+	  				 return false;
+	  			 };
+			   };
+			   
+			   
+			   
+    factory.hasPendingLev = function(date) {
+				    if(($(".day"+ date._d.getTime()).children()).hasClass("day-pendingleave")){
+	  				 return true;
+	  			 }else{
+	  				 return false;
+	  			 };
+			   };
+			   
+			   factory.hasApprovedLev = function(date) {
+				   if(($(".day"+ date._d.getTime()).children()).hasClass("day-approvedleave")){
+	  				 return true;
+	  			 }else{
+	  				 return false;
+	  			 };
+			   };
+			   
+			   
+			   factory.hasPlanLev=function(date){
+				   if(($(".day"+ date._d.getTime()).children()).hasClass("hoverDiv")
+						  || ($(".day"+ date._d.getTime()).children()).hasClass("hoverDivStart")
+						  || ($(".day"+ date._d.getTime()).children()).hasClass("hoverDivEnd")){
+		  				 return true;
+		  			 }else{
+		  				 return false;
+		  			 };
+			   };
+		   
+return factory;
+		}]); 
+
+
+
+
+
+	
+	
+	
+});

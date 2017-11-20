@@ -1,0 +1,776 @@
+
+<link href="appResources/css/clm-icons.css" rel="stylesheet" />
+<link href="appResources/css/gessLevCmn.css" rel="stylesheet" />
+<link href="appResources/css/approverHome.css" rel="stylesheet" />
+
+<div ng-controller="LeaveApproverController">
+	<div class="row topPanel" style="padding-bottom: 30px;margin-top: 1px;">
+	
+		<div class="col-md-12">
+		<div ng-if="showFYADtls" class="row" style="padding-top: 10px;">
+			<span class="pageTitle">WorkList - Request Details</span>
+		</div>
+		<div class="alert messageDiv" ng-show="leaveApprObj.successData.msgFlag">
+    			 <span>{{leaveApprObj.successData.successMsg}}</span>
+    	
+  		</div>
+  		
+  		<div ng-if="showFYADtls">
+			<!-- addded as per VD -->
+			<div class="container-fluid row" style="margin-left:0px;margin-right:0px;padding-left: 0px;padding-right: 0px;">
+			<div class="row">
+			<div class="col-md-12 col-xs-12"
+				style="text-align: left; font-size: 12px; border: 1px solid #ccc; background-color: #F5F8FD">
+				<div class="col-lg-2"
+					style="padding-top: 15px; padding-bottom: 15px;">
+					<span class="subRequestCommentClass">Raised By</span><br>
+					<span class="subRequestDtlsClass">{{leaveApprObj.fyaData[0].fullName}}({{leaveApprObj.fyaData[0].employeeNo}})</span>
+				</div>
+				<div class="col-lg-1 custom-text"
+					style="padding-top: 15px; padding-bottom: 15px;">
+					<span class="subRequestCommentClass">Submit Date</span><br>
+					<span class="subRequestDtlsClass">{{leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].appliedDate | date:'dd-MMM-yyyy'}}</span>
+				</div>
+				<div class="col-lg-3 custom-text"
+					style="padding-top: 15px; padding-bottom: 15px;">
+					<span class="subRequestCommentClass">Address</span><br>
+					<span class="subRequestDtlsClass">{{leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].contactDTO.contactAddress}}</span>
+					
+				</div>
+				<div class="col-lg-2 custom-text" style="padding-top: 15px; padding-bottom: 15px;">
+					<span class="subRequestCommentClass">Contact Number</span><br>
+					<span class="subRequestDtlsClass">{{leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].contactDTO.contactNumberCell}}</span>
+					
+				</div>
+				
+				<div class="col-lg-1 custom-text" style="padding-top: 15px; padding-bottom: 15px;">
+					<a class="topPanelGreyText" id="teamLeave"
+							ng-click="getLeaveHistory(leaveApprObj.fyaData[0].employeeNo)" style="cursor: pointer; color: dodgerblue; font-size:12px;">Leave
+								History</a>
+								
+			<div class="container-fluid row " id="team_leave_tab" ng-if="teamLeaveSec" style="position: absolute;width: 1200%;left: -793%; ">
+				<div class="teamLeavePopup col-md-7 " style="padding:0;">
+					<div class="col-lg-12 col-xs-12" style="text-align: right;">
+						<span style="font-weight: bold; font-size:12px; font-family:Segoe UI; float: left; padding-top: 12px;"> Leave History of {{leaveApprObj.fyaData[0].employeeNo}} </span>
+						<button class="closeLevHistory" ng-click="closeHistory();">X</button>
+						
+					</div>
+					<div class="triangleTeamLeave col-md-12">
+					<div class="simHeadLeaveBar">
+
+						<div class="col-md-2">
+							<span>Leave Type</span>
+						</div>
+						<div class="col-md-2">
+							<span>Leave Start Date</span>
+						</div>
+						<div class="col-md-2">
+							<span>Leave End Date</span>
+						</div>
+						<div class="col-md-2">
+							<span>No. of Days</span>
+						</div>
+						<div class="col-md-2">
+							<span>Status</span>
+						</div>
+
+					</div>
+
+					<div class="simDetlLeaveBar">
+						<div class="row "
+							ng-repeat="data in leaveApprObj.leaveHistData.leaveRequests">
+							<div class="col-md-2">
+								<span>{{data.leaveType.name}}</span>
+							</div>
+							<div class="col-md-2">
+								<span>{{data.startDate | date:'dd-MMM-yyyy' }}</span>
+							</div>
+							<div class="col-md-2">
+								<span>{{data.endDate | date:'dd-MMM-yyyy' }}</span>
+							</div>
+							<div class="col-md-2" style="padding-left: 4%;">
+								<span>{{data.nosDay}}</span>
+							</div>
+							<div class="col-md-2">
+								<span>{{data.leaveStatus.name}}</span>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-lg-12 col-xs-12" style="text-align: right; padding-bottom: 10px;">
+						<span style="font-style: italic; font-size:12px; font-family:Segoe UI; float: left; padding-top: 12px;">*Data shown only for the last two months</span>
+					</div>
+
+				</div>
+			</div>
+		</div>
+				</div>
+				
+				<div class="col-lg-3 custom-text"
+					style="margin-top: 15px; padding-bottom: 15px;border-left: 1px solid #BABABA;">
+					
+
+
+					<div class="col-lg-4" style="margin-top: 1%">
+
+						<span class="subRequestCommentClass">Documents</span><br> {{documentCount}}
+					</div>
+					<div class="col-lg-8" style="margin-top: 1%">
+						<button class="btn" id="add" ng-click="uploadClick();">
+							<span class="glyphicon glyphicon-pencil" style="color:#2084c9;"></span>
+							<span><label style="cursor: pointer;">UPLOAD/DOWNLOAD</label></span>
+
+						</button>
+					</div>
+				
+			</div>
+
+		</div>
+		</div>
+		</div>
+		
+	<!-- 	upload part-viji -->
+	
+			
+		<div class="container-fluid" id="add_delete_tab" ng-if="uploadSec" style="padding-right: 0px;margin-right: 0px;">
+			<div class="addPopover col-lg-6 col-xs-12 " data-ng-controller="dragDropController">
+				<div class="triangle">
+
+
+						<div class="col-xs-12" style="margin-top: 13px;">
+
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<div class="pull-left" id="errorMessageForFile"></div>
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+								style="padding-left: 0px;">
+								<img src="appResources/img/UploadIcon.png"
+									style="margin-bottom: 5px; float:left padding-top: 2px;" /> <span class="doc-upload-header" style="float: left;margin-bottom: 5px;"
+									translate>Upload Documents</span>
+								<div class="row">
+									<div id="dragandrophandler"
+										style="vertical-align: middle; font-size: 12px; text-align: center; margin-top: -6px;"
+										class="doc-upload-body col-md-12">
+										<span>Drag & Drop Documents Here</span>
+									</div>
+									<div
+										style="text-align: left; word-wrap: break-word; font-size: 10px; font-weight: bold; padding-left: 0px;"
+										class="col-md-11">
+										<span>Supported file type : pdf, png, jpg, jpeg, docx,
+											doc, xls, xlsx, ppt, pptx, txt, ods, tiff, bmp </span> <br /> <span>File
+											size limit : 5 MB</span>
+									</div>
+									<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"
+										style="padding-top: 5px;">
+										<label> <input name="file" type="file" id="singleFile"
+											class="span4"
+											style="width: 85px; max-height: 23px; overflow: hidden; display: none;"
+											multiple> <img
+											src="appResources/img/AttachmentIcon.png"
+											style="width: 24px; height: 24px; align: left; cursor: pointer;"
+											tooltip="Browse documents..." tooltip-placement="top"
+											tooltip-trigger="mouseenter">
+										</label>
+									</div>
+								</div>
+
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+								style="padding-left: 0px; text-align: left;">
+								 <div id="uploadedDivName"></div> 
+								<div id="uploadedFileDiv"></div>
+								
+								<div id="uploadedDocDiv"></div>
+							</div>
+						</div>
+					</div>
+
+				
+
+				<div class="col-lg-12 col-xs-12"
+					style="text-align: right; padding-bottom: 10px;">
+					<button id="fileSaveBtn" class="btn btn-primary" data-ng-click="UploadFiles();" id="save">Save</button>
+					<button class="btn btn-secondary" style="padding-left: 10px;" id="fileCancelBtn" data-toggle="modal" data-target="#myModal" data-ng-click="cancelDragDrop();">Cancel</button>
+					
+						 
+					
+				</div>
+
+				</div> 
+			</div>
+		
+		
+		<!-- start -->
+	<!-- div class="container-fluid row " id="team_leave_tab" ng-if="teamLeaveSec">
+			<div class="teamLeavePopup col-md-7 " style="padding:0;">
+				<div class="triangleTeamLeave">
+					<div class="simHeadLeaveBar">
+
+						<div class="col-md-2">
+							<span>Leave Type</span>
+						</div>
+						<div class="col-md-2">
+							<span>Leave Start Date</span>
+						</div>
+						<div class="col-md-2">
+							<span>Leave End Date</span>
+						</div>
+						<div class="col-md-2">
+							<span>No. of Days</span>
+						</div>
+						<div class="col-md-2">
+							<span>Status</span>
+						</div>
+
+					</div>
+
+					<div class="simDetlLeaveBar">
+						<div class="row "
+							ng-repeat="data in leaveApprObj.leaveHistData.leaveRequests">
+							<div class="col-md-2">
+								<span>{{data.leaveType.name}}</span>
+							</div>
+							<div class="col-md-2">
+								<span>{{data.startDate | date:'dd-MMM-yyyy' }}</span>
+							</div>
+							<div class="col-md-2">
+								<span>{{data.endDate | date:'dd-MMM-yyyy' }}</span>
+							</div>
+							<div class="col-md-2" style="padding-left: 4%;">
+								<span>{{data.nosDay}}</span>
+							</div>
+							<div class="col-md-2">
+								<span>{{data.leaveStatus.name}}</span>
+							</div>
+						</div>
+					</div>
+
+
+					<div class="col-lg-12 col-xs-12" style="text-align: right; padding-bottom: 10px;">
+						<span style="font-style: italic; font-size:12px; font-family:Segoe UI; float: left; padding-top: 12px;">*Data shown only for the last two months</span>
+						<button class="btn btn-secondary" style="padding-left: 10px;"
+							  ng-click="closeHistory();">Close</button>
+						
+					</div>
+
+				</div>
+			</div>
+		</div--> 
+		
+		<!-- End -->
+		
+		
+		</div>
+		<div ng-if="showFYADtls" class="container-fluid row" style="margin-left:0px;margin-right:0px;padding: 8px;box-shadow: 1px 1px 1px 1px #ccc;margin-top:15px;background-color: #f7f7f7;">
+		
+		
+
+			<div class="row approverActionbar" ng-if="showActionBar">
+				<div class="col-md-12">
+					<a class="btn btn-link actionButton"><span
+						class="glyphicon glyphicon-ok-sign"  ng-click="approveAllReq()"></span><span
+						class="actionButtonText">Approve All</span></a> <a
+						class="btn btn-link actionButton"><span
+						class="glyphicon glyphicon-remove-sign"></span><span
+						class="actionButtonText">Reject All</span></a> <a
+						class="btn btn-link actionButton"><span
+						class="glyphicon glyphicon-share-alt"></span><span
+						class="actionButtonText">Reassign Request</span></a> <a
+						class="btn btn-link actionButton" ng-click="expandAll();"><span
+						class="glyphicon glyphicon-chevron-down"></span><span
+						class="actionButtonText">Expand All</span></a> <a
+						class="btn btn-link actionButton" ng-click="collapseAll()"><span
+						class="glyphicon glyphicon-chevron-up"></span><span
+						class="actionButtonText">Collapse All</span></a>
+				</div>
+			</div>
+
+
+
+			<div class="col-md-12" style="padding: 0px;">
+				<div class="reqDetails"
+					data-ng-repeat="data in leaveApprObj.fyaData" style="border: 1px solid #ccc;box-shadow: 1px 2px 1px #ccc;">
+					<span data-ng-repeat="subData in data.leaveDetails"> <span
+						data-ng-repeat="leaveDet in subData.leaveRequests">
+							<div class="row requestBar" style="border-bottom: 1px solid #ccc;height:50px;">
+								<div class="col-md-1 orangeBar" id="orngBar{{$index}}">
+									<span><img src="appResources/img/levReqDtlBar_icon.png" style="margin:11px"></span>
+								</div>
+
+
+								<div class="col-md-11 whiteBar"  style="background:rgb(255, 255, 255);"
+									data-aria-expanded="false"
+									padding-right: 0px;"
+									id="whitebar{{$parent.$index}}{{$index}}"
+									ng-click="getWorkflow(leaveDet.levRequestNo, $index)">
+									<div class="col-md-9" id="headClass{{$index}}" style="padding-left:0px;margin: 8px 2px 8px 0;">
+										<span class="leaveHeadClass">{{leaveDet.leaveType.name}}</span>
+									</div>
+									
+									<div class="col-md-2"  style="padding-left:0px;margin: 14px 2px 8px 0;" ng-if="leaveDet.amendDate !== null">
+										<span class="subRequestCommentClass">Amended Date : {{leaveDet.amendDate | date:'dd-MMM-yyyy'}}</span>
+									</div>
+									
+								</div>
+
+								<div class="col-md-2 row actionIconSec" ng-if="showActionBar"
+									id="actionIconSec{{$parent.$index}}{{$index}}">
+									<div class="col-md-8 collapse"
+										id="actionShowSec{{$parent.$index}}{{$index}}"
+										style="margin-top: -10px;margin-right: 12%;">
+										<div ng-show="leaveApprObj.showApproverCmntSec">
+											<span class="approverCommentClass">Approver Comments:</span>
+											<textarea ng-model="leaveApprObj.approverComment" class="col-md-12" style="resize: none;
+											font-size: 14px;height: 28px;font-family: Segoe UI;"></textarea>
+										</div>
+										<div ng-show="leaveApprObj.showreassignSec">
+											<div style="margin-top: 12px;">
+												<input class="col-md-6"
+													placeholder="Enter name or Employee ID"
+													style="resize: none; font-size: 14px;height: 35px;font-family: Segoe UI;"
+													ng-model="leaveApprObj.searchValue"></input>
+											</div>
+											<div class="col-md-1">
+												<a class="btn btn-link actionButton"
+													style="margin-left: -20px;"><span
+													class="glyphicon glyphicon-search"
+													ng-click="empSearchFYA(leaveDet.levRequestNo,leaveDet.leaveRequestStatus.id)"></span></a>
+											</div>
+											<button class="btn btn-default col-md-2"
+												ng-click="reassignReq(leaveDet.levRequestNo,leaveApprObj.searchValue)">Reassign</button>
+											<button class="btn btn-default col-md-2"
+												style="margin-left: 5px;">Cancel</button>
+
+
+										</div>
+
+
+									</div>
+
+
+									<a class="btn btn-link actionButton"
+										id="approveButton{{$index}}" data-toggle="collapse"
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false"
+										ng-click="approveClick($parent.$index,$index, leaveApprObj.approverComment)"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'approved',$index,leaveDet.disable)"
+										>
+										<span class="glyphicon glyphicon-ok-sign"> </span>
+									</a> 
+									<a class="btn btn-link actionButton"
+										id="rejectButton{{$index}}" data-toggle="collapse"
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'rejected',$index,leaveDet.disable)"
+										ng-click="rejectClick($parent.$index,$index, leaveApprObj.approverComment)"
+										>
+										<span
+										class="glyphicon glyphicon-remove-sign"> 
+										</span></a> 
+									<a
+										class="btn btn-link actionButton" data-toggle="collapse" 
+										id="clarifyButton{{$index}}"										
+										ng-click="clarifyClick($parent.$index,$index, leaveApprObj.approverComment)"
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'seekClr',$index,leaveDet.disable)"
+										>
+										<span class="glyphicon glyphicon-exclamation-sign"> </span>
+									</a> 
+									<a class="btn btn-link actionButton" data-toggle="collapse" 
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false" id="reassignButton{{$index}}"
+										ng-click="reAssignClick($parent.$index,$index)"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'reassign',$index,leaveDet.disable)"
+										>
+										<span class="glyphicon glyphicon-share-alt"></span>
+									</a>
+								</div>
+
+								<!-- {{expandActionSection(("headClass"+$index),("orngBar"+$index),("whitebar"+$parent.$index+$index),("whitebarHideSec"+$parent.$index+$index),
+								("actionIconSec"+$parent.$index+$index),("actionShowSec"+$parent.$index+$index),$parent.$index,$index);}}
+ -->
+
+							</div>
+							<div  id="subRequestDetails{{$index}}"
+								style="background-color: white; padding-top: 1px;">
+								<div class="row" 
+									id="subRequestDetails{{$index}}">
+									<div class="row" style="border-bottom:1px solid #ccc;padding-top:10px;padding-bottom:10px;margin-bottom: 10px;">
+										<div class="col-md-1">
+											<span class="subRequestCommentClass">Request No.</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.levRequestNo}}</span>
+										</div>
+										<div class="col-md-2" style="padding-left: 5%;">
+											<span class="col-md-12 subRequestCommentClass">Leave Start Date</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.startDate | date:'dd-MMM-yyyy'}}</span>
+										</div>
+										
+										<div class="col-md-1">
+											<span class="col-md-12 subRequestCommentClass">Start Duration</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.startDuration}}</span>
+										</div>
+										
+										<div class="col-md-2" style="padding-left: 5%;">
+											<span class="col-md-12 subRequestCommentClass">Leave End Date</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.endDate | date:'dd-MMM-yyyy'}}</span>
+										</div>
+										
+										<div class="col-md-1">
+											<span class="col-md-12 subRequestCommentClass">End Duration</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.endDuration}}</span>
+										</div>
+										
+										<div class="col-md-2" style="padding-left: 5%;">
+											<span class="col-md-12 subRequestCommentClass">No of Days</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.nosDay}}</span>
+										</div>
+										<div class="col-md-3">
+											<span class="col-md-12 subRequestCommentClass custom-text">Remarks</span><br>
+											<span class="col-md-12 subRequestDtlsClass custom-text" style="word-wrap: break-word;">{{leaveDet.reasonForLeave}}</span>
+										</div>
+										
+										
+										
+										
+										
+										<div class="row col-md-12" style="padding:0px;">
+										<div class="col-md-3" style="padding-top: 10px" ng-class="{'divHide' :leaveDet.attributeName1===''}">
+											<span class="col-md-12 subRequestCommentClass">{{leaveDet.attributeName1}}</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.attributeValue1}}</span>
+										</div>
+										<div class="col-md-3"  style="padding-top: 10px" ng-class="{'divHide' :leaveDet.contactDTO.contactNumberHome===''}">
+											<span class="col-md-12 subRequestCommentClass">Email Id</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.contactDTO.contactNumberHome}}</span>
+										</div>
+										<div class="col-md-3"   style="padding-top: 10px" ng-class="{'divHide' :leaveDet.attributeName2===''}">
+											<span class="col-md-12 subRequestCommentClass">{{leaveDet.attributeName2}}</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.attributeValue2}}</span>
+										</div>
+										<div class="col-md-3"  style="padding-top: 10px" ng-class="{'divHide' :leaveDet.attributeName3===''}">
+											<span class="col-md-12 subRequestCommentClass">{{leaveDet.attributeName3}}</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.attributeValue3}}</span>
+										</div>
+										<div class="col-md-3" style="padding-top: 10px"  ng-class="{'divHide' :leaveDet.attributeName4===''}">
+											<span class="col-md-12 subRequestCommentClass">{{leaveDet.attributeName4}}</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.attributeValue4}}</span>
+										</div>
+										<div class="col-md-3"  style="padding-top: 10px" ng-class="{'divHide' :leaveDet.attributeName5===''}">
+											<span class="col-md-12 subRequestCommentClass">{{leaveDet.attributeName5}}</span><br>
+											<span class="col-md-12 subRequestDtlsClass">{{leaveDet.attributeValue5}}</span>
+										</div>
+										
+										<div class="col-md-3" style="padding-top: 10px" data-ng-show="leaveApprObj.fyaData[0].leaveDetails[0].applicant === 0 && 'Leave Without Pay'===leaveDet.leaveType.name" >
+											<span class="col-md-12 subRequestCommentClass">IEvolve Selection</span><br>
+											<span class="col-md-12 subRequestDtlsClass">No</span>
+										</div>
+										
+										</div>
+										<!-- code added by 742954 for FLMA US BENEFITS specialist -->
+										<div class="row col-md-12 text-left" data-ng-show="'FMLA Tagged'===leaveDet.attributeName5 && 'Benefits Specialist'===leaveApprObj.fyaData[0].benefitSpecialist" style="padding-top: 10px;">
+										<input type="checkbox" data-ng-disabled="!('Benefits Specialist'===leaveApprObj.fyaData[0].benefitSpecialist)" data-ng-model="leaveApprObj.flmaChecked" ng-change="getChangedVal(leaveApprObj.flmaChecked);"/><span>Select to tag FMLA</span>
+										</div>
+
+									</div>
+									
+									
+
+
+								</div>
+								
+								<div class="row"
+									id="nomineeDtls{{$index}}" ng-if="ifNominee">
+									<div class="row">
+										<span class="subRequestCommentClass" style="margin-left: 10px;margin-bottom: 5px;">Nominee Details</span>
+									</div>
+									
+									<div class="row" style="border-bottom:1px solid #ccc;padding-bottom:10px;margin-bottom: 10px;">
+										
+										<div class="col-md-2">
+											<div class=" col-md-12 subRequestCommentClass custom-text">Relative Name</div><br>
+											<div class="col-md-12 subRequestDtlsClass custom-text">{{leaveApprObj.nominationData[0].relativeName}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="col-md-12 subRequestCommentClass custom-text">Relation</div><br>
+											<div class="col-md-12 subRequestDtlsClass custom-text">{{leaveApprObj.nominationData[0].relation}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="col-md-12 subRequestCommentClass custom-text">Nominee Name</div><br>
+											<div class="col-md-12 subRequestDtlsClass custom-text">{{leaveApprObj.nominationData[0].nomineeName}}</div>
+										</div>
+										<div class="col-md-4">
+											<div class="col-md-12 subRequestCommentClass custom-text">Nominee Address</div><br>
+											<div class="col-md-12 subRequestDtlsClass custom-text">{{leaveApprObj.nominationData[0].nomineeAddress}}</div>
+										</div>
+										
+
+									</div>
+								</div>
+																<!-- for  iEvolve -->
+																
+								<div class="row" style="text-align: left;border-bottom: 1px solid #ccc; margin-bottom: 1%; padding-left: 10px"
+									id="iEvolve{{$index}}" ng-if="'Leave Without Pay'===leaveDet.leaveType.name &&
+									'New'===leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].leaveRequestStatus.name &&
+									1===leaveApprObj.fyaData[0].leaveDetails[0].applicant">
+									
+									<div class="row" style="margin-bottom:10px;">
+										<span class="col-md-3 subRequestCommentClass custom-text">Applicant selection for iEvolve Access</span> 
+										<span class="col-md-3 subRequestCommentClass custom-text">{{leaveApprObj.fyaData[0].leaveDetails[0].applicant === 1 ? 'Yes' : 'No'}}</span>
+									</div>
+									
+									
+									
+									<div class="row" ng-if="3===iEvolveWorkflow[2].level" style="margin-bottom:10px;">
+										<span class="col-md-3 subRequestCommentClass custom-text">First Approver selection for iEvolve Access</span> 
+										<span class="col-md-3 subRequestCommentClass custom-text">{{leaveApprObj.fyaData[0].leaveDetails[0].firstApprover === 1 ? 'Yes' : 'No'}}</span>
+									</div>
+									
+									<div class="row" ng-if="4===iEvolveWorkflow[3].level" style="margin-bottom:10px;">
+										<span class="col-md-3 subRequestCommentClass custom-text">Second Approver selection for iEvolve Access</span> 
+										<span class="col-md-3 subRequestCommentClass custom-text">{{leaveApprObj.fyaData[0].leaveDetails[0].secondApprover === 1 ? 'Yes' : 'No'}}</span>
+									</div>
+									
+									<div class="row" ng-if="iEvolveSelationFlag" style="margin-bottom:10px;">
+										<span class="col-md-3 subRequestCommentClass custom-text">Do you want to grant iEvolve access to the applicant ?</span>
+										<span class="col-md-3 subRequestCommentClass custom-text">
+											<input type="radio" name="iEvolve" ng-model="iEvolveVal" value="Yes"
+											ng-change="iEvolveChange(iEvolveVal);"/><span style="vertical-align: text-bottom;padding-left: 1px;">Yes</span>
+											<input type="radio" name="iEvolve" ng-model="iEvolveVal" value="No"
+											ng-change="iEvolveChange(iEvolveVal);"/><span style="vertical-align: text-bottom;padding-left: 1px;">No</span>
+										</span>
+									</div>
+																		
+								</div>
+														<!--END for  iEvolve -->
+								
+								<div class="row">
+									<ul class="nav nav-tabs trackerBar" style="margin-top:0px; margin-left: 10px; margin-right: 10px;">
+										<li id="leaveHist{{$index}}" class="activeTabTracker"><a
+											ng-click="trackDetails('LeaveHist',$index,leaveDet.startDate,leaveDet.endDate)">WORKFLOW
+												DETAILS</a></li>
+										
+									</ul>
+									<div class="tab-content">
+										<div id="divLevHist{{$index}}"
+											style="min-height: 230px; padding-bottom: 1px; margin-top: -20px">
+											
+											<h3></h3>
+											
+											<div class="col-md-12" id="demoContainer">
+												<div basic-tracker="leaveApprObj.basicWorkFlowData" tracker-status-color="" ng-model="leaveApprObj"></div>
+								
+											</div>
+											
+										</div>
+
+
+
+
+										<div class="hideDiv row" id="divTeamLeave{{$index}}">
+											
+											<div class="col-md-4">
+												<div class="header">
+													<span>{{months[0].format("MMM, YYYY")}}</span>
+												</div>
+												<div class="week names" style="background-color:wheat">
+													<span class="day" >Sun</span> <span class="day" >Mon</span> <span
+														class="day" >Tue</span> <span class="day" >Wed</span> <span
+														class="day" >Thu</span> <span class="day" >Fri</span> <span
+														class="day" >Sat</span>
+												</div>
+
+												<div id="calenderdiv">
+													<div class="week" ng-repeat="week in months[0]">
+														<span id="day{{day.date._d.getTime()}}"
+															class="day"
+															ng-class="{ today: day.isToday, 'prevMonth' : !day.isCurrentMonth}"
+															ng-repeat="day in week.days">{{day.number}}&nbsp;<span ng-style="applyBgColorTeamLeave(day.teamLeave)">{{day.teamLeave!==null?day.teamLeave:''}}</span></span>
+													</div>
+												</div>
+
+												
+
+											</div>
+											<div class="col-md-8">
+												<div class="row simHeadLeaveBar">
+
+													<div class="col-md-2">
+														<span>Employee Name</span>
+													</div>
+													<div class="col-md-2">
+														<span>Employee ID</span>
+													</div>
+													<div class="col-md-2">
+														<span>Leave Start Date</span>
+													</div>
+													<div class="col-md-2">
+														<span>Leave End Date</span>
+													</div>
+													<div class="col-md-2">
+														<span>No. of Days </span>
+													</div>
+													<div class="col-md-1">
+														<span>Status</span>
+													</div>
+
+												</div>
+
+												<div class="simDetlLeaveBar">
+													<div class="row "
+														ng-repeat="data in leaveApprObj.teamLeaveData.leaveRequests">
+														<div class="col-md-2">
+															<span>{{data.fullName}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.employeeNo}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.startDate | date:'dd-MMM-yyyy'}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.endDate | date:'dd-MMM-yyyy'}}</span>
+														</div>
+														<div class="col-md-2" style="padding-left: 4%;">
+															<span>{{data.nosDay}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.leaveStatus.name}}</span>
+														</div>
+													</div>
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+				</div>
+
+
+				
+			</div>
+			<div class="row" ng-if="!leaveApprObj.isFYA">
+			<div class="col-md-12" style="margin: 15px 0px 20px 0px;">
+				<button class="btn-default col-md-1" style="float: right;" ng-Click="trackReqBack();">Back</button>
+			</div>
+		</div>
+		</div>
+		
+		<div class="container-fluid row" style="padding: 0px;border: 1px solid #eeeeee; box-shadow: 2px 2px 2px #ccc;background-color: #eeeeee;" ng-if="leaveApprObj.isFYA && showFYADtls">
+				<div class="col-md-12" style="background-color: #eeeeee;padding: 20px 5px 10px 20px;">
+					<span class="subRequestCommentClass">Approver Comments</span><span class="asterisk" style="float:left;">*</span>
+					<br />
+					<textarea id="appCmnts" class="col-md-4" style="height: 60px; width: 450px;" ng-model="leaveApprObj.commentAll" ng-keypress="changedText();"></textarea>
+					<br />
+					<span ng-show="errorShow" class="messageDiv" style="float: left;margin-left: -36.5%;font-weight: bold;margin-top: 40px;">Please enter approver's comment</span>
+					
+					<button class="btn-default col-md-1 finalBtn" 
+						style="margin-left: 10px;" ng-Click="reset();">Close</button>
+					<button class="btn-primary col-md-1 finalBtn"
+						ng-Click="reassignReqPhase1();" ng-disable="isBtnClicked">
+						<span class="clm-icon-reassigncopy"></span>
+						<span>Reassign</span></button>
+					<button class="btn-primary col-md-1 finalBtn"
+					 	 ng-Click="rejectReqPhase1();" ng-disable="isBtnClicked">
+					 	 <span class="clm-icon-reject-all"></span>
+					 	 <span>Reject</span></button>
+					<button class="btn-primary col-md-1 finalBtn"
+						ng-Click="approveReqPhase1();" ng-disable="isBtnClicked">
+						<span class="clm-icon-approve-all" style="font-size: 13px; padding-right: 18px;"></span><span>Approve</span>
+						</button>
+				</div>
+				<div class="row">
+						
+				</div>
+			</div>
+		
+		<div id="messageModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px; background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:22px;">Do you want to approve Request ? </div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+									onclick="$('#messageModal').modal('hide');" ng-click="approvePopup();">OK</button>
+								<button class="leave-modal-button"
+									onclick="$('#messageModal').modal('hide');">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+
+			<div id="messageModalR" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px; background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:22px;">Do you want to reject Request ?  </div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+									onclick="$('#messageModalR').modal('hide');" ng-click="rejectPopup();">OK</button>
+								<button class="leave-modal-button"
+									onclick="$('#messageModalR').modal('hide');">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+	</div>
+
+	
+
+
+
+
+</div>
+
+<script>
+
+function showFaltuDtls(){
+//alert('Hope for the best');
+document.getElementById("faltuID").style.display = "block";
+}
+$(document).ready(function()
+{
+   $(document).ready(function()
+{
+    $("#demoContainer").mouseup(function(e)
+    {
+        var subject = $("#faltuID"); 
+
+        if(e.target.id != subject.attr('id') && !subject.has(e.target).length)
+        {
+            subject.fadeOut();
+        }
+    });
+});
+});
+
+
+
+</script>
+
+
+
+

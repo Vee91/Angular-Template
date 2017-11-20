@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<context:annotation-config />
+	<context:component-scan
+		base-package="com.utxfrmwk,com.ultimatix.gess,com.ultimatix.lmc,com.ultimatix.touch,com.ultimatix.globalESS,org.springframework.jdbc.core" />
+	<mvc:annotation-driven />
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<aop:aspectj-autoproxy />
+
+	<bean id="LogAspect" class="com.ultimatix.gess.common.aop.LogAspect">
+	</bean>
+
+	<!-- Use this for Jboss -->
+	<!-- create special datasource for leave revamp in local,prod -->
+	<bean id="myDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiName" value="GESSDEV.DS"></property>
+	</bean>
+
+	<!-- Use this for Weblogic -->
+	<!-- <bean id="myDataSource" class="org.springframework.jndi.JndiObjectFactoryBean"> 
+		<property name="jndiName" value="GESSDEV.DS"></property> </bean> -->
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="myDataSource" />
+	</bean>
+
+	<bean id="loginServices"
+		class="com.ultimatix.gess.home.service.GessLoginProcessServiceImpl"></bean>
+
+	<bean class="com.ultimatix.gess.home.exception.DefaultExceptionHandler"></bean>
+
+	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="myDataSource" />
+	</bean>
+
+
+	<bean id="appProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>WEB-INF/properties/message.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	
+
+	
+
+	
+	<bean id="SessionAspect" class="com.plagiarism.common.aop.SessionAspect">
+	</bean>
+
+	<!-- Create a proxy to generate session-scope -->
+	<bean id="userBean"
+		class="com.plagiarism.sessionbean.UserDetailsSessionBean"
+		scope="session">
+		<!-- This requires CGLIB -->
+		<aop:scoped-proxy />
+
+	</bean>
+	
+
+	<!-- Multipart Resolver for uploading files added by Priti 24/12/2015 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+		<!-- setting maximum upload size -->
+		<property name="maxUploadSize" value="52428800" />
+	</bean>
+</beans>

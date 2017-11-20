@@ -1,0 +1,392 @@
+define(['angular','app','moment','LeaveServices','displayMenu','jqueryui','utils','bootstrap'], function(angular,app,moment,jqueryui,bootstrap) {
+app.controller('lerfController', ['$scope','$http', '$rootScope', '$compile', '$location','$q','leaveApprovalService', 
+                                           function($scope, $http, $rootScope, $compile, $location, $q,leaveApprovalService){
+	
+	console.log("Inside lerfController !!");
+	
+	
+	 $scope.lerfObj={};
+	 $scope.lerfObj.i94Checked=false;
+	 $scope.lerfObj.i94Sec=false;
+	 $scope.lerfObj.lerfCallService = '/leaverest/rest/fetchLerfDetails';
+	 $scope.lerfObj.lerfData=[];
+	 $scope.lerfObj.showErrMsg=false;
+	 $scope.lerfObj.errorMsg=undefined;
+	 $scope.lerfObj.renderFlag=false;
+	 $scope.lerfObj.newReportingDate=[];
+	 $scope.lerfObj.showPage=false;
+	 $scope.lerfObj.guideLineFlag=false;
+	 $scope.lerfObj.submitData=[];
+	 $scope.lerfObj.submitService='/leaverest/rest/submitLerfDetails';
+	 $scope.showGuideLines=false;
+	 $scope.lerfObj.reportDateChangeService='/leaverest/rest/reportingDateChange';
+	 $scope.lerfObj.changedData={};
+	 $scope.lerfObj.successData={};
+	 $scope.lerfObj.earlyLateSec=false;
+	 $scope.lerfObj.applyLev=false;
+	 $scope.lerfObj.submitShow=false;
+	 $scope.visaName="View Visa Details";
+	 $scope.groupIndex=0;
+	 $scope.agreeFlag=undefined;
+	 $scope.lerfObj.submitIdx=0;
+	 $scope.lerfObj.oldSubmitIdx=0;
+	 $scope.lerfObj.i94List1={};
+	 
+	 $scope.isReportingDateChanged=false;
+	
+	 $scope.expiryDays=undefined;
+	 $scope.oldAddDetSec=undefined;
+	 
+	 	$scope.lerfObj.travelDate=undefined;
+		$scope.lerfObj.issueDate=undefined;
+		$scope.lerfObj.expiryDate=undefined;
+		$scope.lerfObj.i94No=undefined;
+	 
+	 $scope.data={
+			 visaCode:undefined
+				 
+	 };
+	 
+	// $scope.lerfObj.lerfData=[{"SeqNoDetails":[[{"startDate":null,"endDate":"06-Mar-2016","appliedDate":null,"approvalDate":null,"nosDay":0,"amendDate":null,"amendNosDay":0,"isErrorSafe":true,"planDateTime":0,"chkForTerminationFalg":false,"fmlaDeTag":false,"reportingDate":"07-Mar-2016","levEndDate":"06-Mar-2016","newReportingDate":null,"NewLevEndDate":null,"computedDays":0,"requestTypeId":0,"groupNo":0,"lerfStartDate":null,"lerfEndDate":"06-Mar-2016","lerfNoOfDays":66,"i94travelDate":null,"i94IssueDate":null,"i94ExpiryDate":null,"newNoOfDays":32,"benifitHR":false,"maternityLeave":false}]],"USLocal":false,"RequestDetails":[[{"grpNo":1,"seqNo":835728,"masterReqNo":205593,"leaveReqNo":"Lev_109424401","countryLevType":56,"leaveTypeName":"Maternity Leave","levStartDate":"01-Jan-2016","levEndDate":"03-Feb-2016","noOfDays":34,"reqTypeId":1,"levStatus":"System-Approved","submitDate":"10-Aug-2016","calenderDays":34,"personId":450370,"flag":null,"leaveStartDate":null,"leaveEndDate":null,"levStartDuration":0,"levEndDuration":0,"remark":"Success","additionalFieldDTO":{"leaveReqNo":"Lev_109424401","attribute1_Value":"Tubectomy","attribute2_Value":"Fri Jan 15 00:00:00 IST 2016","attribute1_Name":"Category*","attribute2_Name":"Date of Miscarriage/Tubectomy","attribute4_Value":null,"attribute4_Name":null,"attribute3_Value":"TCS - Hyderabad, SynergyPark-SEZ-U2","attribute3_Name":"Depute Branch and Location","attribute5_Name":null,"attribute5_Value":null}},{"grpNo":1,"seqNo":835728,"masterReqNo":205596,"leaveReqNo":"Lev_109424404","countryLevType":61,"leaveTypeName":"Special Maternity Leave","levStartDate":"04-Feb-2016","levEndDate":"06-Mar-2016","noOfDays":28,"reqTypeId":1,"levStatus":"System-Approved","submitDate":"10-Aug-2016","calenderDays":62,"personId":450370,"flag":null,"leaveStartDate":null,"leaveEndDate":null,"levStartDuration":0,"levEndDuration":0,"remark":"Success","additionalFieldDTO":{"leaveReqNo":"Lev_109424404","attribute1_Value":"Post","attribute2_Value":"Tue Feb 02 00:00:00 IST 2016","attribute1_Name":"Is SML prior to ML or post?*","attribute2_Name":"Expected date/Date of child birth*","attribute4_Value":null,"attribute4_Name":null,"attribute3_Value":"Illness arising out of delivery","attribute3_Name":"Detail Reason*","attribute5_Name":"Depute Branch and Location","attribute5_Value":"TCS - Hyderabad, SynergyPark-SEZ-U2"}}]]},{"SeqNoDetails":[[{"startDate":null,"endDate":"27-Jul-2016","appliedDate":null,"approvalDate":null,"nosDay":0,"amendDate":null,"amendNosDay":0,"isErrorSafe":true,"planDateTime":0,"chkForTerminationFalg":false,"fmlaDeTag":false,"reportingDate":"28-Jul-2016","levEndDate":"27-Jul-2016","newReportingDate":null,"NewLevEndDate":null,"computedDays":0,"requestTypeId":0,"groupNo":0,"lerfStartDate":null,"lerfEndDate":"27-Jul-2016","lerfNoOfDays":135,"i94travelDate":null,"i94IssueDate":null,"i94ExpiryDate":null,"newNoOfDays":135,"benifitHR":false,"maternityLeave":false}]],"USLocal":false,"RequestDetails":[[{"grpNo":2,"seqNo":835729,"masterReqNo":205597,"leaveReqNo":"Lev_109424405","countryLevType":260,"leaveTypeName":"Leave Without Pay","levStartDate":"15-Mar-2016","levEndDate":"27-Jul-2016","noOfDays":135,"reqTypeId":1,"levStatus":"System-Approved","submitDate":"10-Aug-2016","calenderDays":135,"personId":450370,"flag":null,"leaveStartDate":null,"leaveEndDate":null,"levStartDuration":0,"levEndDuration":0,"remark":"Success","additionalFieldDTO":{"leaveReqNo":"Lev_109424405","attribute1_Value":"Medical (Own illness)","attribute2_Value":null,"attribute1_Name":"Reasons for LWP","attribute2_Name":null,"attribute4_Value":null,"attribute4_Name":null,"attribute3_Value":"Fever / Cold Cough","attribute3_Name":"Ailment details*","attribute5_Name":null,"attribute5_Value":null}}]]}]; 
+	// $scope.lerfObj.showPage=true;
+	 var empData={};
+	 empData['onBehalfFlag']="N";
+	 empData['empId']=undefined;
+	 $rootScope.processing = true;
+	 $http.post($scope.lerfObj.lerfCallService,empData).success(
+				function(data) {
+					
+					console.log("LERF DATA : " + JSON.stringify(data));
+					$scope.lerfObj.lerfData=data;
+					
+					
+					
+					if($scope.lerfObj.lerfData.length < 1){
+						$scope.lerfObj.showErrMsg=true;
+						$scope.lerfObj.errorMsg="There are no leaves for which LERF is required";
+						$scope.lerfObj.guideLineFlag=true;
+						$rootScope.processing = false;
+					}else{
+						$rootScope.processing = false;
+						if(undefined!==$scope.lerfObj.lerfData[0].RequestDetails[0].error){
+							$scope.lerfObj.showErrMsg=true;
+							$scope.lerfObj.errorMsg=$scope.lerfObj.lerfData[0].RequestDetails[0].error;
+							
+						}
+						else{
+						$scope.lerfObj.showPage=true;
+						console.log("LERF SeqNoDetails DATA : " + JSON.stringify($scope.lerfObj.lerfData[0].SeqNoDetails));
+						console.log("LERF RequestDetails DATA : " + JSON.stringify($scope.lerfObj.lerfData[0].RequestDetails));
+						$scope.lerfObj.newReportingDate=$scope.lerfObj.lerfData[0].SeqNoDetails[0].reportingDate;
+						$scope.lerfObj.submitData=[];
+					 	$scope.lerfObj.submitData.push($scope.lerfObj.lerfData[0]);
+						
+						}
+						
+						
+					
+						
+						
+						
+					}
+					
+					
+				}).error(function(data) { 
+					 
+			alert("Error in getting Lerf Data");
+			$rootScope.processing = false;
+		});
+
+
+	 
+	 
+	 $scope.changeEvent=function(idx,obj){
+		 	$scope.groupIndex=idx;
+		 	$("#reportingDate"+idx).removeAttr("disabled");
+		 	$scope.lerfObj.submitShow=false;
+		 	$scope.lerfObj.oldSubmitIdx=idx;
+		 	$scope.lerfObj.submitIdx=idx;
+		 	$scope.lerfObj.submitData=[];
+		 	$scope.lerfObj.submitData.push(obj);
+		 	$scope.lerfObj.showErrMsg=false;
+		 	
+		 	console.log("LERF submit DATA : " + JSON.stringify($scope.lerfObj.submitData));
+		 	
+	 };
+	
+	$scope.newReportingDate=function(dateIdx){
+		
+		$scope.isReportingDateChanged=true;
+		var today=new Date();
+		var repDate=new Date($scope.lerfObj.newReportingDate[dateIdx]);
+		
+		if(repDate > today){
+			$scope.lerfObj.showErrMsg=true;
+			$scope.lerfObj.errorMsg="Reporting date can not be greater than today's date";
+			$("#submitBtn").addClass("disableBtn");
+		}
+		else{
+			$scope.lerfObj.showErrMsg=false;
+			$scope.lerfObj.changedData={};
+			$("#submitBtn").removeClass("disableBtn");
+			$scope.lerfObj.submitData[0].SeqNoDetails[0].newReportingDate=$scope.lerfObj.newReportingDate[dateIdx];
+			$scope.lerfObj.submitData[0].msgFlag='Y';
+			$scope.lerfObj.submitData[0].employeeNo=undefined;
+		 	
+			$scope.lerfObj.changedData=$scope.lerfObj.submitData[0].SeqNoDetails[0];
+			
+			console.log(" value of textbox ===================" + $scope.lerfObj.newReportingDate[dateIdx]);
+			var arrsize=$scope.lerfObj.submitData[0].RequestDetails[0].length;
+			$scope.lerfObj.changedData[0].newReportingDate=$scope.lerfObj.newReportingDate[dateIdx];
+			$scope.lerfObj.changedData[0].startDate=$scope.lerfObj.submitData[0].RequestDetails[0][0].levStartDate;
+			$scope.lerfObj.changedData[0].lerfStartDate=$scope.lerfObj.submitData[0].RequestDetails[0][arrsize-1].levStartDate;
+			$scope.lerfObj.changedData[0].computedDays=$scope.lerfObj.submitData[0].SeqNoDetails[0].lerfNoOfDays;
+			$scope.lerfObj.changedData[0].levRequestNo=$scope.lerfObj.submitData[0].RequestDetails[0][arrsize-1].leaveReqNo;
+			
+		 	console.log("LERF changed DATA : " + JSON.stringify($scope.lerfObj.changedData));
+		 	
+		 	 $http.post("/leaverest/rest/reportingDateChange",$scope.lerfObj.changedData)
+				.success(
+					function(data) {
+						console.log("Success.. ");
+						$scope.lerfObj.changedData=data;
+						$scope.lerfObj.submitData[0].SeqNoDetails[0][0].NewLevEndDate=$scope.lerfObj.changedData.endDate;
+						$scope.lerfObj.submitData[0].SeqNoDetails[0][0].newLevEndDate=$scope.lerfObj.changedData.endDate;
+						$scope.lerfObj.submitData[0].SeqNoDetails[0][0].computedDays=$scope.lerfObj.changedData.nosDay;
+						$scope.lerfObj.lerfData[dateIdx].SeqNoDetails[0][0].lerfEndDate=$scope.lerfObj.changedData.endDate;
+						$scope.lerfObj.lerfData[dateIdx].SeqNoDetails[0][0].newNoOfDays=$scope.lerfObj.changedData.newNoOfDays;
+						$scope.lerfObj.lerfData[dateIdx].SeqNoDetails[0][0].lerfNoOfDays=$scope.lerfObj.changedData.nosDay;
+						
+						
+					}).error(
+							function() {
+									console.log("ERROR ");
+									/*$rootScope.processing=false;
+									$location.path("/cmnError");*/
+						});
+		}
+		
+		
+	 	
+
+		
+	};
+	 
+	$scope.i94Change=function(val,idx){
+		$("#submitBtn").removeClass("disableBtn");
+		console.log("Inside i94Change !!");
+		i94Sec(val,idx);
+		console.log("i94form_Index : " + idx);
+		
+	};
+	
+	function i94Sec(val,idx){
+		console.log("Inside i94Sec !!");
+		 var sec=null;
+			
+			if(val[idx]===true){
+				$("#reportingDiv"+idx).css('display', 'block');
+				$("#hr_"+idx).css('display', 'block');
+			}
+			else{
+				$("#reportingDiv"+idx).css('display', 'none');
+				$("#hr_"+idx).css('display', 'none');
+			}
+			return sec;
+	}
+	
+	$scope.noClick=function(){
+		
+		$("#earlyLateSec_"+$scope.groupIndex).css('display', 'none');
+		$scope.lerfObj.earlyLateSec=false;
+		$scope.lerfObj.submitIdx=$scope.lerfObj.oldSubmitIdx;
+		
+	};
+	
+	$scope.yesClick=function(){
+		
+		if($scope.isReportingDateChanged===false){
+			$scope.lerfObj.submitData[0].SeqNoDetails[0][0].newReportingDate=$scope.lerfObj.lerfData[0].SeqNoDetails[0][0].reportingDate;
+			$scope.lerfObj.submitData[0].SeqNoDetails[0][0].newLevEndDate=$scope.lerfObj.lerfData[0].SeqNoDetails[0][0].levEndDate;
+		}
+		 $scope.lerfObj.submitData[0].msgFlag='N';
+		 $scope.agreeFlag=true;
+		 $scope.lerfObj.submitData[0].agreeFlag=true;
+		submitLerfFun();
+		
+		
+	};
+	
+	$scope.createLOP=function(){
+		 $scope.lerfObj.submitData[0].createLop='Y';
+		 $scope.lerfObj.submitData[0].msgFlag='N';
+		 submitLerfFun();
+	};
+	$scope.i94DtlsChanged=function(){
+		$("#submitBtn").removeClass("disableBtn");
+	};
+	
+	$scope.submitLERF=function(){
+		
+		 $scope.lerfObj.showErrMsg=false;
+		 $scope.lerfObj.errorMsg=undefined;
+		 
+		 if($scope.lerfObj.i94Checked[$scope.lerfObj.submitIdx]===true){
+			 if(undefined===$scope.lerfObj.travelDate || undefined===$scope.lerfObj.issueDate || undefined===$scope.lerfObj.expiryDate ||
+			       ""===$scope.lerfObj.i94No || undefined===$scope.lerfObj.i94No || null=== $scope.lerfObj.i94No|| undefined===$scope.data.visaCode){
+				 	$scope.lerfObj.showErrMsg=true;
+					$scope.lerfObj.errorMsg="Please fill all mandatory fields";
+					$("#submitBtn").addClass("disableBtn");
+			 }
+		}
+		
+			 if($scope.lerfObj.i94Checked[$scope.lerfObj.submitIdx]===true){
+				 
+				
+				
+				 $scope.lerfObj.submitData[0].i94Checked=$scope.lerfObj.i94Checked[0];
+				 $scope.lerfObj.i94List1.i94travelDate=$scope.lerfObj.travelDate;
+				 $scope.lerfObj.i94List1.i94IssueDate=$scope.lerfObj.issueDate;
+				 $scope.lerfObj.i94List1.i94ExpiryDate=$scope.lerfObj.expiryDate;
+				 $scope.lerfObj.i94List1.i94Number=$scope.lerfObj.i94No;
+				 $scope.lerfObj.i94List1.visaCode=$scope.data.visaCode;
+				 
+				
+				
+				 
+			 }
+			 if($scope.lerfObj.submitData[0].SeqNoDetails[0].newReportingDate===null ||
+					 $scope.lerfObj.submitData[0].SeqNoDetails[0].newReportingDate===undefined){
+				 $scope.lerfObj.submitData[0].SeqNoDetails[0].newReportingDate=$scope.lerfObj.reportingDate;
+				 $scope.lerfObj.submitData[0].agreeFlag=false;
+				 $scope.lerfObj.submitData[0].msgFlag='N';
+			 }
+			 else{
+				$scope.lerfObj.submitData[0].msgFlag='Y';
+			    $scope.agreeFlag=false;
+				 $scope.lerfObj.submitData[0].agreeFlag=false;
+			 }
+			 //submitLerfFun();
+		
+		 
+		 
+		 /*$scope.lerfObj.finalData=[];
+		 $scope.lerfObj.finalData.push($scope.lerfObj.submitData);*/
+		 
+		
+		
+		 
+	};
+	
+	function submitLerfFun(){
+		 $scope.lerfObj.submitData[0].i94List=[];
+		 $scope.lerfObj.submitData[0].i94List.push($scope.lerfObj.i94List1);
+		$scope.lerfObj.submitData[0].onBehalfFlag='N';
+		$scope.lerfObj.submitData[0].employeeNo=undefined;
+		console.log("Submit Data.. " + JSON.stringify($scope.lerfObj.submitData));
+		$rootScope.processing = true;
+		 $http.post($scope.lerfObj.submitService,$scope.lerfObj.submitData)
+			.success(
+				function(data) {
+					console.log("Success.. ");
+					$scope.lerfObj.successData=data;
+					console.log("LERF Data after Click on Submit Button : -------" +JSON.stringify(data)); 
+					
+					if(200==$scope.lerfObj.successData[0].code){
+						$rootScope.processing = false;
+						$('#messageModal').modal('show');
+					}
+					else if(300==$scope.lerfObj.successData[0].code && 'yes' in $scope.lerfObj.successData[0].success){
+						//$scope.lerfObj.earlyLateSec=true;
+						$rootScope.processing = false;
+						$("#earlyLateSec_"+$scope.groupIndex).css('display', 'block');
+						$scope.lerfObj.submitShow=false;
+						$scope.lerfObj.submitIdx=-1;
+					}
+					else if(300==$scope.lerfObj.successData[0].code && 'ApplyLeave' in $scope.lerfObj.successData[0].success){
+						//$scope.lerfObj.applyLev=true;
+						$rootScope.processing = false;
+						$("#applyLev_"+$scope.groupIndex).css('display', 'block');
+						 $scope.lerfObj.submitShow=false;
+						 $scope.lerfObj.submitIdx=-1;
+					}
+					else{
+
+						$rootScope.processing = false;
+						if($scope.lerfObj.successData[0].fieldErrors[0]!==null){
+							$scope.lerfObj.errorMsg=$scope.lerfObj.successData[0].fieldErrors[0].message;
+						}
+						else{
+							$scope.lerfObj.errorMsg=$scope.lerfObj.successData[0].message;
+						}
+						$scope.lerfObj.showErrMsg=true;
+						$scope.lerfObj.earlyLateSec=false;
+						$scope.lerfObj.applyLev=false;
+						$("#earlyLateSec_"+$scope.groupIndex).css('display', 'none');
+						$("#applyLev_"+$scope.groupIndex).css('display', 'none');
+						$scope.lerfObj.submitIdx=$scope.lerfObj.oldSubmitIdx;
+
+					}
+					
+				}).error(
+						function() {
+								console.log("ERROR ");
+								$rootScope.processing = false;
+								$location.path("/cmnError");
+					});
+	} 
+	
+	
+	$scope.redirectToRequestList=function(){
+		$('#messageModal').modal('hide');
+		var myEl = angular.element( document.querySelector( '.modal-backdrop' ) );
+		myEl.remove();
+		var myE2=angular.element(document.getElementById("entireBody"));
+		myE2.removeClass("modal-open");
+		$location.path("/levReqList");
+	};
+	
+	$scope.applyLeaveClicked=function(){
+		$location.path("/applyleave");
+	};
+	
+	$scope.guideLineClose=function(){
+		$scope.showGuideLines=true;
+	};
+	
+	$scope.viewVisaDetails=function(idx){
+		var val=$("#lbl_"+idx).text();
+		if("+ View visa details"===val){
+			
+			$("#visaDtls_"+idx).css('display', 'block');
+			//$("label[for='viewVisa_"+idx+"']").css('color','#808080');
+			$("#lbl_"+idx).removeClass("viewClass");
+			$("#lbl_"+idx).addClass("hideClass");
+			$("label[for='viewVisa_"+idx+"']").html("- Hide visa details");
+			//$scope.visaName="Hide Visa Details";
+		}else{
+			$("#visaDtls_"+idx).css('display', 'none');
+			//$("label[for='viewVisa_"+idx+"']").css('color','#2084c9');
+			$("#lbl_"+idx).removeClass("hideClass");
+			$("#lbl_"+idx).addClass("viewClass");
+			$("label[for='viewVisa_"+idx+"']").html("+ View visa details");
+			//$scope.visaName="View Visa Details";
+		}
+	};
+	
+	$scope.viewDetails=function(divId){
+		if(undefined!==$scope.oldAddDetSec){
+			$("#"+$scope.oldAddDetSec).css('display','none');
+		}
+		$scope.oldAddDetSec=divId;
+		$("#"+divId).css('display','block');
+	};
+	
+	$scope.closeAddDetailsSec=function(divId){
+		$("#"+divId).css('display','none');
+		
+		
+	};
+}]); 
+return app;
+});

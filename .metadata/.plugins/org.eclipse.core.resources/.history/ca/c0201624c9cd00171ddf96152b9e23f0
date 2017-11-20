@@ -1,0 +1,42 @@
+define([], function() {
+  var bundleRaw;
+  var bundle;
+  var bundleKey;
+
+  // Storing them in Array Form
+  function propertiesSlpitMethod(bundleRaw) {
+    for (var i = 0; i < bundleRaw.length; i++) {
+      var row = trim(bundleRaw[i]);
+      var sep = row.indexOf("=");
+      bundle[row.slice(0, sep)] = row.slice(sep + 1);
+
+    }
+
+  }
+
+  function trim(original_str) {
+    var str = original_str.replace(/^\s\s*/, ''), ws = /\s/, i = original_str.length;
+    while (ws.test(str.charAt(--i)))
+      ;
+    return str.slice(0, i + 1);
+  }
+
+  function isNull(obj) {
+    if (null == obj || undefined == obj || "" == obj)
+      return true;
+    else
+      return false;
+  }
+
+  if (!String.prototype.trim) {
+    String.prototype.trim = function() {
+      return this.replace(/^\s+|\s+$/g, '');
+    };
+  }
+
+  return {
+    isNull: isNull,
+    trim: trim,
+    propertiesSlpitMethod: propertiesSlpitMethod
+  };
+});

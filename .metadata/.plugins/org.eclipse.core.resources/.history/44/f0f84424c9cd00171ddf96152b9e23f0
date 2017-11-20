@@ -1,0 +1,99 @@
+
+<style>
+label {
+    display: inline-block;
+    max-width: 100%;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 0px;
+}
+.btn-primary:hover{
+	outline: #6ec7ff 2px;
+	color: #ffffff;
+	background-color: #2084c9;
+	border: 2px solid #6ec7ff;
+	
+}
+.btn-primary:focus,.btn-primary:active:focus,.btn-primary.active:focus,.btn-primary.focus,.btn-primary:active.focus,.btn-primary.active.focus,.btn-primary:focus,.btn-primary.focus
+{
+	border: 0px solid #6ec7ff;
+}
+</style>
+
+<div class="row content-main-row"  data-ng-controller="empSearchController">
+	<div class="col-lg-12 text-left padding-zero" id="employeeSearch">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div style="text-align: left;color:red;font-size: 11px;font-weight: bold" id="searchErrorDiv"></div>
+		</div>
+		<div class="col-xs-12 col-sm-4 col-md-3 col-lg-2 "  style="margin-top:5px;">
+			<span
+				class="ng-scope details" style="font-weight: bold;font-size: 12px;">Employee Number</span><span class="asterisk">*</span>
+			<input type="text" placeholder="Employee Number" 
+			 	data-ng-model="searchData"
+				class="form-control ng-pristine ng-untouched ng-valid"
+				allow-only-numbers="" ondrop="return false;" data-ng-disabled="empSearchDataStatus=='Pending'"
+				id="empNameNo" />
+				<!-- onpaste="return false;" -->
+		</div>
+		<div class="col-xs-12 col-sm-4 col-md-3 col-lg-5" style="margin-top:18px;">
+			<button class="btn btn-primary" style="padding-top: 3px; padding-bottom: 3px;"
+			data-ng-click="searchByEmpNo();" data-key="submitText"
+			id="empSearchSubmitButton">Search</button>
+			<!-- <button class="btn btn-default" data-ng-click="resetSearch();"
+			data-key="resetText">Reset</button> -->
+		</div>
+	</div>					
+</div>
+		
+<div class="row content-main-row" style="margin-top:20px;" data-ng-if="showEmpDetails">
+	<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 header-main-column text-left">	
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"
+		style="background-color: #f7f7f7; 
+		 border: 1px solid #ccc;"  >		 
+		 	<div class="col-lg-2"
+				style="padding-top: 5px; padding-bottom: 5px;">
+				<label class="details" translate=""><span class="details">Employee Number</span></label><br>
+				<span class="text-details">{{employeeDetails.employeeNo}}</span>
+			</div>
+			<div class="col-lg-4"
+				style="padding-top: 5px; padding-bottom: 5px;">
+				<label class="details" translate=""><span>Employee Name</span></label><br>
+				<span class="text-details">{{employeeDetails.fullName}}</span>
+			</div>
+			<div class="col-lg-3"
+				style="padding-top: 5px; padding-bottom: 5px;">
+				<label class="details" translate=""><span>Employee Type</span></label><br>
+				<span class="text-details">{{employeeDetails.employeeType}}</span>
+			</div>
+			<div class="col-lg-3"
+				style="padding-top: 5px; padding-bottom: 5px;">
+				<label class="details" translate=""><span>Employment Status</span></label><br>
+				<span class="text-details">{{employeeDetails.employmentStatus}}</span>
+			</div>
+			<div class="col-lg-3" data-ng-show="(homeCountryCode=='US' && hostCountryCode=='US')"
+				style="padding-top: 5px; padding-bottom: 5px;">
+				<label class="details" translate=""><span>SIT Grade</span></label><br>
+				<span class="text-details">{{employeeDetails.sitGRADE}}</span>
+				
+			</div>
+			<div class="col-lg-3"  data-ng-show="(homeCountryCode=='US' && hostCountryCode=='US')"
+				style="padding-top: 5px; padding-bottom: 5px;">
+				<label class="details" translate=""><span>Date Of Joining</span></label><br>
+				<span class="text-details">{{employeeDetails.dateOfJoining}}</span>	
+			</div>
+		</div>
+	</div>		
+</div>
+
+<script>
+	$("#employeeSearch").keypress(function(event) {
+		$('#searchErrorDiv').html("");
+		var keycode = (event.keyCode ? event.keyCode : event.which);
+		if (keycode == '13') {
+			$("#empSearchSubmitButton").trigger("click");
+		}
+		else{
+			$("#empSearchSubmitButton").prop("disabled",false);
+		}
+	});	 
+</script>	

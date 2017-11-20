@@ -1,0 +1,89 @@
+#menuLeft li>div>span {
+	margin: 6px 5px 5px 11px;
+}
+
+#menuLeft li>div>a {
+	margin-top:8px;
+}
+
+.Containerpart2 {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/background_image.jpg",
+		sizingMethod="scale");
+} 
+
+  #subMenuLeft>div>li>a {
+	height: 19px;
+	min-width: 225px !important;
+}
+
+#subMenuLeft>div>li>ul>li>a {
+	height: 13px;
+	min-width: 215px !important;
+	padding:0px;
+}
+
+#subMenuLeft>div>li>ul>li>a>span {
+height: 7px;
+width: 5px;
+}
+#subMenuLeft>div>li>ul>li{
+	margin-top: 6px;	
+}
+#subMenuLeft>div>li>ul>li:first-child{
+	margin-top: 4px;	
+}
+.search{
+margin-left: 6px !important;  
+}
+/* #customisePage ul.secondLevel>li>div {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-pin.png",
+		sizingMethod="scale");
+}
+
+#customisePage ul.secondLevel>li>div:hover {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-pinned.png",
+		sizingMethod="scale");
+}
+
+#customisePage ul.secondLevel>li>div.fav {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-pinned.png",
+		sizingMethod="scale");
+}
+
+#customisePage ul.secondLevel>li>div.fav:hover {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-unpin.png",
+		sizingMethod="scale");
+}
+
+#customisePage ul.thirdLevel>li>div {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-pin.png",
+		sizingMethod="scale");
+}
+
+#customisePage ul.thirdLevel>li>div:hover {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-pinned.png",
+		sizingMethod="scale");
+}
+
+#customisePage ul.thirdLevel>li>div.fav {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-pinned.png",
+		sizingMethod="scale");
+}
+
+#customisePage ul.thirdLevel>li>div.fav:hover {
+	background: no-repeat center center fixed;
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(    src="appResources/img/customize/icon-unpin.png",
+		sizingMethod="scale");
+}
+ */
+#pos1, #pos2, #pos3, #pos4, #pos5, #pos6, #pos7, #pos8, #pos9, #pos10, #pos11,#pos12 {
+float: left;
+}

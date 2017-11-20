@@ -1,0 +1,28 @@
+define(
+		[ 'angular', 'app', 'moment' ],
+		function(angular, app, moment) {
+
+			app.service('leaveBehalfService',
+							function() {
+			
+				this.leaveData={};
+				this.isAmendOnBehalf=false;
+				
+				this.setLeaveDaata=function(data){
+						this.leaveData=data;
+				};
+			
+				this.getLeaveData=function(){
+					return this.leaveData;
+				};
+				
+				this.setAmendOnBehalf=function(val){
+					this.isAmendOnBehalf=val;
+				};
+				
+				this.getAmendOnBehalf=function(){
+					return this.isAmendOnBehalf;
+				};
+			});
+			return app;
+		});

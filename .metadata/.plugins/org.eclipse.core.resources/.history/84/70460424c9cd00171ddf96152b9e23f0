@@ -1,0 +1,231 @@
+define([ 'angular', 'app' ], function(angular, app) {
+
+	app.controller("approveLerfCtrl", [ '$scope', '$rootScope','$http','$compile','$location','$routeParams','leaveApprovalService',
+			function($scope, $rootScope, $http, $compile,$location,$routeParams,leaveApprovalService) {
+				$scope.isApproverLerfCtrl = true;
+				$scope.pageName="WorkList - Request Details";
+				$scope.approveLERF={};
+				$scope.approveLERF.commentAll=undefined;
+				
+				$scope.isErrorMsg=false;
+				$scope.var1=0;
+				$scope.var2=0;
+				
+				$scope.onBehalf=$routeParams.employeeNo;
+				$scope.backupURL= "https://gess.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+				$scope.approveLERF.submitData={};
+				
+				$scope.redirectURL="https://gessdev.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+				
+				$scope.errorMsg=leaveApprovalService.getErrorMsg();
+				
+				if($scope.errorMsg!==undefined){
+					$scope.isErrorMsg=true;
+				}
+				
+				$scope.submitReq=function(){
+					
+					$location.path("/approveLERF/"+$scope.var1+"/"+$scope.var2);
+				};
+				
+				$scope.approveLERF=function(){
+				
+					if(!(undefined===$scope.approveLERF.commentAll)){
+						$scope.isErrorMsg=false;
+						$('#messageModal').modal('show');
+					}
+					else{
+						$scope.errorMsg="Please enter approver comments";
+						$scope.isErrorMsg=true;
+						$('body').scrollTop(0);
+					}
+					
+				};
+				
+				
+				$scope.approveClick=function(){
+					var approveURL='/leaverest/rest/approveLerfReq';
+					
+					var submitLerfData={};
+					
+					submitLerfData['lerfId']=$routeParams.requestNo;
+					submitLerfData['comment']=$scope.approveLERF.commentAll;
+					$scope.approveLERF.submitData=submitLerfData;
+					
+					
+					 $http.post(approveURL, $scope.approveLERF.submitData)
+						.success(function(data) {
+							$scope.setRedirectURL(data);
+							if(data[0].code==200){
+								$scope.errorMsg=data[0].message;
+								$scope.isErrorMsg=true;
+								$scope.redirectURL=data[0].success.WORKLIST_URL;
+								redirectToWorklist(data[0].uniqueId,"A");
+							}
+							else{
+								$scope.errorMsg=data[0].fieldErrors[0].message;
+								$scope.isErrorMsg=true;
+								
+							}
+							console.log("Success.. "+JSON.stringify(data));
+							
+						}).error(function() {
+								console.log("ERROR ");
+								$location.path("/cmnError");
+					});
+				};
+				
+				$scope.setRedirectURL = function(value) {
+					if(angular.isArray(value)) {
+						if(angular.isObject(value[0].success) && angular.isDefined(value[0].success['WORKLIST_URL'])) {
+							$scope.redirectURL = value[0].success['WORKLIST_URL'];
+						}
+					} else {
+						$scope.redirectURL = $scope.backupURL;
+					}
+				};
+				
+				$scope.rejectLERF=function(){
+					if(!(undefined===$scope.approveLERF.commentAll)){
+						$scope.isErrorMsg=false;
+						$('#messageModalR').modal('show');
+					}
+					else{
+						$scope.errorMsg="Please enter approver comments";
+						$scope.isErrorMsg=true;
+						$('body').scrollTop(0);
+					}
+					
+				};
+				
+				$scope.rejectClick=function(){
+					var approveURL='/leaverest/rest/rejectLerfReq';
+					var submitLerfData={};
+					
+					submitLerfData['lerfId']=$routeParams.requestNo;
+					submitLerfData['comment']=$scope.approveLERF.commentAll;
+					$scope.approveLERF.submitData=submitLerfData;
+					$http.post(approveURL, $scope.approveLERF.submitData)
+						.success(function(data) {
+							$scope.setRedirectURL(data);
+							if(data[0].code==200){
+								$scope.errorMsg=data[0].message;
+								$scope.isErrorMsg=true;
+								$scope.redirectURL=data[0].success.WORKLIST_URL;
+								redirectToWorklist(data[0].uniqueId,"R");
+							}
+							else{
+								
+								
+								$scope.errorMsg=data[0].fieldErrors[0].message;
+								$scope.isErrorMsg=true;
+								
+							}
+							console.log("Success.. "+JSON.stringify(data));
+							
+						}).error(function(){
+								console.log("ERROR ");
+								$location.path("/cmnError");
+						});
+				};
+				
+				
+				function redirectToWorklist(reqNo,
+						actionVal) {
+
+					var postFormStr = "<form method='POST' action='"+$scope.redirectURL+"'>\n";
+					postFormStr += "<input type='hidden' name='a' value='"
+							+ reqNo + "'></input>";
+					postFormStr += "<input type='hidden' name='c' value='"
+							+ actionVal + "'</input>";
+					postFormStr += "</form>";
+
+					var formElement = $(postFormStr);
+
+					$('body').append(formElement);
+					$(formElement).submit();
+
+				}
+				
+				$scope.reassignLERF=function(){
+					
+					leaveApprovalService.setLerfReqNo($routeParams.requestNo);
+					leaveApprovalService.setLerfComment($scope.approveLERF.commentAll);
+					leaveApprovalService.setMethod($scope.reAssignPopup);
+					$location.path("/empSearch");
+				};
+				
+				
+				$scope.reassignFromEmpPage=function(){
+					var selEmpno = leaveApprovalService
+					.getEmpNo();
+
+					if (selEmpno !== undefined
+							|| selEmpno !== null) {
+						$scope.isBtnClicked = true;
+						$('#messageModalReassign')
+								.modal('show');
+					}
+				};
+				$scope.reAssignPopup = (function() {
+					submitReassignReq();
+				});
+				
+				function submitReassignReq(){
+					var approveURL='/leaverest/rest/reassignLerfReq';
+					
+					var submitLerfData={};
+					
+					submitLerfData['lerfId']=leaveApprovalService.getLerfReqNo();
+					submitLerfData['comment']=leaveApprovalService.getLerfComment();
+					submitLerfData['reassignTo']=leaveApprovalService.getEmpNo();
+					$scope.approveLERF.submitData=submitLerfData;
+					
+					
+					 $http.post(approveURL, $scope.approveLERF.submitData)
+						.success(
+							function(data) {
+								$scope.setRedirectURL(data);
+								if(data[0].code==200){
+									$rootScope.processing=false;
+									$scope.errorMsg=data[0].message;
+									$scope.isErrorMsg=true;
+									$scope.redirectURL=data[0].success.WORKLIST_URL;
+									redirectToWorklist(data[0].uniqueId,"RA");
+								}
+								else{
+									$rootScope.processing=false;
+									leaveApprovalService.setErrorMsg(data[0].fieldErrors[0].message);
+									$location.path("approveLERF/"+data[0].uniqueId+"/"+$scope.onBehalf);
+									
+									
+									
+								}
+								console.log("Success.. "+JSON.stringify(data));
+								
+							}).error(
+									function() {
+											console.log("ERROR ");
+											
+											$location.path("/cmnError");
+								});
+					
+				};
+			
+				$scope.setRedirectURL = function(value) {
+					if(angular.isArray(value)) {
+						if(angular.isObject(value[0].success) && angular.isDefined(value[0].success['WORKLIST_URL'])) {
+							$scope.redirectURL = value[0].success['WORKLIST_URL'];
+						}
+					} else {
+						$scope.redirectURL = $scope.backupURL;
+					}
+				};
+			}
+			
+		
+		
+	
+	]);
+	return app;
+});

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+
+	xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd 
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+	   http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<context:annotation-config />
+	<context:component-scan
+		base-package="com.plagiarism,org.springframework.jdbc.core" />
+	<mvc:annotation-driven />
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<aop:aspectj-autoproxy />
+
+
+	
+
+	
+
+
+	<bean id="appProperties"
+		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="locations">
+			<list>
+				<value>WEB-INF/properties/message.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="rmiBatchService" class="org.springframework.remoting.rmi.RmiServiceExporter">  
+	    <property name="service" ref="batchService"></property>  
+	    <property name="serviceInterface" value="com.ultimatix.gess.leave.rmi.BatchService"></property>  
+	    <property name="serviceName" value="rmiBatchServiceAcl"></property>  
+	    <property name="replaceExistingBinding" value="true"></property>  
+	    <property name="registryPort" value="1099"></property>  
+	</bean>
+
+	<bean id="dboperations" class="com.ultimatix.gess.leave.db.DBOperations"></bean>
+	<bean id="redisCall"
+		class="com.ultimatix.globalESS.redis.connection.GessAsyncMsgToRedis" />
+	<bean id="gessMailService" class="com.ultimatix.globalESS.redis.util.GessMailService" />
+	<bean id="gessRedisDAO" class="com.ultimatix.globalESS.redis.dao.GessRedisDAO" />
+
+	<bean id="leaveUtils" class="com.ultimatix.gess.leave.util.LeaveUtils" />
+	<bean id="SessionAspect" class="com.ultimatix.gess.common.aop.SessionAspect">
+	</bean>
+
+	<!-- Create a proxy to generate session-scope -->
+	<bean id="userBean"
+		class="com.ultimatix.gess.leave.sessionbean.UserDetailsSessionBean"
+		scope="session">
+		<!-- This requires CGLIB -->
+		<aop:scoped-proxy />
+
+	</bean>
+	
+	<bean id="singletonAttribute" class="com.ultimatix.gess.leave.dto.SingletonAttribute">
+		<constructor-arg name="jdbcTemplate" ref="jdbcTemplate"/>
+	</bean>
+	
+	<!--Load mail gessMailDb.properties file -->
+	<bean id="mailProperties"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+
+		<property name="location" value="classpath:gessMailDb.properties" />
+
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+
+	</bean>
+
+	<!--jnditemplate for jms file -->
+	<bean id="jnditemplate" class="org.springframework.jndi.JndiTemplate">
+		<property name="environment">
+			<props>
+				<prop key="java.naming.factory.initial">${contextFactory}</prop>
+				<prop key="java.naming.provider.url">${url}</prop>
+				<prop key="java.naming.security.principal">${username}</prop>
+				<prop key="java.naming.security.credentials">${password}</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!--connectionfactory for jms file -->
+	<bean id="connectionfactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiTemplate" ref="jnditemplate" />
+		<property name="jndiName" value="${connectionFactory}" />
+	</bean>
+
+	<!-- JMS Destination -->
+	<bean id="destination" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiTemplate" ref="jnditemplate" />
+		<property name="jndiName" value="${queueName}" />
+	</bean>
+
+	<!--credentialsconnectionfactory validate userid and password for jms queue -->
+	<bean id="credentialsconnectionfactory"
+		class="org.springframework.jms.connection.UserCredentialsConnectionFactoryAdapter">
+		<property name="targetConnectionFactory" ref="connectionfactory" />
+		<property name="username" value="${username}" />
+		<property name="password" value="${password}" />
+	</bean>
+
+	<!--jmstemplate -->
+
+	<bean id="jmstemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="credentialsconnectionfactory" />
+		<property name="defaultDestination" ref="destination" />
+		<property name="receiveTimeout">
+			<value>30000</value>
+		</property>
+	</bean>
+
+	<!--jmsSender class for send mail in jms queue -->
+
+	<bean id="jmsSender" class="com.ultimatix.gess.common.utility.JmsSender">
+		<property name="jmsTemplate">
+			<ref bean="jmstemplate" />
+		</property>
+	</bean>
+
+	<!--JmsRecieverConsumer class for recieve mail from jms queue -->
+	<bean id="jmsRecieverConsumer" class="com.ultimatix.gess.common.utility.JmsRecieverConsumer">
+	</bean>
+
+	<!-- and this is the message listener container -->
+	<bean id="jmsContainer"
+		class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="connectionFactory" ref="credentialsconnectionfactory" />
+		<property name="destination" ref="destination" />
+		<property name="messageListener" ref="jmsRecieverConsumer" />
+
+	</bean>
+
+	<!-- Send mailer with spring -->
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+
+		<property name="javaMailProperties">
+			<props>
+				<prop key="mail.smtp.host">${smtpHost}</prop>
+				<prop key="mail.smtp.port">${smtport}</prop>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.transport.protocol">smtp</prop>
+				<prop key="mail.smtp.auth">false</prop>
+				<prop key="mail.smtp.starttls.enable">false</prop>
+				<prop key="mail.debug">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="velocityEngine"
+		class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+		<property name="velocityProperties">
+			<props>
+				<prop key="resource.loader">class,file</prop>
+				<prop key="class.resource.loader.class">
+					org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
+				</prop>
+				<prop key="file.resource.loader.class">
+
+					org.apache.velocity.runtime.resource.loader.FileResourceLoader
+				</prop>
+				<prop key="file.resource.loader.path">
+					${mailTemplate}
+
+				</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="SendMailBySpring" class="com.ultimatix.gess.common.utility.SendMail">
+		<property name="mailSender">
+			<ref bean="mailSender" />
+		</property>
+		<property name="velocityEngine">
+			<ref bean="velocityEngine" />
+		</property>
+	</bean>
+
+	<!-- Multipart Resolver for uploading files added by Priti 24/12/2015 -->
+	<bean id="multipartResolver"
+		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+
+		<!-- setting maximum upload size -->
+		<property name="maxUploadSize" value="52428800" />
+	</bean>
+</beans>

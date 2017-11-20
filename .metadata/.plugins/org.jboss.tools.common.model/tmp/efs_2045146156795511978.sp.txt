@@ -1,0 +1,297 @@
+
+
+<div id="uxFooter" class="bea-portal-body-footer"	ng-controller="feedBackController">
+
+	<div id="uxFooter" class="bea-portal-body-footer">
+
+		<table width="100%" border="0" cellspacing="0" cellpadding="0"
+			id="footer_body" style="line-height: 0px;">
+			<tbody>
+				<tr>
+					<td><span class="footer_tata_branding" valign="bottom"></span></td>
+					<td><span class="footer_tcs_branding" align="right"
+						valign="bottom"></span></td>
+				</tr>
+				<tr>
+					<td id="copyrights" class="copyright_text" align="left" style="color: #ffffff">
+						
+						<div class="utility_links"></div>
+					</td>
+					<td class="release_text" data-ng-hide="mobileFooter()"><a ng-click="redirectToSiteMap();" class="sitemapCollection"
+						onmouseout="isStatusAvail = true;"
+						style="font-size: 11px; color: #ffffff;cursor:pointer;"
+						onmouseover="isStatusAvail = false;window.status='Browser Compatibility';return true">Sitemap</a><span
+						style="color: #506983; padding: 0px 0px 0px 5px;">|</span><a
+						href="" onclick="showfeedBackModalCont();" class="FeedbackCollection"
+						onmouseout="isStatusAvail = true;"
+						style="font-size: 11px; color: #ffffff; padding-left: 5px;cursor:pointer;"
+						onmouseover="isStatusAvail = false;window.status='Feedback Form';return true">Feedback
+							Form</a><span style="color: #506983; padding: 0px 0px 0px 5px;">|</span><a
+						href="" onclick="setBrowserFooterWindowPos();"
+						onmouseout="isStatusAvail = true;"
+						style="font-size: 11px; color: #ffffff; padding-left: 5px;cursor:pointer;"
+						onmouseover="isStatusAvail = false;window.status='Browser Compatibility';return true">Browser
+							Display and Compatibility</a></td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- Start Dialog Modal -->
+		<div class="modal fade" id="feedBackModal" tabindex="-1" role="dialog"
+			aria-labelledby="myModalLabel" aria-hidden="true"
+			style="padding-left: 300px; padding-top: 80px;"data-backdrop="static" data-keyboard="false">
+			<div class="modal-content"
+				style="max-width: 440px; margin-left:475px;">
+				<div class="modal-header"
+					style="text-align: left; max-height: 52px; background-color: #427cb2;">
+					<!-- <img alt="" src="appResources/img/menu/title.png"
+						style="margin-top: -13px;" /> -->
+						<span class="title_feedback"></span>
+						<span
+						style="font-size: 22px; padding-left: 42px; color: #b7ddff;">Feedback Form</span>
+				</div>
+				<div class="modal-body" style="background-color: #135999;">
+					<!-- Start Dialog Modal Body -->
+					<div class="row-fluid">
+						<div class="span12">
+							
+								<div class="row-fluid">
+								<div class="span12 ">
+									<div class="feedback">1. Rate the efficiency and ease of
+										use of the new GESS application.</div>
+								</div>
+							</div>
+							<div class="row-fluid sectiondivider">
+								<div class="span6 " style="padding-left: 14px;">
+									<div class="feedback">
+										<div id="one" ratingstar starcount="5" smallclass="redStar"
+											mediumclass="orangeStar" largeclass="greenStar" minvalue="3"
+											modalname="one" objectname="question" modalid="one"></div>
+									</div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="row-fluid">
+								<div class="span12 ">
+									<div class="feedback">2. How easy it is to navigate
+										through the application ?</div>
+								</div>
+							</div>
+							<div class="row-fluid sectiondivider">
+								<div class="span6 " style="padding-left: 14px;">
+									<div class="feedback">
+										<div id="two" ratingstar starcount="5" smallclass="redStar"
+											mediumclass="orangeStar" largeclass="greenStar" minvalue="3"
+											modalname="two" objectname="question" modalid="two"></div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="row-fluid">
+								<div class="span12 ">
+									<div class="feedback">3. Rate the over all look and feel.</div>
+								</div>
+							</div>
+							<div class="row-fluid sectiondivider">
+								<div class="span6 " style="padding-left: 14px;">
+									<div class="feedback">
+										<div id="four" ratingstar starcount="5" smallclass="redStar"
+											mediumclass="orangeStar" largeclass="greenStar" minvalue="3"
+											modalname="four" objectname="question" modalid="four"></div>
+									</div>
+								</div>
+							</div>
+							
+							<div class="row-fluid">
+								<div class="span12 ">
+									<div class="feedback">Comments:</div>
+								</div>
+							</div>
+							<div class="row-fluid">
+								<div class="span12">
+									<div class="feedback"><!--ng-change="countFeedBackCommentLength();"  -->
+										<textarea rows="3" data-ng-model="question.comment" 
+											placeholder="Please enter your comments here"
+											style="height: 80px; width: 407px; background-color: #1c66a9; Color: #FFFFFF;resize: none;resize: none;border: 1px solid #10305e;"
+											class="feedBackLettersChars" id="feedbackComments"></textarea>
+									</div>
+									<div class="row-fluid">
+										<div class="span12 feedbackcount">
+										
+											<span data-ng-bind-template="{{250-question.commentBoxTextlength}}"
+												style="font-family: Segoe UI; font-size: 12px; background-color: Color:#1c66a9;">
+											</span> Characters left
+										</div>
+									</div>
+
+								</div>
+							</div>
+							<br />
+							<div class="row-fluid">
+								<div class="span12 ">
+									<div class="feedback">
+										<input id="submitFeedback" style="width: 90px; height: 32px;"
+											class="feedbackbuttonprimary" type="button"
+											data-ng-click="submitFeedBackForm()"
+											ng-readonly="question.isDisabled" value="Submit" />
+										<!-- <input
+													style="width: 120px; height: 32px;margin-left: 40px;" class="feedbackbutton"
+													type="button" data-ng-click="clearFeedBackForm()"
+													value="Remind me later" /> -->
+										<button style="width: 90px; height: 32px; margin-left: 204px;"
+											class="feedbackbutton" ng-click="hideFeedBack()">No,
+											Thanks</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- End of Dialog Modal Body -->
+				</div>
+			</div>
+		</div><!-- End Dialog Modal -->
+	</div>
+
+
+
+<div class="modal gess-home-modal fade" id="feedbackSuccessModal"
+	tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+	aria-hidden="true" data-backdrop="static" data-keyboard="false">
+	<div class="modal-dialog gess-home-modal-dialog"
+		style="padding-top: 206px;">
+		<div class="modal-content  gess-small-modal-content">
+			<div class="modal-body gess-home-modal-body menu-text"
+				style="min-height: 130px;padding-left: 30px;padding-right: 30px;text-align: left;padding-top: 12px;">
+				<div style="font-family: segoe UI;font-size: 13px;">
+					<span>{{mainObj.feedBackFormDetails}}</span></div>
+
+				<div style="padding-top: 20px;padding-bottom: 20px;">
+					<button class="gess-modal-button"
+						onclick="$('#feedbackSuccessModal').modal('hide');">OK</button>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+</div>
+
+
+
+</div>
+<script>
+angular.element('#copyrights').text("Copyright \u00a9 "+new Date().getFullYear() +" Tata Consultancy Services");
+//max count is 250 char
+var maxTextLimit=250;
+//code to apply any character entered in textarea start
+$('#feedbackComments').keypress(function(event) {
+	var keycode = (event.keyCode ? event.keyCode
+			: event.which);
+	var scope=angular.element('#feedbackComments').scope();
+	if($('#feedbackComments').val().length>=maxTextLimit && keycode!=8)
+		event.preventDefault();
+	else{
+				scope.question.comment=$('#feedbackComments').val();
+				scope.question.commentBoxTextlength=$('#feedbackComments').val().length;
+				scope.$apply();	
+		}
+
+}).keyup(function(event){
+	var keycode = (event.keyCode ? event.keyCode
+			: event.which);
+	var scope=angular.element('#feedbackComments').scope();
+		if($('#feedbackComments').val().length>maxTextLimit && keycode!=8)
+		event.preventDefault();
+	else{
+				scope.question.comment=$('#feedbackComments').val();
+				scope.question.commentBoxTextlength=$('#feedbackComments').val().length;
+				scope.$apply();	
+		}
+});
+//code to apply any character entered in textarea end
+$('#feedBackModal #feedbackComments').enscroll({
+	showOnHover : true,
+	verticalTrackClass : 'track3',
+	verticalHandleClass : 'handle3'
+});
+//function to reset modal comment box and display start
+function showfeedBackModalCont(){
+	var scope=angular.element('#feedbackComments').scope();
+	scope.question.commentBoxTextlength=0;
+	scope.question.comment='';
+	scope.$apply();
+	$('#feedBackModal').modal('show');
+}
+//function to reset modal comment box and display end
+
+
+$('.modal').bind('cut copy paste', function(e) {
+		e.preventDefault();
+	});
+</script>
+<div data-ng-include="'xssValidate.html'"></div>
+<script>
+function setBrowserFooterWindowPos() {
+    var addressbarDiff = 0;
+    var leftPosDiff = 0;
+    var browserWidth = 0;
+    var browserHeight = 0;
+    var popupHeight = 350;
+
+    var nAgt = navigator.userAgent;
+    if ((verOffset = nAgt.indexOf("Opera")) != -1) {
+      // browserName = "Opera";
+    } else if ((verOffset = nAgt.indexOf("MSIE")) != -1) { // browserName =
+      // "Microsoft
+      // Internet
+      // Explorer";
+      leftPosDiff = -2;
+      addressbarDiff = -22;
+    } else if ((verOffset = nAgt.indexOf("Chrome")) != -1) { // browserName =
+      // "Chrome";
+      addressbarDiff = 70;
+      leftPosDiff = 18;
+    } else if ((verOffset = nAgt.indexOf("Safari")) != -1) { // browserName =
+      // "Safari";
+      addressbarDiff = 30;
+      leftPosDiff = 11;
+      popupHeight = 290;
+    } else if ((verOffset = nAgt.indexOf("Firefox")) != -1) { // browserName =
+      // "Firefox";
+      addressbarDiff = 80;
+      leftPosDiff = 15;
+    }
+
+    // To find parent browser window width and height
+
+    if (typeof (window.innerHeight) == 'number') // Non-IE
+    browserHeight = window.innerHeight;
+    if (typeof (window.innerWidth) == 'number') // Non-IE
+      browserWidth = window.innerWidth;
+    else if (document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight)) { // IE
+      // 6+
+      // in
+      // 'standards
+      // compliant
+      // mode'
+      browserHeight = document.documentElement.clientHeight;
+      browserWidth = document.documentElement.clientWidth;
+    } else if (document.body && (document.body.clientWidth || document.body.clientHeight)) { // IE 4
+      // compatible
+      browserHeight = document.body.clientHeight;
+      browserWidth = document.body.clientWidth;
+    }
+
+    var topPos = browserHeight - 350 - addressbarDiff;
+    var leftPos = browserWidth - 490 - leftPosDiff;
+
+    if (topPos < 0) topPos = 0;
+    if (leftPos < 0) leftPos = 0;
+
+    // Change by Suhas.. Performance improvement
+    var specs = ['dependent=no, location=no, menubar=no, scrollbars=0, status=no, titlebar=no, toolbar=no, resizable=no,  height= ', popupHeight, ' width=450, left = ', leftPos, 'px, top =', topPos, 'px'].join('');
+    window.open('pages/BrowserDisplayCompatibility.html', 'popupWindow', specs);
+    // path('pages/BrowserDisplayCompatibility.html', 'popupWindow', specs);
+
+  }
+</script>

@@ -1,0 +1,353 @@
+
+<div data-ng-switch ng-controller="levbalreportCtrl" data-on="showprocessingFlag">
+
+	<div data-ng-switch-when="false">
+
+		<img style="position: fixed; top: 200px; left: 450px;" alt=""
+			src="appResources/img/processing.gif">
+	</div>
+
+	<div data-ng-switch-when="true">
+		<div class="pagetitle">
+			<span>My Leave Balance Report</span>
+
+		</div>
+		<div class="row text-center">
+
+
+			<ul class="nav nav-tabs">
+				<li class="active"><a href="/#pane1" data-toggle="tab"
+					ng-click="hideLopsumary()">My Leave Balance Report</a></li>
+				<li><a href="/#pane2" data-toggle="tab" ng-click="showLop()">LOP
+						Details</a></li>
+				<li><a href="/#pane3" data-toggle="tab"
+					ng-click="showSickEligibility()">Sick Leave Eligibility report</a></li>
+				<!-- 	<li><a href="/#pane4" data-toggle="tab"
+				ng-click="hideLopsumary()">Sick Leave Eligibilty Report</a></li> -->
+			</ul>
+
+
+
+			<div class="panel panel-primary tab-content levreportBox">
+
+				<div id="pane1" class="panel-body tab-pane active"margin-left: 1%;>
+
+					<!-- for deputation -->
+
+
+
+					<div class="table-responsive" ng-show="shoeDepuataionReport">
+						<span class="pagetitlealignment">Balance Report for <b>countryname</b></span>
+						<table class="table table-condensed table-bordered report-table">
+
+							<tr>
+								<th style="width: 10%;">Leave Type</th>
+								<th style="width: 13%;">Last Credit Date</th>
+								<th style="width: 15%;">Total Balance after last credit</th>
+								<th style="width: 11%;">Current month credit</th>
+								<th style="width: 11%;">Leaves availed</th>
+								<th style="width: 11%;">Leave awaiting approval</th>
+								<th style="width: 6%;">Timsheet</th>
+								<th style="width: 12%;">Leaves Balance</th>
+								<th style="width: 13%;">Surplus Leaves lapsed</th>
+								<th style="width: 13%;">Surplus Leaves Encashed</th>
+
+							</tr>
+							<tr data-ng-repeat="data in hostLeaveDeatils">
+								<td>{{data.countryLevTypeName}}</td>
+								<td>{{data.leaveCreditDate}}</td>
+								<td><div>
+
+										{{data.totBalAftLastCr}} <a class="pastreport" href=""><span
+											style="padding-left: 22px;" class="glyphicon glyphicon-open"
+											data-ng-click="showLevDtlModal(data.countryLevTypeId)"></span></a>
+									</div></td>
+								<td>{{data.currentMonthCredit}}</td>
+								<td>{{data.leavesAvailed}}</td>
+								<td>{{data.pending}}</td>
+								<td>{{data.timesheetleaves}}</td>
+								<td>{{data.leavebalance}}</td>
+								<td>{{data.totalLeavesLapsed}}</td>
+								<td>{{data.totalLeavesEncashed}}</td>
+
+
+							</tr>
+
+						</table>
+					</div>
+					<!-- end deputation -->
+					<!-- for locals -->
+					<div class="table-responsive">
+						<span class="pagetitlealignment">Balance Report for<b>
+								INDIA</b></span>
+						<table class="table table-condensed table-bordered report-table">
+
+							<tr>
+								<th style="width: 10%;">Leave Type</th>
+								<th style="width: 13%;">Last Credit Date</th>
+								<th style="width: 15%;">Total Balance after last credit</th>
+								<th style="width: 11%;">Current month credit</th>
+								<th style="width: 11%;">Leaves availed</th>
+								<th style="width: 11%;">Leave awaiting approval</th>
+								<th style="width: 6%;">Timsheet</th>
+								<th style="width: 12%;">Leaves Balance</th>
+								<th style="width: 13%;">Surplus Leaves lapsed</th>
+								<th style="width: 13%;">Surplus Leaves Encashed</th>
+
+							</tr>
+							<tr data-ng-repeat="data in homeLeaveDeatils">
+								<td>{{data.countryLevTypeName}}</td>
+								<td>{{data.leaveCreditDate}}</td>
+								<td><div>
+
+										{{data.totBalAftLastCr}} <a class="pastreport" href=""><span
+											style="padding-left: 22px;" class="glyphicon glyphicon-open"
+											data-ng-click="showLevDtlModal(data.countryLevTypeId)"></span></a>
+									</div></td>
+								<td>{{data.currentMonthCredit}}</td>
+								<td>{{data.leavesAvailed}}</td>
+								<td>{{data.pending}}</td>
+								<td>{{data.timesheetleaves}}</td>
+								<td>{{data.leavebalance}}</td>
+								<td>{{data.totalLeavesLapsed}}</td>
+								<td>{{data.totalLeavesEncashed}}</td>
+
+
+							</tr>
+
+						</table>
+					</div>
+				</div>
+
+				<div id="pane2" class="panel-body tab-pane"
+					style="width: 45%; margin-left: 0.7%;"table-responsive" >
+
+
+
+
+					<div ng-show="isLopDataAvailable">
+
+						<div class="row-fluid">
+							<span class="span6 pull-left" style="">LOP Details</span> <span
+								class="span6 pull-right"> <a
+								class="glyphicon glyphicon-folder-close" ng-disabled="checked"
+								ng-click="showLop1()"></a>
+							</span>
+
+						</div>
+
+
+						<table class="table table-condensed table-bordered report-table">
+
+							<tr>
+								<th style="width: 27%;">Lop Type</th>
+								<th style="width: 14%;">Otstanding</th>
+								<th style="width: 14%;">Recovered</th>
+
+							</tr>
+							<tr data-ng-repeat="data in leaveLopDeatils"
+								style="text-align: left;">
+								<td>{{data.lopType}}</td>
+								<td>{{data.outstanding}}</td>
+								<td>{{data.recoverd}}</td>
+							</tr>
+
+						</table>
+
+						<div class="row-fluid">
+							<span class="span12 pull-left"
+								style="font-style: italic; font-size: 10px; margin-top: -3%;">Note:
+								To refer LOP recovery summary click on <span
+								class="glyphicon glyphicon-folder-close"></span>
+							</span>
+						</div>
+
+					</div>
+					<div ng-hide="isLopDataAvailable"
+						style="position: absolute; color: red; font-size: medium;">Lop
+						Records are not Avaialble</div>
+				</div>
+
+
+				<div id="pane3" class="panel-body tab-pane"margin-left: 0.7%;"table-responsive" >
+					<!-- 
+					<div class="row-fluid">
+						<span class="span6 pull-left" style="">LOP Details</span> <span
+							class="span6 pull-right"> <a
+							class="glyphicon glyphicon-folder-close" ng-disabled="checked"
+							ng-click="showLop1()"></a>
+						</span>
+
+					</div> -->
+
+					<div ng-show="isSickEliglDataAvailable">
+						<div class="row-fluid" style="width: 70%;">
+							<span class="span6 pull-left"><b>Sick Leave
+									Eligibility Report</b></span> <span class="span6 pull-right">As on
+								<b>{{date | date:'MMM-dd-yyyy'}}</b>
+							</span>
+						</div>
+						<table class="table table-condensed table-bordered report-table "
+							style="margin-top: 4%; width: 70%;">
+
+							<tr>
+								<th class="col-md-1">Leave Type</th>
+								<th class="col-md-1">Entitlement (in weeks)</th>
+								<th class="col-md-1">Leave Year Start Date</th>
+								<th class="col-md-1">Leave Year End Date</th>
+								<th class="col-md-1">Leaves Approved</th>
+								<th class="col-md-1">Leaves Awaiting approval</th>
+								<th class="col-md-1">Leave Balance</th>
+
+							</tr>
+
+
+							<tr data-ng-repeat="data in sickEligibilityDetails"
+								style="text-align: left;">
+								<td>{{data.countryLevTypeName}}</td>
+								<td>{{data.entitlement}}</td>
+								<td>{{data.eligibilityPeriodStartDate}}</td>
+								<td>{{data.eligibilityPeriodEndDate}}</td>
+								<td>{{data.approved}}</td>
+								<td>{{data.pending}}</td>
+								<td>{{data.levBalance}}</td>
+							</tr>
+
+						</table>
+
+						<!-- <div class="row-fluid">
+						<span class="span12 pull-left"
+							style="font-style: italic; font-size: 10px; margin-top: -3%;">Note:
+							To refer LOP recovery summary click on <span
+							class="glyphicon glyphicon-folder-close"></span>
+						</span>
+					</div> -->
+
+					</div>
+					<div ng-hide="isSickEliglDataAvailable"
+						style="position: absolute; color: red; font-size: medium;">Sick
+						Leave Eligibility Record are not Avaialble</div>
+				</div>
+
+				<!-- <div id="pane4" class="tab-pane">
+				<h4>Pane 4 Content</h4>
+			</div> -->
+
+
+
+
+
+				<div ng-show="sumaryshow" style="margin-top: 4%; margin-left: 2%;">
+
+
+					<div class="row-fluid">
+						<span class="span6 pull-left"
+							style="font-size: 20px; margin-top: -3%;">Lop Recovery
+							Summary Report</span> <span class="span6 pull-right"
+							style="font-size: 20px; margin-top: -3%; margin-right: 29%;">
+							<a class="glyphicon glyphicon-remove" ng-click="hideLopsumary()"></a>
+						</span>
+
+					</div>
+
+					<table class="table table-condensed table-bordered report-table"
+						style="width: 71%;">
+
+						<tr>
+							<th style="width: 27%;">Lop Records</th>
+							<th style="width: 14%;">Leave Type</th>
+							<th style="width: 14%;">Start Date</th>
+							<th style="width: 14%;">End Date</th>
+							<th style="width: 14%;">No of LOP days Recovered</th>
+							<th style="width: 14%;">Month of Recovery</th>
+
+						</tr>
+						<tr data-ng-repeat="data in leaveLopSumaryDeatils"
+							style="text-align: left;">
+							<td>{{data.lopRecords}}</td>
+							<td>{{data.leaveType}}</td>
+							<td>{{data.startDate}}</td>
+							<td>{{data.endDate}}</td>
+							<td>{{data.noOfDaysOfLopRecovered}}</td>
+							<td>{{data.monthOfRecovery}}</td>
+						</tr>
+
+					</table>
+
+				</div>
+
+			</div>
+			<!-- /.tab-content -->
+
+
+
+		</div>
+		<!-- /.tabbable -->
+
+	</div>
+	<div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog"
+		aria-labelledby="myLargeModalLabel" id="balReportModal">
+		<div class="modal-dialog modal-lg levreportmodal"
+			style="width: 77%; margin-top: 263px; margin-left: 15px;">
+			<div data-ng-switch data-on="showprocessingModalFlag">
+
+				<div data-ng-switch-when="false">
+
+					<img style="position: fixed; top: 100px; left: 450px;" alt=""
+						src="appResources/img/processing.gif">
+				</div>
+
+
+				<div class="modal-content" style="min-height: 250px;"
+					data-ng-switch-when="true">
+
+
+					<table class="table table-condensed table-bordered report-table"
+						style="margin-top: 5%;">
+
+						<tr>
+
+							<th class="col-md-1">Leave Type</th>
+							<th class="col-md-1">Last Credit Date</th>
+							<th class="col-md-1">Total Balance after last credit</th>
+							<th class="col-md-1">Current month credit</th>
+							<th class="col-md-1">Leaves availed</th>
+							<th class="col-md-1">Leave awaiting approval</th>
+							<th class="col-md-1">Timsheet</th>
+							<th class="col-md-1">Leaves Balance</th>
+							<th class="col-md-1">Surplus Leaves lapsed</th>
+							<th class="col-md-1">Surplus Leaves Encashed</th>
+
+
+						</tr>
+
+						<tr data-ng-repeat="data in homeLeaveModalDeatils">
+							<td>{{data.countryLevTypeName}}</td>
+							<td>{{data.leaveCreditDate}}</td>
+							<td>{{data.totBalAftLastCr}}</td>
+							<td>{{data.currentMonthCredit}}</td>
+							<td>{{data.leavesAvailed}}</td>
+							<td>{{data.pending}}</td>
+							<td>{{data.timesheetleaves}}</td>
+							<td>{{data.leavebalance}}</td>
+							<td>{{data.totalLeavesLapsed}}</td>
+							<td>{{data.totalLeavesEncashed}}</td>
+						</tr>
+
+						<tr data-ng-repeat="data in hostLeaveModalDeatils">
+							<td>{{data.countryLevTypeName}}</td>
+							<td>{{data.leaveCreditDate}}</td>
+							<td>{{data.totBalAftLastCr}}</td>
+							<td>{{data.currentMonthCredit}}</td>
+							<td>{{data.leavesAvailed}}</td>
+							<td>{{data.pending}}</td>
+							<td>{{data.timesheetleaves}}</td>
+							<td>{{data.leavebalance}}</td>
+							<td>{{data.totalLeavesLapsed}}</td>
+							<td>{{data.totalLeavesEncashed}}</td>
+						</tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>

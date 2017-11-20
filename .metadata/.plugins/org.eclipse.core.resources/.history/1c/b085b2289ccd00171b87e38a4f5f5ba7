@@ -1,0 +1,793 @@
+package com.plagiarism.controller;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableCellFormat;
+import jxl.write.WritableFont;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.plagiarism.sessionbean.UserDetailsSessionBean;
+import com.ultimatix.gess.leave.dto.EmpHostLevBalReportDTO;
+import com.ultimatix.gess.leave.dto.EmpLevBalReportDTO;
+import com.ultimatix.gess.leave.dto.EmpSickEligibilityReportDTO;
+import com.ultimatix.gess.leave.dto.LeaveStmtDTO;
+import com.ultimatix.gess.leave.dto.SingletonAttribute;
+import com.ultimatix.gess.leave.service.ColumbiaEncashmentService;
+import com.ultimatix.gess.leave.service.LevBalReportService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.ReportUtils;
+import com.ultimatix.gess.leave.util.StringUtility;
+import com.ultimatix.pfile.util.FileUtils;
+import com.ultimatix.pfile.util.HttpResponseUtils;
+import com.ultimatix.pfile.util.StreamUtils;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+
+@Controller
+public class LeaveBalReportController {
+
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(LeaveBalReportController.class);
+	@Autowired
+	private LevBalReportService balReportService;
+	
+	@Autowired
+	private ColumbiaEncashmentService colEncashService;
+	
+	
+	@Autowired
+	private UserDetailsSessionBean userBean;
+	
+	@Autowired
+	private SingletonAttribute  singleAttribute;
+	
+	public String escapeSpChars(String json) {
+		return json.replaceAll("[<>]+", "");
+	}
+	
+	public boolean isIfDbSafe(String value) {
+		boolean flag = true;
+		Pattern pattern = Pattern.compile("[^A-Za-z0-9_. ()]");
+		Matcher matcher = pattern.matcher(value);
+		if (matcher.find()) {
+			flag = false;
+		}
+		return flag;
+	}
+	
+	
+	
+	
+	
+	@RequestMapping(value = "/getColDetails", method = RequestMethod.POST , produces = "application/json")
+	 public  @ResponseBody Map<String,Object> getColEncashDetails(@RequestParam(value="employeeId", required=false) String id){
+		Map<String, Object> encashDtlMap;
+		encashDtlMap =	colEncashService.getEncashmentPageLoadDtls(userBean.getPersonId());
+		LOG.info(encashDtlMap);
+		return encashDtlMap;
+	    }
+	
+	@RequestMapping(value = "/submitColEncash", method = RequestMethod.POST , produces = "application/json")
+	 public  @ResponseBody Map<String,Object> submitColEncashDetails(@RequestBody String data) throws JSONException{
+		Map<String, Object> encashDtlMap;
+		Map<String,Object> inputs=new HashMap<String, Object>();
+		JSONObject jsonObj=new JSONObject(data);
+		int countryleaveTypeId = jsonObj.getInt("leaveTypeID");
+		String countryCode = jsonObj.getString("countryCode");
+		inputs.put("countryCode", countryCode);
+		inputs.put("leaveTypeID", countryleaveTypeId);
+		inputs.put("personID", userBean.getPersonId());
+		encashDtlMap =	colEncashService.encashLeaves(inputs);
+		LOG.info(encashDtlMap);
+		return encashDtlMap;
+	    }
+	
+	
+	
+	
+	
+	@RequestMapping(value = "/checkBalTabAccess", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  checkBalTabAccess(@RequestBody Map<String, String> dataMap)throws SQLException {
+		
+		Map<String, String> accessList=new HashMap<String, String>() ;
+		LOG.info("LeaveBalReportController | checkBalTabAccess | action invoked ");
+		
+		String empId =(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		accessList = balReportService.checkBalTabAccess(dataMap,empId);
+		LOG.info("LeaveBalReportController | checkBalTabAccess  | action terminated ");
+		
+		return accessList;
+	}
+
+	@RequestMapping(value = "/checkBalSuperAccess", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  checkBalSuperAccess()throws SQLException {
+
+		String empId =(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("LeaveBalReportController | checkBalSuperAccess | action invoked by "+empId);
+		Map<String, String>  accessList = balReportService.checkBalSuperAccess(empId);
+		LOG.info("LeaveBalReportController | checkBalSuperAccess  | action terminated ");
+		return accessList;
+	}
+	
+	@RequestMapping(value = "/fetchLeaveEncashMsg", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  fetchLeaveEncashMsg()throws SQLException {
+
+		LOG.info("LeaveBalReportController | fetchLeaveEncashMsg | action invoked by ");
+		String msg = balReportService.fetchLeaveEncashMsg();
+		LOG.info("LeaveBalReportController | fetchLeaveEncashMsg  | action terminated ");
+		Map<String,String> outmap=new HashMap<String,String>();
+		outmap.put("msg", msg);
+		return outmap;
+	}
+	
+	@RequestMapping(value = "/SearchByEmpName", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> searchByEmpName(@RequestBody Map<String, String> dataMap) throws SQLException {
+		
+		LOG.info("LeaveBalReportController | SearchByEmpName | action invoked ");
+		Map<String, Object>  employeeList = balReportService.searchByEmpName(dataMap.get("name"));
+		LOG.info("LeaveBalReportController | SearchByEmpName  | action terminated ");
+		return employeeList;
+	}
+
+	@RequestMapping(value = "/getEmpLevBalReport", method = RequestMethod.GET, produces = "application/json")
+	@ResponseBody
+	public Map<String, Object> getEmpLevBalReport(@RequestParam(value="employeeNo", required=false) String employeeNo) throws SQLException {
+		
+		String empId = (employeeNo==null)? (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal(): employeeNo;
+		
+		LOG.info("LeaveBalReportController | getEmpLevBalReports | action invoked  by "+ empId);
+			
+		Map<String, Object> empLevBalReportDetails = balReportService.getEmpLevBalReport(empId);
+		
+		LOG.info("LeaveBalReportController | getEmpLevBalReports | action terminated");
+
+		return empLevBalReportDetails;
+	}
+
+	@RequestMapping(value = "/getEmpLevLopDetails", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> getEmpLevLopDetails(@RequestBody Map<String, String> dataMap)  {
+		
+		String empId=null;
+		String superUserFlag = dataMap.get("superUserFlag");
+		
+		if("Y".equalsIgnoreCase(superUserFlag)){
+			empId = dataMap.get("empId");
+			LOG.info("LeaveBalReportController | getEmpLevLopDetails | action invoked  by SuperUser  for empId "+empId);
+		}else{
+			empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			LOG.info("LeaveBalReportController | getEmpLevLopDetails | action invoked  by "+ empId);
+		}
+		Map<String, Object> empLevLopDetails = balReportService.getEmpLevLopDetails(empId);
+		
+		LOG.info("LeaveBalReportController | getEmpLevLopDetails  | action terminated ");
+		return empLevLopDetails;
+	}
+
+	@RequestMapping(value = "/getEmpLevLopSumaryDetails", method = RequestMethod.POST, produces = "application/json")
+	@ResponseBody
+	public Map<String, Object> getEmpLevLopSumaryDetails(@RequestBody Map<String, String> dataMap) throws SQLException {
+		String empId=null;
+		String superUserFlag = dataMap.get("superUserFlag");
+
+		if("Y".equalsIgnoreCase(superUserFlag)){
+			empId = dataMap.get("empId");
+			LOG.info("LeaveBalReportController | getEmpLevLopSumaryDetails | action invoked  by SuperUser  for empId "+empId);
+		}else{
+			empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			LOG.info("LeaveBalReportController | getEmpLevLopSumaryDetails | action invoked  by "+ empId);
+		}
+		Map<String, Object> empLevLopSumaryDetails = balReportService.getEmpLevLopSumaryDetails(empId);
+		LOG.info("LeaveBalReportController | getEmpLevLopSumaryDetails | action invoked  terminated");
+		
+		return empLevLopSumaryDetails;
+	}
+
+	@RequestMapping(value = "/getEmpSickEligiReport", method = RequestMethod.POST, produces = "application/json")
+	@ResponseBody
+	public Map<String, Object> getEmpSickEligiReport(@RequestBody Map<String, String> dataMap) throws SQLException {
+			
+			String empId=null;
+			String superUserFlag = dataMap.get("superUserFlag");
+
+			if("Y".equalsIgnoreCase(superUserFlag)){
+				empId = dataMap.get("empId");
+				LOG.info("LeaveBalReportController | fetchDeputationDetails | action invoked  by SuperUser  for empId "+empId);
+			}else{
+				empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				LOG.info("LeaveBalReportController | fetchDeputationDetails | action invoked  by "+ empId);
+			}
+			Map<String, Object> empSickEligiReport = balReportService.getEmpSickEligiReport(empId);
+
+		LOG.info("LeaveBalReportController | getEmpSickEligiReport terminated");
+		return empSickEligiReport;
+	}
+	
+	// To fetch  single  Request Details
+	@RequestMapping(value = "/fetchLeaveBalReport", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, Object>  fetchLeaveBalReport(@RequestBody Map<String, String> dataMap) throws  JSONException {
+		
+		String loggedInEmpID = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		LOG.info("LeaveBalReportController | fetchLeaveBalReport invoked by empId "+loggedInEmpID);
+									
+		Map<String, Object> levBalReportDetails =balReportService.fetchLeaveBalReport(dataMap,loggedInEmpID);
+
+		LOG.info("LeaveBalReportController | fetchLeaveBalReport terminated");
+		
+		return levBalReportDetails; 
+		
+	}
+	
+	@RequestMapping(value = "/fetchDeputationDetails", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, Object>  fetchDeputationDetails(@RequestBody Map<String, String> dataMap)  {
+	
+			String empId=null;
+			String superUserFlag = dataMap.get("superUserFlag");
+
+			if("Y".equalsIgnoreCase(superUserFlag)){
+				empId = dataMap.get("empId");
+				LOG.info("LeaveBalReportController | fetchDeputationDetails | action invoked  by SuperUser  for empId "+empId);
+			}else{
+				empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+				LOG.info("LeaveBalReportController | fetchDeputationDetails | action invoked  by "+ empId);
+			}
+			Map<String, Object> levBalReportDetails =balReportService.fetchDeputationDetails(empId);
+
+			LOG.info("LeaveBalReportController | fetchDeputationDetails terminated");
+		
+			return levBalReportDetails; 
+		
+	}
+
+	@RequestMapping(value = "/fetchEmployeeDetails", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, Object>  fetchEmployeeDetails( @RequestBody Map<String, String> dataMap) throws  SQLException {
+		LOG.info("LeaveBalReportController | fetchEmployeeDetails initiated");
+		Map<String, Object> levBalReportDetails=new HashMap<String, Object>();
+		String searchEmpId=dataMap.get("empId");
+		
+		if(StringUtility.isNumberRegex(searchEmpId)){
+			levBalReportDetails = balReportService.fetchEmployeeDetails(searchEmpId);
+		}
+		
+		LOG.info("LeaveBalReportController | fetchEmployeeDetails terminated");
+		
+		return levBalReportDetails; 	
+	}
+	
+	@RequestMapping(value = "/generateSickEligibilityReport", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  generateSickEligibilityReport(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody List<EmpSickEligibilityReportDTO> sickEligibilityList)  throws WriteException  {
+
+		LOG.info("LeaveBalReportController | generateSickEligibilityReport | create action invoked ");
+		String reportName="Sick_Eligibilty_Report" + System.currentTimeMillis()+".xls";
+		String reportPath = singleAttribute.getLocation()+reportName;
+		//File file = FileUtils.getFile(reportPath);
+		OutputStream out =null;
+		try{
+				out  = FileUtils.getFileOutputStream(reportPath);
+				WritableWorkbook workbook = Workbook.createWorkbook(out);
+			    WritableSheet sheet = workbook.createSheet("Sick_Eligibilty_Report", 0);		
+			    sheet.getSettings().setDefaultColumnWidth(20);
+			    sheet.getSettings().setProtected(false);			 	
+				WritableFont boldHeaderFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.BOLD);
+				WritableCellFormat header = new WritableCellFormat(boldHeaderFont);
+				header.setWrap(true);
+				
+		         sheet.addCell(new Label(0, 0, "Leave Type",header));
+			     sheet.addCell(new Label(1, 0, "Entitlements(In Weeks)",header));
+			     sheet.addCell(new Label(2, 0, "Leave Year Start Date",header));
+			     sheet.addCell(new Label(3, 0, "Leave Year End Date",header));
+			     sheet.addCell(new Label(4, 0, "Leaves Approved",header));
+			     sheet.addCell(new Label(5, 0, "Leaves Awaiting Approval",header));
+			     sheet.addCell(new Label(6, 0, "Leaves Balance",header));
+			     
+			     WritableFont rowFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.NO_BOLD);
+			     WritableCellFormat rowStyle = new WritableCellFormat(rowFont);
+			     rowStyle.setWrap(true);
+			     int rowCount = 1;
+			     for (EmpSickEligibilityReportDTO obj : sickEligibilityList) {
+			        	 sheet.addCell(new Label(0, rowCount,obj.getCountryLevTypeName(),rowStyle));
+					     sheet.addCell(new Label(1, rowCount, obj.getEntitlement(),rowStyle));
+					     sheet.addCell(new Label(2, rowCount, obj.getEligibilityPeriodStartDate(),rowStyle));
+					     sheet.addCell(new Label(3, rowCount, obj.getEligibilityPeriodEndDate(),rowStyle));
+					     sheet.addCell(new Label(4, rowCount, obj.getApproved(),rowStyle));
+					     sheet.addCell(new Label(5, rowCount, obj.getPending(),rowStyle));
+					     sheet.addCell(new Label(6, rowCount, obj.getLevBalance(),rowStyle));
+					     rowCount++;
+			      }	
+			     workbook.write();
+			     workbook.close();
+			    } catch (IOException e){
+			    	   LOG.error("LeaveBalReportController | generateSickEligibilityReport | In WriteException" ,e);
+			    } finally{
+		     if (out != null){
+		      try {
+				out.close();
+			} catch (IOException e) {
+				  LOG.error("LeaveBalReportController | generateSickEligibilityReport | In WriteException ",e);
+			}
+		     }
+		    }
+
+		
+		  Map<String, String> returnMap=new HashMap<String, String>();
+	      returnMap.put("reportName",reportName);
+	      LOG.info("LeaveBalReportController | generateSickEligibilityReport | create action terminated ");
+	      return returnMap;
+		}
+
+	@RequestMapping(value = "/generateLeaveBalReport", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  generateLeaveBalReport(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody String json) throws IOException  {
+
+		LOG.info("LeaveBalReportController | generateLeaveBalReport | create action invoked ");
+		ObjectMapper mapper = new ObjectMapper();
+		List<EmpLevBalReportDTO> homeLeaveDetailsList=new ArrayList<EmpLevBalReportDTO>();
+		List<EmpHostLevBalReportDTO> hostLeaveDetailsList =new ArrayList<EmpHostLevBalReportDTO>();
+		String hostCountry=null;
+		String homeCountry=null;		
+			
+		String reportName = "Leave_Balance_Report" + System.currentTimeMillis()+".xls";
+		String reportPath = singleAttribute.getLocation()+reportName;
+		//File file = FileUtils.getFile(reportPath);
+		OutputStream out =null;
+			try{
+				JSONObject object=new JSONObject(json);
+				if(null!=object){
+					if(object.has("homeLeaveDeatils")){
+						String  homeLeaveDetailsString=object.get("homeLeaveDeatils").toString();
+						homeLeaveDetailsList = Arrays.asList(mapper.readValue(homeLeaveDetailsString,EmpLevBalReportDTO[].class));
+					}
+					if(object.has("hostLeaveDeatils")){
+						String  hostLeaveDetailsString=object.get("hostLeaveDeatils").toString();
+						hostLeaveDetailsList = Arrays.asList(mapper.readValue(hostLeaveDetailsString,EmpHostLevBalReportDTO[].class));
+					}
+					if(object.has("hostCountry")){
+						hostCountry=object.get("hostCountry").toString();
+					}
+					if(object.has("homeCountry")){
+						homeCountry=object.get("homeCountry").toString();
+					}
+				}
+			
+				if( null!=hostCountry || null !=homeCountry){
+					out  = FileUtils.getFileOutputStream(reportPath);
+					WritableWorkbook workbook = Workbook.createWorkbook(out);
+				    WritableSheet sheet = workbook.createSheet("Leave_Balance_Report", 0);		
+				    sheet.getSettings().setDefaultColumnWidth(20);
+				    sheet.getSettings().setProtected(false);			 	
+					WritableFont boldHeaderFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.BOLD);
+					WritableCellFormat header = new WritableCellFormat(boldHeaderFont);
+					header.setWrap(true);
+					WritableFont rowFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.NO_BOLD);
+					WritableCellFormat rowStyle = new WritableCellFormat(rowFont);
+					rowStyle.setWrap(true);
+				
+					int startRow=0;
+					int startCol=0;
+
+					if(!hostLeaveDetailsList.isEmpty()){
+
+							sheet.addCell(new Label(startCol, startRow, "Host Country Balance Report",header));
+							startRow++;
+							sheet.addCell(new Label(startCol, startRow, "Leave Type",header));
+						     sheet.addCell(new Label(++startCol, startRow, "Opening Balance",header));
+						     if("India".equalsIgnoreCase(hostCountry)){
+						    	 sheet.addCell(new Label(++startCol, startRow, "Surplus Leaves Encashed",header));
+						     }
+						     sheet.addCell(new Label(++startCol, startRow, "Surplus Leaves Lapsed",header));
+						     sheet.addCell(new Label(++startCol, startRow, "Last Credit Date",header));
+						     sheet.addCell(new Label(++startCol, startRow, "Leaves Credited",header));
+						     sheet.addCell(new Label(++startCol, startRow, "Leaves Approved",header));
+						     sheet.addCell(new Label(++startCol, startRow, "Leave Awaiting Approval",header));
+						     if("United Kingdom".equalsIgnoreCase(hostCountry) || "Ireland".equalsIgnoreCase(hostCountry)){
+						    	   sheet.addCell(new Label(++startCol, startRow, "Postponement",header));
+						     } 
+						     sheet.addCell(new Label(++startCol, startRow, "Leaves Balance",header));
+						    for (EmpHostLevBalReportDTO obj : hostLeaveDetailsList) {
+						    	 startRow++;
+						    	 startCol=0;
+						    	 sheet.addCell(new Label(startCol, startRow,obj.getCountryLevTypeName(),rowStyle));
+							     sheet.addCell(new Label(++startCol, startRow, obj.getTotBalAftLastCr(),rowStyle));
+							     if("India".equalsIgnoreCase(hostCountry)){
+							    	 sheet.addCell(new Label(++startCol, startRow, obj.getTotalLeavesEncashed(),rowStyle));
+							     }
+							     sheet.addCell(new Label(++startCol, startRow, obj.getTotalLeavesLapsed(),rowStyle));
+							     sheet.addCell(new Label(++startCol, startRow, obj.getLeaveCreditDate(),rowStyle));
+							     sheet.addCell(new Label(++startCol, startRow, obj.getCurrentMonthCredit(),rowStyle));
+							     sheet.addCell(new Label(++startCol, startRow, obj.getLeavesAvailed(),rowStyle));
+							     sheet.addCell(new Label(++startCol, startRow, obj.getPending(),rowStyle));
+							     if("United Kingdom".equalsIgnoreCase(hostCountry) || "Ireland".equalsIgnoreCase(hostCountry)){
+							    	 sheet.addCell(new Label(++startCol, startRow, obj.getPostponed(),rowStyle));
+							     }
+							     sheet.addCell(new Label(++startCol, startRow, obj.getLeavebalance(),rowStyle));
+						      }	
+
+						}if(!homeLeaveDetailsList.isEmpty()){
+
+						startRow++;
+						startCol=0;
+						sheet.addCell(new Label(startCol, startRow++, "Home Country Balance Report",header));
+						sheet.addCell(new Label(startCol, startRow, "Leave Type",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Opening Balance",header));
+					     if("India".equalsIgnoreCase(homeCountry)){
+					    	   sheet.addCell(new Label(++startCol, startRow, "Surplus Leaves Encashed",header));
+					     }
+					     sheet.addCell(new Label(++startCol, startRow, "Surplus Leaves Lapsed",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Last Credit Date",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Leaves Credited",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Leaves Approved",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Leave Awaiting Approval",header));
+					     if("United Kingdom".equalsIgnoreCase(homeCountry) || "Ireland".equalsIgnoreCase(homeCountry)){
+					    	 sheet.addCell(new Label(++startCol, startRow, "Postponement",header));
+					     }
+					     if("India".equalsIgnoreCase(homeCountry)){
+					    	   sheet.addCell(new Label(++startCol, startRow, "Timesheet Leave",header));
+					     }
+					    sheet.addCell(new Label(++startCol, startRow, "Leaves Balance",header));
+					     for (EmpLevBalReportDTO obj1 : homeLeaveDetailsList) {
+					    	 startRow++;
+					    	 startCol=0;
+					    	 sheet.addCell(new Label(startCol, startRow,obj1.getCountryLevTypeName(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj1.getTotBalAftLastCr(),rowStyle));
+						     if("India".equalsIgnoreCase(homeCountry)){
+						    	 sheet.addCell(new Label(++startCol, startRow, obj1.getTotalLeavesEncashed(),rowStyle));
+						     }
+						     sheet.addCell(new Label(++startCol, startRow, obj1.getTotalLeavesLapsed(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj1.getLeaveCreditDate(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj1.getCurrentMonthCredit(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj1.getLeavesAvailed(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj1.getPending(),rowStyle));
+						     if("United Kingdom".equalsIgnoreCase(homeCountry) || "Ireland".equalsIgnoreCase(homeCountry)){
+						    	  sheet.addCell(new Label(++startCol, startRow, obj1.getPostponed(),rowStyle));
+						     }
+						     if("India".equalsIgnoreCase(homeCountry)){
+						    	 sheet.addCell(new Label(++startCol, startRow, obj1.getTimesheetleaves(),rowStyle));
+						     }
+						     sheet.addCell(new Label(++startCol, startRow, obj1.getLeavebalance(),rowStyle));
+					      }	
+					} 
+				     workbook.write();
+				     workbook.close();
+				}
+			}catch(JSONException e){
+				LOG.error("LeaveBalReportController | generateLeaveBalReport |JSONException ",e);
+			} catch (WriteException e){
+				LOG.error("LeaveBalReportController | generateLeaveBalReport | WriteException  ",e);
+			} finally{
+				if (out != null){
+					out.close();
+				}
+			}
+			  Map<String, String> returnMap=new HashMap<String, String>();
+		      returnMap.put("reportName",reportName);
+		      LOG.info("LeaveBalReportController | generateLeaveBalReport | create action terminated ");
+		      return returnMap;
+		}
+	
+
+	@RequestMapping(value = "/downloadReport", method = RequestMethod.GET)
+	public void downloadReport(HttpServletRequest request,HttpServletResponse response)
+
+			throws IOException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("LeaveBalReportController | downloadReport |  action initiated ");
+		String fileName = request.getParameter("fileName");
+		InputStream inputStream = null;
+		DataOutputStream outStream = null;
+		ServletOutputStream servletOutStream = response.getOutputStream();
+		String pathName = singleAttribute.getLocation();
+		File temporaryFile = ReportUtils.getCustomFilePath(pathName, fileName);
+		inputStream = FileUtils.getFileInputStream(temporaryFile);
+		try {
+			HttpResponseUtils.exportToExcel(fileName, response);
+			outStream = new DataOutputStream(response.getOutputStream());
+			StreamUtils.writeOutputStream(inputStream, outStream);
+		} catch (Exception e) {
+			LOG.error("FileController | downloadDoc |Exception error in writeToFile ",e);
+		} finally {
+			try {
+				
+				if (null != inputStream) {
+					inputStream.close();
+				}
+				if (null != servletOutStream) {
+					servletOutStream.flush();
+					servletOutStream.close();
+				}
+				if (null != outStream) {
+					outStream.flush();
+					outStream.close();
+				}
+				if (null != temporaryFile){
+					String name = temporaryFile.getName();
+					boolean result=FileUtils.deleteFile(temporaryFile);
+					LOG.info("LeaveBalReportController | downloadReport | FINALLY | fileName:"+name+" | deleted:"+result+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+				}
+				inputStream = null;
+				outStream = null;
+			} catch (Exception e) {
+				LOG.error("FileController | downloadFile |Exception error in writeToFile ",e);
+			}
+		}
+		LOG.error("FileController | downloadFile | action terminated");
+	}
+
+		@RequestMapping(value = "/fetchStmtDD", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, Object>  fetchStmtCountry(@RequestBody Map<String, String> dataMap)throws SQLException {
+		
+		Map<String, Object> countryList=new HashMap<String, Object>() ;
+		LOG.info("LeaveBalReportController | fetchStmtCountry | action invoked ");
+		
+		String empId =(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		countryList = balReportService.fetchStmtDD(dataMap,empId);
+		LOG.info("LeaveBalReportController | fetchStmtCountry  | action terminated ");
+		
+		return countryList;
+	}
+	
+	@RequestMapping(value = "/generateTransHistory", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, Object>  generateTransHistory(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody String json) throws IOException  {
+		Map<String, Object> details =balReportService.generateTransHistory(json);
+		return details;
+	  }
+	
+	@RequestMapping(value = "/generateStmtReport", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  generateStmtReport(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody String json) throws IOException  {
+
+		LOG.info("LeaveBalReportController | generateStmtReport | create action invoked ");
+		OutputStream out =null;
+		String reportName=null;
+		Map<String, Object> details =balReportService.generateTransHistory(json);
+		 
+		try{
+			
+				if( null!=details){
+					reportName = "Transactional_History" + System.currentTimeMillis()+".xls";
+					String reportPath = singleAttribute.getLocation()+reportName;
+					File file = FileUtils.getFile(reportPath);
+					out  = FileUtils.getFileOutputStream(file);
+					WritableWorkbook workbook = Workbook.createWorkbook(out);
+				    WritableSheet sheet = workbook.createSheet("Transactional_history", 0);		
+				    sheet.getSettings().setDefaultColumnWidth(20);
+				    sheet.getSettings().setProtected(false);			 	
+					WritableFont boldHeaderFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.BOLD);
+					WritableCellFormat header = new WritableCellFormat(boldHeaderFont);
+					header.setWrap(true);
+					WritableFont rowFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.NO_BOLD);
+					WritableCellFormat rowStyle = new WritableCellFormat(rowFont);
+					rowStyle.setWrap(true);
+				
+					int startRow=0;
+					int startCol=0;
+
+					List<LeaveStmtDTO> transList=(List)details.get("transList");
+					
+					if(!transList.isEmpty()){
+						sheet.addCell(new Label(startCol, startRow, "Transaction Date",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Transaction Details",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Leave Type",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Credit Leave",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Debit Leave",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Remarks",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Created Date",header));
+					     for ( LeaveStmtDTO obj : transList) {
+					    	 startRow++;
+					    	 startCol=0;
+					    	  sheet.addCell(new Label(startCol, startRow, String.valueOf(obj.getTransDate()),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj.getTransDetails(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj.getLeaveType(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, String.valueOf(obj.getTransCredit()),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, String.valueOf(obj.getTransDebit()),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj.getTransRemarks(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, String.valueOf(obj.getTransCreatedDate()),rowStyle));
+					}
+				     workbook.write();
+				     workbook.close();
+				}
+			}}catch (WriteException e){
+				LOG.error("LeaveBalReportController | generateStmtReport | WriteException  ",e);
+			} finally{
+				if (out != null){
+					out.close();
+				}
+			}
+		Map<String, String> returnMap=new HashMap<String, String>();
+	    returnMap.put("reportName",reportName);
+	    return returnMap;
+	}
+
+	@RequestMapping(value = "/fetchBalanceStmt", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, Object>  fetchBalanceStmt(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody String json) throws IOException  {
+		Map<String, Object> details =balReportService.fetchBalanceStmt(json);
+		return details;
+	  }
+	
+	@RequestMapping(value = "/generateBalanceStmt", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  generateBalanceStmt(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody String json) throws IOException  {
+
+		LOG.info("LeaveBalReportController | generateBalanceStmt | create action invoked ");
+		OutputStream out =null;
+		String reportName=null;
+		Map<String, Object> details =balReportService.fetchBalanceStmt(json);
+		 
+		try{
+			
+				if( null!=details){
+					reportName = "Balance_Statment" + System.currentTimeMillis()+".xls";
+					String reportPath = singleAttribute.getLocation()+reportName;
+					//File file = FileUtils.getFile(reportPath);
+					out  = FileUtils.getFileOutputStream(reportPath);
+					WritableWorkbook workbook = Workbook.createWorkbook(out);
+				    WritableSheet sheet = workbook.createSheet("Balance_Statment", 0);		
+				    sheet.getSettings().setDefaultColumnWidth(20);
+				    sheet.getSettings().setProtected(false);			 	
+					WritableFont boldHeaderFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.BOLD);
+					WritableCellFormat header = new WritableCellFormat(boldHeaderFont);
+					header.setWrap(true);
+					WritableFont rowFont = new WritableFont(WritableFont.ARIAL, 9, WritableFont.NO_BOLD);
+					WritableCellFormat rowStyle = new WritableCellFormat(rowFont);
+					rowStyle.setWrap(true);
+				
+					int startRow=0;
+					int startCol=0;
+
+					List<LeaveStmtDTO> transList=(List)details.get("transList");
+					
+					if(!transList.isEmpty()){
+						sheet.addCell(new Label(startCol, startRow, "Transaction Date",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Transaction Details",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Credit Leave",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Debit Leave",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Balance",header));
+					     sheet.addCell(new Label(++startCol, startRow, "Remarks",header));
+					     for ( LeaveStmtDTO obj : transList) {
+					    	 startRow++;
+					    	 startCol=0;
+					    	 sheet.addCell(new Label(startCol, startRow, String.valueOf(obj.getTransDate()),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj.getTransDetails(),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, String.valueOf(obj.getTransCredit()),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, String.valueOf(obj.getTransDebit()),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, String.valueOf(obj.getBalance()),rowStyle));
+						     sheet.addCell(new Label(++startCol, startRow, obj.getTransRemarks(),rowStyle));
+						   }
+					}
+				     workbook.write();
+				     workbook.close();
+				}
+			}catch (WriteException e){
+				LOG.error("LeaveBalReportController | generateBalanceStmt | WriteException  ",e);
+			} finally{
+				if (out != null){
+					out.close();
+				}
+			}
+		Map<String, String> returnMap=new HashMap<String, String>();
+	    returnMap.put("reportName",reportName);
+	    return returnMap;
+	}
+	
+	@RequestMapping(value = "/getBalReportModalDetails", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> getBalReportModalDetails(@RequestBody Map<String, String> coutryLevIdMap) throws SQLException {
+		
+		String empId=null;
+		String countryLevTypeId = coutryLevIdMap.get("countryLevTypeId");
+		String superUserFlag = coutryLevIdMap.get("superUserFlag");
+		
+		if("Y".equalsIgnoreCase(superUserFlag)){
+			empId = coutryLevIdMap.get("empId");
+			LOG.info("LeaveBalReportController | getBalReportModalDetails | action invoked  by SuperUser  for empId "+empId);
+		
+		}else{
+			empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			LOG.info("LeaveBalReportController | getBalReportModalDetails | action invoked  by "+ empId);
+		}
+		
+		Map<String, Object> empLevBalReportModalDetails = balReportService.getEmpLevBalReportDetails(empId,Integer.valueOf(countryLevTypeId));
+
+		LOG.info("LeaveBalReportController | getBalReportModalDetails | action invoked  terminated");
+		
+		return empLevBalReportModalDetails;
+	}
+	
+	@RequestMapping(value = "/getHomeBalReportModalDetails", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> getHomeBalReportModalDetails(@RequestBody Map<String, String> coutryLevIdMap) throws SQLException {
+		
+		String empId=null;
+		String countryLevTypeId = coutryLevIdMap.get("countryLevTypeId");
+		String superUserFlag = coutryLevIdMap.get("superUserFlag");
+		
+		if("Y".equalsIgnoreCase(superUserFlag)){
+			empId = coutryLevIdMap.get("empId");
+			LOG.info("LeaveBalReportController | getHomeBalReportModalDetails | action invoked  by SuperUser  for empId "+empId);
+		
+		}else{
+			empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			LOG.info("LeaveBalReportController | getHomeBalReportModalDetails | action invoked  by "+ empId);
+		}
+		
+		Map<String, Object> empLevBalReportModalDetails = balReportService.getHomeModalDetails(empId,Integer.valueOf(countryLevTypeId));
+
+		LOG.info("LeaveBalReportController | getHomeBalReportModalDetails | action invoked  terminated");
+		
+		return empLevBalReportModalDetails;
+	}
+	
+	@RequestMapping(value = "/getHostBalReportModalDetails", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, Object> getHostBalReportModalDetails(@RequestBody Map<String, String> coutryLevIdMap) throws SQLException {
+		
+		String empId=null;
+		String countryLevTypeId = coutryLevIdMap.get("countryLevTypeId");
+		String superUserFlag = coutryLevIdMap.get("superUserFlag");
+		
+		if("Y".equalsIgnoreCase(superUserFlag)){
+			empId = coutryLevIdMap.get("empId");
+			LOG.info("LeaveBalReportController | getHostBalReportModalDetails | action invoked  by SuperUser  for empId "+empId);
+		
+		}else{
+			empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			LOG.info("LeaveBalReportController | getHostBalReportModalDetails | action invoked  by "+ empId);
+		}
+		
+		Map<String, Object> empLevBalReportModalDetails = balReportService.getHostModalDetails(empId,Integer.valueOf(countryLevTypeId));
+
+		LOG.info("LeaveBalReportController | getHostBalReportModalDetails | action invoked  terminated");
+		
+		return empLevBalReportModalDetails;
+	}
+}

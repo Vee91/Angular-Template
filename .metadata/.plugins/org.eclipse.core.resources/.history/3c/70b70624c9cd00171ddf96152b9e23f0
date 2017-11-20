@@ -1,0 +1,160 @@
+define([ 'angular', 'app', 'LeaveServices', 'moment', 'displayMenu', 'LeaveCommonDirectives','jqueryui', 'utils',
+		'bootstrap' ], function(angular, app, moment, jqueryui, bootstrap) {
+	app.controller('cmnPostponementReqCtrl', [
+			'$scope',
+			'$http',
+			'levReqList',
+			'$compile',
+			'$rootScope',
+			'$routeParams',
+			'$location',
+			'$q',
+			function($scope, $http, levReqList, $compile, $rootScope, $routeParams,$location, $q) {
+
+				$scope.postponementObj = {};
+				$scope.postponementObj.appr1 = false;
+				$scope.postponementObj.appr2 = false;
+
+				$scope.postponementObj.postponementData = [];
+
+				$scope.postponementObj.callService = '/leaverest/rest/getPostponementDetails/';
+				
+				$scope.postponementObj.workFlowData=[];
+				
+				$scope.postponementObj.workFlowDetail='/leaverest/rest/levWorkflow';
+				
+				var empNo=undefined;
+				var childReqNo=undefined;
+				
+				$http.post($scope.postponementObj.callService + $routeParams.requestNo).success(
+						function(data) {
+							
+							$scope.postponementObj.postponementData = data;
+							$rootScope.processing=false;
+							console.log("DATA FOR POSTPONEMENT : "  + JSON.stringify(data));
+							
+							empNo=$scope.postponementObj.postponementData.leaveDetails.employeeNo;
+							childReqNo=$scope.postponementObj.postponementData.leaveDetails.levReqNo;
+							
+							if($scope.postponementObj.postponementData.leaveDetails.appr1!=="true"){
+								$scope.postponementObj.appr1=true;
+								
+								if($scope.postponementObj.postponementData.leaveDetails.appr2!=="true"){
+									$scope.postponementObj.appr2=true;
+								}
+							}
+							
+							
+							$http.post($scope.postponementObj.workFlowDetail+ '/'+ empNo+ '?levRequestNo='+ childReqNo).success(function(data) {
+
+								$scope.postponementObj.workFlowData[0] = data;
+								console.log("WORKFLOW DATA FOR POSTPONEMENT  : " + JSON.stringify(data));
+								$scope.postponementObj.basicWorkFlowData=[];
+
+								for ( var i = 0; i < $scope.postponementObj.workFlowData[0].length; i++) {
+									$scope.tracker = {};
+
+									$scope.tracker.htmlTextBox = "<p class='nodeNameText leftAlign'>"
+											+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].employeeRole
+											+ "</p>"
+											+ "<p class='nodeNameText leftAlign'>"
+											+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].appliedDate
+											+ "</p><br/>"
+											+ "<p class='nodeNameTextDetails leftAlign'>"
+											+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].fullName
+											+ " | "
+											+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].employeeNo
+											+ "</p>"
+											+ "<p class='nodeNameTextEmail leftAlign'>"
+											+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].contactDTO.emailId
+											+ "</p>"
+											+ "<p class='nodeNameTextDetails leftAlign'>"
+											+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].contactDTO.contactNumberCell
+											+ "</p>"
+											+ "<p class='nodeNameTextDetails leftAlign'> Status: "
+											+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].leaveStatus.name
+											+ "</p>";
+
+									if ($scope.postponementObj.workFlowData[0][i].levWorkflow[0].approvalComment !== undefined) {
+										$scope.tracker.htmlTextBox += "<p class='nodeNameTextDetails leftAlign'> Comment: "
+												+ $scope.postponementObj.workFlowData[0][i].levWorkflow[0].approvalComment
+												+ "</p>";
+									}
+									;
+
+									if (i === $scope.postponementObj.workFlowData[0].length - 1 && $scope.postponementObj.workFlowData[0][i].levWorkflow.length > 1) {
+										$scope.workFlowPush = [];
+										$scope.workFlowPush.push($scope.postponementObj.workFlowData[0][i].levWorkflow.slice(1,$scope.postponementObj.workFlowData[0][i].levWorkflow.length));
+
+										$scope.tracker.htmlTextBox += "<a class='leftAlign testNidhi' onclick='showFaltuDtls();' style='cursor: pointer;'>Others +"
+												+ parseInt($scope.postponementObj.workFlowData[0][i].levWorkflow.length - 1)
+												+ "</a>";
+										$scope.tracker.htmlTextBox += "<div id='faltuID' class='tempTestDiv' >";
+										for ( var c = 0; c < $scope.workFlowPush[0].length; c++) {
+
+											$scope.tracker.htmlTextBox += "<p class='testP'>"
+													+ $scope.workFlowPush[0][c].employeeRole
+													+ " | "
+													+ $scope.workFlowPush[0][c].fullName
+													+ " | "
+													+ $scope.workFlowPush[0][c].employeeNo
+													+ " | "
+													+ $scope.workFlowPush[0][c].contactDTO.emailId
+													+ " | "
+													+ $scope.workFlowPush[0][c].contactDTO.contactNumberCell
+													+ "</p>";
+
+										}
+										$scope.tracker.htmlTextBox += "</div>";
+										$compile($scope.tracker.htmlTextBox)($scope);
+
+									}
+
+									if (i === $scope.postponementObj.workFlowData[0].length - 1) {
+										if ($scope.postponementObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 13
+												|| $scope.postponementObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 3) {
+											$scope.tracker.status = "ACTED";
+										} else if ($scope.postponementObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 4
+												|| $scope.postponementObj.workFlowData[0][i].levWorkflow[0].leaveStatus.id == 12) {
+											$scope.tracker.status = "REJECTED";
+										} else {
+											$scope.tracker.status = "PENDING";
+										}
+
+									} else {
+										$scope.tracker.status = "ACTED";
+									}
+
+									$scope.postponementObj.basicWorkFlowData
+											.push($scope.tracker);
+
+								}
+							})
+					.error(
+							function(data) {
+								
+								$location.path("/cmnError");
+							});
+
+						}).error(function(data) {
+					alert("Error in getting postponementData Data");
+				});
+				
+				
+				
+
+	
+				
+				$scope.backToRequestList = function() {
+					if ($scope.ispostponementDetails) {
+						$location.path("/levReqList/");
+					} else if ($scope.isEmpPostponementDetails) {
+						$location.path("/empReqList/");
+						levReqList.backToRequestList($routeParams.employeeNo);
+					}
+					
+				};
+
+			} ]);
+	return app;
+});

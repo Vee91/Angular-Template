@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+	<security:http security="none" pattern="/javax.faces.resource/*"
+		use-expressions="true">
+
+	</security:http>
+	<security:http security="none" pattern="/**/images/*"
+		use-expressions="true">
+
+	</security:http>
+	<security:http security="none" pattern="/**/img/*"
+		use-expressions="true" />
+	<security:http security="none" pattern="/rfRes/*"
+		use-expressions="true">
+
+	</security:http>
+	<security:http security="none" pattern="/**/*.js*"
+		use-expressions="true">
+	</security:http>
+	<security:http security="none" pattern="/**/*.properties*"
+		use-expressions="true">
+
+	</security:http>
+	<security:http security="none" pattern="/**/**/*.otf*"
+		use-expressions="true">
+
+	</security:http>
+	<security:http security="none" pattern="/**/*.png*"
+		use-expressions="true">
+
+	</security:http>
+	<security:http security="none" pattern="/**/*.css*"
+		use-expressions="true">
+	</security:http>
+	<security:http security="none" pattern="/**/*.woff*"
+		use-expressions="true">
+	</security:http>
+	<security:http security="none" pattern="/**/*.svg*"
+		use-expressions="true">
+	</security:http>
+	<security:http security="none" pattern="/**/*.ttf*"
+		use-expressions="true">
+	</security:http>
+	<security:http security="none" pattern="/**/*.eot*"
+		use-expressions="true">
+	</security:http>
+	<security:http security="none" pattern="/**/*.ecss*"
+		use-expressions="true">
+	</security:http>
+
+
+	<security:http security="none" pattern="/pages/plagiarism/*.html"
+		use-expressions="true">
+	</security:http>
+
+
+	<security:http pattern="/**/login*" security="none"></security:http>
+	<security:http pattern="/**/index*" security="none"></security:http>
+
+	<security:http pattern="/**/header*" security="none"></security:http>
+
+	<security:http pattern="/**/xssValidate*" security="none"></security:http>
+	<security:http pattern="/**/BrowserDisplayCompatibility*"
+		security="none"></security:http>
+	<security:http pattern="/**/footer*" security="none"></security:http>
+	<security:http pattern="/**/error*" security="none"></security:http>
+	<security:http pattern="/**/ConfigError*" security="none"></security:http>
+	<security:http pattern="/rest/SMConfigError*" security="none"></security:http>
+	<security:http pattern="/**/SMconfigErrorPage*" security="none"></security:http>
+
+	<!-- FOR LOCAL, REMOVE FOR SITEMINDER -->
+	<security:http pattern="/rest/appAvail/**" security="none"></security:http>
+
+	<security:http entry-point-ref="preAuthenticatedProcessingFilterEntryPoint"
+		use-expressions="true" pattern="/**">
+		
+		
+<security:intercept-url pattern="/rest/welcome/*"  access="permitAll" />
+
+		<security:intercept-url pattern="/rest/ExportToExcel*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/updateSettings*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/mySettings*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/getValueFromProperties*"
+			access="permitAll" />
+
+		<security:intercept-url pattern="/rest/settings*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/mysettings*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/sampleHome.*"
+			access="permitAll" /><!-- <security:intercept-url pattern="/pages/testNewFramework*" 
+			access="permitAll" /> -->
+		<security:intercept-url pattern="/pages/login*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/todonew*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/todolist*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/tododetail*"
+			access="permitAll" />
+		<security:intercept-url pattern="/*/dologin*"
+			access="permitAll" />
+		<security:intercept-url pattern="/error*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/**errorPage*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/**/*menu*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/**/AppAvailibility.html"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/menus/"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/saveFav/"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/common/saveFav/"
+			access="permitAll" />
+		<security:intercept-url pattern="**/menu*"
+			access="permitAll" />
+		<security:intercept-url pattern="/**/logout/"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/todo*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/*remtodo*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/**/*error*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/403.*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/autoComplete*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/autoComplete*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/appAvail/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/admin/**"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/autoSuggest*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/autosuggest*"
+			access="permitAll" />
+		<security:intercept-url pattern="/pages/switchrole*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/switchrole*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/SmHome"
+			access="permitAll" />
+		<security:intercept-url pattern="/SmHome"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/common/**"
+			access="permitAll" />
+
+		<security:intercept-url pattern="/rest/teamCalendar/tx"
+			access="permitAll" />
+			
+		<security:intercept-url pattern="/rest/searchEmployeeCount"
+			access="permitAll" />
+			
+		<security:intercept-url pattern="rest/levSeekClarificationDetails/*"
+			access="permitAll" />
+			
+			
+		<security:intercept-url pattern="rest/teamleaves/*"
+			access="permitAll" />
+
+		<security:intercept-url pattern="/rest/fetchLeaveAllRequestDetails*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/fetchSingleRequestStatus*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/archiveUnRequest*"  access="permitAll" />
+		<security:intercept-url pattern="rest/teamCalendar/approvalChange*"  access="permitAll" />
+		<security:intercept-url pattern="rest/teamCalendar/updatePlanned*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/deleteLeaveOnBehalf*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/deleteLeaveOnBehalfList*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/deleteLeaveOnBehalf*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/cancelLeaveDetails*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/cancelLeave*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/deleteDraftRequest*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/amendLev*"  access="permitAll" />
+		<security:intercept-url pattern="/rest/ammendleave*"  access="permitAll" />
+		
+		
+		<security:intercept-url pattern="/rest/reloadCache*"
+			access="permitAll" />
+
+
+		<security:intercept-url pattern="/rest/claimsReqList/"
+			access="permitAll" />
+			
+		<security:intercept-url pattern="/pages/claims/claimsReqList*"
+			access="permitAll" />
+		<security:intercept-url pattern="/rest/ApplyClaim/"
+			access="permitAll" />
+
+		<security:intercept-url pattern="/pages/claims/ApplyClaim*"
+			access="permitAll" />
+
+
+	</security:http>
+
+
+
+
+
+
+	<!-- enable below for site Minder -->
+	<!-- <beans:bean id="custAuthFilter" class= "com.utxfrmwk.security.filter.IndexFilter"></beans:bean> -->
+
+<security:authentication-manager alias="authenticationManager">
+
+	</security:authentication-manager> 
+
+
+	<beans:bean id="preAuthenticatedProcessingFilterEntryPoint"
+		class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" />
+
+
+	<!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
+	<beans:bean id="authorizationLoggerListener"
+		class="org.springframework.security.access.event.LoggerListener" />
+
+	<beans:bean id="authenticationLoggerListener"
+		class="org.springframework.security.access.event.LoggerListener" />
+
+
+
+</beans:beans>

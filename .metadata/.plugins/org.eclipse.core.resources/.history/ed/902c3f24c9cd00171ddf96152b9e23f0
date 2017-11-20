@@ -1,0 +1,100 @@
+
+<div class="row-fluid">
+
+	
+	<div data-ng-show="deputationList.length>0 && showbalReportStatus">
+	
+		<!-- <b><div class="pull-left" style="">End of Deputation Adjustments</div> </b> -->
+				
+				<div style="padding-top: 30px;">
+						<div class="container-fluid"
+							style="overflow-x: auto; margin-left: 0px; margin-right: 0px;">
+							<table class="table "
+								style="text-align: left; border: rgb(190, 190, 190) 1px solid; padding-bottom: 14px;">
+								<tr
+									style="color: #ffffff; background-color: #4f81b1; font-size: 12px; font-weight: bold;">
+									<th class="col-md-6 col-xs-6" colspan="5"
+										style="border: 1px solid #608db8; text-align: center;">Host
+										Country Adjustment</th>
+									<th class="col-md-6 col-xs-6" colspan="5"
+										style="border: 1px solid #608db8; text-align: center;">Home
+										Country Adjustment</th>
+								</tr>
+								<tr
+									style="color: #ffffff; background-color: #4f81b1; font-size: 12px; font-weight: bold;">
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-bottom: none;text-align: left;">Host
+										Country</th>
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-bottom: none;text-align: center;">Leave
+										Type</th>
+									<th
+										style="width: 12.5%; border: 1px solid #608db8; border-bottom: none;text-align: center">Treatment
+										of Balance at the end of deputation</th>
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-bottom: none;text-align: center">Balance</th>
+									<th
+										style="width: 12.5%; border: 1px solid #608db8; border-bottom: none;text-align: center">Balance
+										to be added to home country</th>
+									<th
+										style="width: 12.5%; border: 1px solid #608db8; border-bottom: none;text-align: center">Home
+										Country</th>
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-bottom: none;text-align: center">Leave
+										Type</th>
+									<th style="width: 16.67%; border: 1px solid #608db8;text-align: center"
+										colspan="2">Adjustment of leave at the end of Deputation</th>
+									<th
+										style="width: 16.67%; border: 1px solid #608db8; border-bottom: none;text-align: center">Leaves
+										carried forward from Deputation</th>
+								</tr>
+				<tr
+									style="color: #ffffff; background-color: #4f81b1; font-size: 12px; font-weight: bold;">
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-top: none;"></th>
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-top: none;"></th>
+									<th
+										style="width: 12.5%; border: 1px solid #608db8; border-top: none;"></th>
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-top: none;"></th>
+									<th
+										style="width: 12.5%; border: 1px solid #608db8; border-top: none;"></th>
+									<th
+										style="width: 12.5%; border: 1px solid #608db8; border-top: none;"></th>
+									<th
+										style="width: 8.33%; border: 1px solid #608db8; border-top: none;"></th>
+									<th style="width: 8.33%; border: 1px solid #608db8;text-align: center">Reverted</th>
+									<th style="width: 8.33%; border: 1px solid #608db8;text-align: center">Credited</th>
+									<th
+										style="width: 16.67%; border: 1px solid #608db8; border-top: none;"></th>
+								</tr>
+				<tr data-ng-repeat="data in deputationList" style="font-size: 12px; color: #555555;text-align: center;">
+					<td >{{data.hostCountry}}</td>
+					<td >{{data.hostLeaveType}}</td>
+					<td >{{data.hostTreatment}}</td>
+					<td >{{data.hostBalance}}</td>
+					<td >{{data.addedHostBal}}</td>
+					<td >{{data.homeCountry}}</td>
+					<td >{{data.homeLeaveType}}</td>
+					<td >{{data.homeReverted}}</td>
+					<td >{{data.homeCredited}}</td>
+					<td >{{data.homeForwardLeave}}</td>
+				</tr>
+
+			
+
+			</table>
+		</div></div>
+		
+	</div>
+	
+		
+	<div class="container-fluid col-md-6 col-xs-12" style="text-align: left; margin-left: 0px; margin-right: 0px; padding-top: 30px; color: #454545; font-size: 18px;" data-ng-show="deputationList.length==0 && showbalReportStatus">
+		Deputation Adjustment Records does not exists.
+	</div>
+			
+	
+				
+</div>
+	

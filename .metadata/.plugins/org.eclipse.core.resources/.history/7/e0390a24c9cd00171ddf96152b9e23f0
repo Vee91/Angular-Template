@@ -1,0 +1,620 @@
+define(['angular','app','moment','jqueryui'], function(angular,app,moment,jqueryui) {
+	
+//Service 1 for darg drop and file operation ----------	
+app.service('dragDropServices',['$rootScope','$http', function($rootScope,$http){
+	
+	var prefixUpload= "/leaverest/rest/";
+	var uploadedFileNames=[];
+	var filesTransaction=[];
+	var fileSizeLimitTransaction=10;
+	var generateRequestId="";
+	var generateCount=0;
+	var UploadedfileList=[];
+	var isLevReqDetailsPage="";
+	var fileTransactionSize=0;
+	var uploadedMsg={
+			"0": " Not Uploaded",
+			"51":" Size exceeds",
+			"52":" has errors",
+			"53":" format not supported",
+			"48":" error while Uploading ",
+			"54":" Upload Failed"
+	};
+	var rowId="";
+	var reqIndex=0;
+	
+	
+	// Common functions
+	this.validateFiles=function(fileList,rowIndex){
+		rowId=rowIndex;
+		var exceedFlag=false;
+		angular.forEach(fileList,function(value){
+			if(fileValidation(value)&&(!checkExistingFile(uploadedFileNames,value.name,rowIndex))){
+				var file=value;
+				fileTransactionSize=fileTransactionSize+file.size;
+				if(fileTransactionSize/(1024*1024) <= fileSizeLimitTransaction){
+					
+					if(filesTransaction[rowIndex]==null){
+						filesTransaction[rowIndex]=[];
+					}
+					
+					angular.forEach(filesTransaction,function(value1,key){
+						if(key==rowIndex){
+							var oldFile=filesTransaction[key];
+							oldFile.push(file);
+							filesTransaction[rowIndex]=oldFile;
+						}
+					});
+					
+					if(uploadedFileNames[rowIndex]==null){
+						uploadedFileNames[rowIndex]=[];
+					}
+					
+					angular.forEach(uploadedFileNames,function(value1,key){
+						if(key==rowIndex){
+							var oldName=uploadedFileNames[key];
+							oldName.push({"name": value.name});
+							uploadedFileNames[rowIndex]=oldName;
+						}
+					});
+					
+					 generateUploadedView(filesTransaction,UploadedfileList,"downloadThisFile","removeThisFile","uploadedDocDiv",rowIndex);
+				}else{
+					fileTransactionSize=fileTransactionSize-file.size;
+					exceedFlag=true;
+				}
+			}
+		});
+		if(exceedFlag){
+			$('#errorMessageForFile').append("<span class='lev-field-error'>Document upload failed as file size exceeded 5 MB </span><br>");
+		}
+		
+	};
+	
+	function fileValidation(file){
+		var fileName=file.name;
+		var regexForExt = /(\.|\/)(pdf|png|jpg|jpeg|docx|doc|xls|xlsx|ppt|pptx|txt|ods|tiff|bmp)$/i;
+		var sizeLimitInBytes=5242880;
+		if (fileName == null)
+				return false;
+		if (!regexForExt.test(fileName)){
+			$('#errorMessageForFile').append("<span class='lev-field-error'>File <span style='font-style: italic;'>"+fileName+"</span> type not suported </span><br>");
+			return false;
+		}
+		if(file.size>sizeLimitInBytes){
+			$('#errorMessageForFile').append("<span class='lev-field-error'>File <span style='font-style: italic;'>"+fileName+"</span> size exceeds </span>");
+			return false;
+		}
+		return true;
+	};
+	
+	function checkExistingFile(fileArray,fileName,rowIndex){
+		var flag=false;
+		var files=fileArray[rowIndex];
+		if(files!=undefined){
+			for(var i=0;i<files.length;i++){
+				if(fileName==files[i].name){
+					$('#errorMessageForFile').append("<div><span class='lev-field-error'> File <span style='font-style: italic;'>"+fileName+"</span> exist </span></div>");
+					flag=true;
+					break;
+				}
+			}
+		}
+		return flag;
+	};
+	
+	
+	function generateUploadedView(fileList,checkList,download,remove,divName,index){
+		
+		var spanTextHTML = "";
+		
+		if(Object.keys(fileList).length !=0){
+			if(undefined!=fileList[index]){
+				if(fileList[index].length && generateCount==0){
+					var spanTextHTML1 = "";
+					spanTextHTML1 += "<div><div  class='doc-upload-header' style='padding-bottom:3px;border-bottom:1px solid #da532c;margin-bottom:8px;' translate>Documents Uploaded</div>";
+					$("#uploadedDivName").html(spanTextHTML1).css({
+						"font-size" : "12px",
+						"text-align" : "left",
+					});
+				};
+				
+				angular.forEach(fileList[index],function(value, key) {
+					spanTextHTML += "<div><div class='col-xs-8 col-sm-8 col-md-10 col-lg-10' >"
+					+value.name	
+					+"</div>"
+					+"<div class='col-xs-2 col-sm-2 col-md-1 col-lg-1' style='padding-top:2px;'><a>" +
+					"<span class='glyphicon glyphicon-download-alt' style='color:#2084c9;cursor:pointer;' onclick='"+download+"("
+					+ key + ")'></span></a></div>"
+					+"<div class='col-xs-2 col-sm-2 col-md-1 col-lg-1' style='padding-top:2px;'>" +
+							"<span class='glyphicon glyphicon-trash' style='color:#2084c9;cursor:pointer;' onclick='"+remove+"("
+					+ key + ")'></span></div></div>";
+				});
+				
+				$("#"+divName).html(spanTextHTML).css({
+					"font-size" : "12px",
+					"text-align" : "left"
+				});		
+
+				$("#"+divName+index).html(spanTextHTML).css({
+					"font-size" : "12px",
+					"text-align" : "left"
+				});		
+
+				if(fileList[index].length==0 && checkList.length==0){
+					$("#uploadedDivName").html("");
+				}
+				
+			
+			  }
+			}
+		
+	};
+	
+	this.removeThisFile=function(index){
+		$('#errorMessageForFile').html("");
+		var deleteFileName=filesTransaction[rowId][index].name;
+		fileTransactionSize=fileTransactionSize-filesTransaction[rowId][index].size;
+		filesTransaction[rowId].splice(index,1);
+		angular.forEach(uploadedFileNames[rowId],function(value, key) {
+			if(deleteFileName==value.name)
+				uploadedFileNames[rowId].splice(key,1);
+		});
+		generateUploadedView(filesTransaction,UploadedfileList,"downloadFile","removeThisFile","uploadedDocDiv",rowId);
+	};
+	
+	this.resetFiles=function(){
+		generateCount=0;
+		$("#uploadedDivName").html("");
+		$("#uploadedDocDiv").html("");
+		$('#errorMessageForFile').html("");
+		uploadedFileNames=[];
+		filesTransaction=[];
+		UploadedfileList=[];
+		fileTransactionSize=0;
+	};
+	
+	
+	this.downloadThisFile=function(id){
+		var formData = new FormData();
+		formData.append('file', filesTransaction[id]); 
+		sendFileToDownload(formData);	
+	};
+	
+	function sendFileToDownload(formData){
+	   $http({
+        method: 'POST',
+        url: '/leaverest/rest/downloadFile',
+        headers: {'Content-Type': undefined},
+        data: formData,
+        transformRequest: angular.identity
+	   }).success(function(data, status) {
+    	   if(null!=data && undefined!=data && ""!=data){
+    		  window.location = "/leaverest/rest/downloadDoc?fileName="+data.fileName+"" +
+   			"&contentType="+data.contentType;
+    	 }
+	   });
+	};
+	
+	//Apply Leave Page
+	
+	this.submitLeave=function($scope){
+		$('#errorMessageForFile').html("");
+		var fileSize=0;
+		var sendData = [];
+		var fd = new FormData();
+		for (var i = 0; i < filesTransaction.length; i++){
+			var obj=filesTransaction[i];
+
+			if(obj!=undefined){
+				for(var j=0;j<obj.length;j++){
+					fd.append('file'+i, obj[j]);	
+					fileSize=fileSize+obj[j].size;
+				}
+			}
+        }
+		
+		angular.forEach($scope.leave.leaveList1, function(value, key) 
+				{
+				sendData.push(value.newLeave);
+				});
+		
+		fd.append('FileData',JSON.stringify(sendData));
+    	applyLeave(fd,fileSize,$scope);	
+	};
+	
+	
+	this.onBehalfSubmitLeave=function($scope){
+		$('#errorMessageForFile').html("");
+		var fileSize=0;
+		var sendData = [];
+		var fd = new FormData();
+		for (var i = 0; i < filesTransaction.length; i++){
+			var obj=filesTransaction[i];
+			if(obj!=undefined){
+				for(var j=0;j<obj.length;j++){
+					fd.append('file'+i, obj[j]);	
+					fileSize=fileSize+obj[j].size;
+				}
+			}
+        }
+		angular.forEach($scope.leave.leaveList1, function(value, key) 
+				{
+				sendData.push(value.newLeave);
+				});
+		
+		fd.append('FileData',JSON.stringify(sendData));
+		fd.append('searchEmpId',$scope.searchEmpId);
+    	onBehalfApplyLeave(fd,fileSize,$scope);	
+	};
+	
+	function applyLeave(formData,fileSize,$scope){
+
+		var uploadURL=prefixUpload+"uploadLeaveFiles";
+		if(fileSize/(1024*1024) <= fileSizeLimitTransaction) {
+		var submitResp = $http({
+	        method: 'POST',
+	        url: uploadURL,
+	        headers: {'Content-Type': undefined},
+	        data: formData,
+	        transformRequest: angular.identity
+		   });
+		
+		submitResp.then(function(response)
+				{
+				  for (var i=0; i < response.data.length ; i++){
+						var code=response.data[i].code;
+						if("422"==code){
+						$scope.errorQuick="";	
+						$scope.disableSubmit=false;
+						$rootScope.processing=false;
+						if(null!=response.data[i].fieldErrors || undefined!=response.data[i].fieldErrors){
+							$scope.leave.leaveList1[response.data[i].uniqueId].serverErrMsg=response.data[i].fieldErrors[0].message;
+		                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+response.data[i].uniqueId));
+		                    errorField.addClass('dirty-field'); //commited for temporary reason
+							}
+	                 }else if("200"==code){
+	                	 $scope.disableSubmit=true;
+	                	 $rootScope.processing=false;
+							$scope.leave.leaveList1[i].errorMsg='';
+							$scope.leave.leaveList1[i].serverErrMsg='';
+						//	$scope.submitLeaveResponse = response.data[i].message;
+							if(undefined!=response.data[0].success.header)
+							$scope.outputMesgH=response.data[0].success.header;
+							if(undefined!=response.data[0].success.footer)
+								$scope.outputMesgF=response.data[0].success.footer;
+							if(undefined!=response.data[0].success.body){
+								var body=response.data[0].success.body;
+								var bodyLength=body.length;
+								if(bodyLength>0){
+								if(bodyLength>=1)
+									 $scope.outputMesg1=body[0];
+								if(bodyLength>=2)
+									 $scope.outputMesg2=body[1];
+								if(bodyLength>=3)
+									 $scope.outputMesg3=body[2];
+								if(bodyLength>=4)
+									 $scope.outputMesg4=body[3];
+								$("#archiveSuccessModal").modal('show');
+								}
+							}
+					};
+				  };
+				});
+		};
+	};
+	
+	function onBehalfApplyLeave(formData,fileSize,$scope){
+		var uploadURL=prefixUpload+"uploadLeaveFilesBehalf";
+		if(fileSize/(1024*1024) <= fileSizeLimitTransaction) {
+		var submitResp = $http({
+	        method: 'POST',
+	        url: uploadURL,
+	        headers: {'Content-Type': undefined},
+	        data: formData,
+	        transformRequest: angular.identity
+		   });
+		
+		submitResp.then(function(response)
+				{
+				  for (var i=0; i < response.data.length ; i++){
+						var code=response.data[i].code;
+						if("422"==code){
+						$scope.errorQuick="";	
+						$scope.disableSubmit=false;
+						$rootScope.processing=false;
+						if(null!=response.data[i].fieldErrors || undefined!=response.data[i].fieldErrors){
+							$scope.leave.leaveList1[response.data[i].uniqueId].serverErrMsg=response.data[i].fieldErrors[0].message;
+		                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+response.data[i].uniqueId));
+		                    errorField.addClass('dirty-field'); //commited for temporary reason
+							}
+	                 }else if("200"==code){
+	                	$scope.disableSubmit=true;
+	                	 $rootScope.processing=false;
+							$scope.leave.leaveList1[i].errorMsg='';
+							$scope.leave.leaveList1[i].serverErrMsg='';
+						//	$scope.submitLeaveResponse = response.data[i].message;
+							if(undefined!=response.data[0].success.header)
+							$scope.outputMesgH=response.data[0].success.header;
+							if(undefined!=response.data[0].success.footer)
+								$scope.outputMesgF=response.data[0].success.footer;
+							if(undefined!=response.data[0].success.body){
+								var body=response.data[0].success.body;
+								var bodyLength=body.length;
+								if(bodyLength>0){
+								if(bodyLength>=1)
+									 $scope.outputMesg1=body[0];
+								if(bodyLength>=2)
+									 $scope.outputMesg2=body[1];
+								if(bodyLength>=3)
+									 $scope.outputMesg3=body[2];
+								if(bodyLength>=4)
+									 $scope.outputMesg4=body[3];
+								$("#archiveSuccessModal").modal('show');
+								}
+							}
+					 };
+				  };
+				});
+		};
+	};
+	
+	this.clearUploadedView=function(){
+		$("#uploadedDivName").html("");
+		$("#uploadedDocDiv").html("");
+		
+	};
+	
+	this.generateThisRowView=function(rowIndex){
+		rowId=rowIndex;
+		 generateUploadedView(filesTransaction,UploadedfileList,"downloadThisFile","removeThisFile","uploadedDocDiv",rowIndex);
+	};
+	
+	this.deleteRowFile=function(rowIndex){
+		var self=this;
+		rowId=rowIndex;
+		angular.forEach(filesTransaction[rowIndex],function(value,key){		
+			var deleteFileName=value.name;
+			angular.forEach(uploadedFileNames,function(value1, key1) {
+				if(deleteFileName==value1.name)
+					uploadedFileNames.splice(key1,1);
+			});
+		});
+		filesTransaction.splice(rowIndex,1);
+		self.clearUploadedView();
+	};
+	
+	
+	//For leave request details page
+	
+	this.fetchUploadedDocCount=function(requestId){
+		var fetchUploadedDocCount=prefixUpload+"fetchUploadedDocCount";
+		$http.post(fetchUploadedDocCount,{
+			"requestId":requestId
+		}).success(function(data){
+			if(null!=data && undefined!=data && ""!=data){
+				var count=data.count;
+				return count;
+			}
+		});
+	};
+	
+	this.fetchAllLeaveDocs=function(requestId,isLevReqDetails){
+		isLevReqDetailsPage=isLevReqDetails;
+		UploadedfileList=[];
+		generateRequestId=requestId;
+		var fetchAllLeaveDocs="/leaverest/rest/fetchAllLeaveDocs";
+		$http.post(fetchAllLeaveDocs,{
+			"requestId":requestId
+		}).success(function(data){
+			if(null!=data && undefined!=data && ""!=data){
+				UploadedfileList.push(data.filesData);
+				uploadedFileNames[0]=[];
+				angular.forEach(UploadedfileList[reqIndex],function(value){
+					uploadedFileNames[0].push({"name": value.name});
+					fileTransactionSize=fileTransactionSize+value.fileSize;
+				});
+				if(isLevReqDetailsPage){
+					generateUploadedView(UploadedfileList,filesTransaction,"generateLeaveDoc","deleteUploadedFile","uploadedFileDiv",reqIndex);
+				}else{
+					generateView(uploadedFileNames,filesTransaction,"generateLeaveDoc","uploadedFileDiv");
+				}
+			}
+		});
+		
+	};
+	
+	
+	function generateView(fileList,checkList,download,divName){
+		var spanTextHTML = "";
+		
+		if(fileList.length!=0){
+			var spanTextHTML1 = "";
+			spanTextHTML1 += "<div><div  class='doc-upload-header' style='padding-bottom:8px;border-bottom:1px solid #da532c;margin-bottom:8px;' translate>Documents Uploaded</div>";
+			$("#uploadedDivName").html(spanTextHTML1).css({
+				"font-size" : "12px",
+				"text-align" : "left",
+			});
+		};
+		
+		angular.forEach(fileList,function(value, key) {
+			spanTextHTML += "<div><div class='col-xs-8 col-sm-8 col-md-10 col-lg-10' >"
+			+value.name	
+			+"</div>"
+			+"<div class='col-xs-2 col-sm-2 col-md-1 col-lg-1' style='padding-top:2px;'><a>" +
+			"<span class='glyphicon glyphicon-download-alt' style='color:#2084c9;cursor:pointer;' onclick='"+download+"("
+			+ key + ")'></span></a></div>";
+		});
+		$("#"+divName).html(spanTextHTML).css({
+			"font-size" : "12px",
+			"text-align" : "left",
+		});
+	};
+	
+
+	
+	this.cancelDragDrop=function(){
+		$("#uploadedDocDiv").html("");
+		$('#errorMessageForFile').html("");
+		angular.forEach(filesTransaction,function(value){
+			fileTransactionSize=fileTransactionSize-value.size;
+		});
+		uploadedFileNames=[];
+		filesTransaction=[];
+		UploadedfileList=[];
+	};
+	
+	
+	
+	this.deleteUploadedFile=function(index){
+		$('#errorMessageForFile').html("");
+		var data=UploadedfileList[reqIndex][index];	
+		var deleteUploadedFile=prefixUpload+"deleteUploadedFile";
+		$http.post(deleteUploadedFile,{
+			"requestId":generateRequestId,
+			"docId" : data.docId,
+			"fileName" :data.name
+		}).success(function(data){
+			$('#errorMessageForFile').html("");
+			if(null!=data && undefined!=data && ""!=data){
+				if(data.msgId==1){
+					$('#errorMessageForFile').append("<div><span style='color: green;' > File <span style='font-style: italic;'>"+data.fileName+"</span> deleted Successfully </span></div>");
+					var deleteFileName=UploadedfileList[reqIndex][index].name;
+					fileTransactionSize=fileTransactionSize-UploadedfileList[reqIndex][index].fileSize;
+					UploadedfileList[reqIndex].splice(index,1);
+					angular.forEach(uploadedFileNames[reqIndex],function(value, key) {
+						if(deleteFileName==value.name)
+							uploadedFileNames[reqIndex].splice(key,1);
+					});
+					generateUploadedView(UploadedfileList,filesTransaction,"generateLeaveDoc","deleteUploadedFile","uploadedFileDiv",reqIndex);
+				}else{
+    				$('#errorMessageForFile').append("<div><span class='lev-field-error' > File <span style='font-style: italic;'>"+data.fileName+"</span>error while deleting</span></div>");
+    			}
+			}
+		});
+	};
+	
+	this.generateLeaveDoc=function(index){
+		var data=UploadedfileList[reqIndex][index];
+		window.location = "/leaverest/rest/generateLeaveDoc?fileName="+data.name+"" +
+		"&requestId="+generateRequestId+"&docId="+data.docId;
+	};
+	
+
+		
+	this.uploadReqFiles=function(levRequestId,searchEmpId,onBehalfFlag,calledFrom,parentReqId){
+		$('#errorMessageForFile').html("");
+		var self=this;
+		var fileSize=0;
+		var fd = new FormData();
+		if(filesTransaction.length>0){
+			angular.forEach(filesTransaction[reqIndex],function(value,key){
+				fileSize=fileSize+value.size;
+				fd.append('file', value);
+			});			
+			fd.append('LevRequestId',levRequestId);
+	    	fd.append('searchEmpId',searchEmpId);
+	    	fd.append('onBehalfFlag',onBehalfFlag);
+	    	fd.append('calledFrom',calledFrom);
+	    	fd.append('parentReqId',parentReqId);
+	    	self.sendFileToServer(fd,fileSize,levRequestId);
+		}else{
+			$rootScope.uploadProcessing=false;
+		}
+	};
+	
+	this.sendFileToServer=function(formData,fileSize,levRequestId) {
+		var self=this;
+		if(fileSize/(1024*1024) <= fileSizeLimitTransaction) {
+			var uploadURL=prefixUpload+"uploadLevRequestDoc";
+			var extraData ={}; //Extra Data.
+		    var jqXHR=$.ajax({
+	            xhr: function() {
+		            var xhrobj = $.ajaxSettings.xhr();
+		            if (xhrobj.upload) {
+		            	xhrobj.upload.addEventListener('progress', function(event) {
+	                        var percent = 0;
+	                        var position = event.loaded || event.position;
+	                        var total = event.total;
+	                        if (event.lengthComputable) {
+	                            percent = Math.ceil(position / total * 100);
+	                        }
+	                        //Set progress                    
+	                    }, false);
+		            }
+	            return xhrobj;
+	            },
+		        url: uploadURL,
+		        type: "POST",
+		        contentType:false,
+		        processData: false,
+		        cache: false,
+		        data: formData,
+		        success: function(data){
+			    	if(null !=data || undefined != data || "" !=data){
+			    		$('#errorMessageForFile').html("");
+			    		var successData=data.FileList;
+			    		angular.forEach(successData,function(value,key){
+			    			if(value.msgId==1){	
+			    				$('#errorMessageForFile').append("<div><span style='color: green;' > File <span style='font-style: italic;'>"+value.name+"</span> Uploaded Successfully. </span></div>");
+			    				
+			    			}else{
+			    				$('#errorMessageForFile').append("<div><span class='lev-field-error' > File <span style='font-style: italic;'>"+value.name+"</span>"+uploadedMsg[value.msgId] +"</span></div>");
+			    			}
+			    		});
+			    		$rootScope.uploadProcessing=false;
+						filesTransaction.pop();
+						argDataJson={};
+						fileSizeLimitTransaction=10;
+						objHTML="";
+						$("#uploadedDocDiv").html("");
+						uploadedFileNames=[];
+						filesTransaction=[];
+						self.fetchAllLeaveDocs(levRequestId,isLevReqDetailsPage);
+					}
+		        },
+		        error : function(data){}  
+		    }); 
+		  }
+	};
+
+	
+	// For DF Screen
+	this.uploadDfFile = function($scope) {
+		var fileSize=0;
+		var fd = new FormData();
+		for (var i = 0; i < filesTransaction.length; i++){
+			fileSize=fileSize+filesTransaction[i].size;
+			fd.append("module",$scope.moduleSelected);
+        	fd.append('file', filesTransaction[i]);	
+        }
+		uploadDFile(fd, fileSize, $scope);
+	};
+	
+	function uploadDFile(formData,fileSize,$scope) {
+		if(fileSize/(1024*1024) <= fileSizeLimitTransaction) {
+			var uploadURL=prefixUpload+"batchExcelUpdate";
+			var submitResp = $http({
+		        method: 'POST',
+		        url: uploadURL,
+		        headers: {'Content-Type': undefined},
+		        data: formData,
+		        transformRequest: angular.identity
+			   });
+			submitResp.then(function(response) {
+				console.log("RESPONSE");
+				var data = response.data;
+				$scope.outputMesg = [];
+				if(angular.isDefined(data) && angular.isArray(data)) {
+					$scope.outputMesg = data;
+				}
+				$scope.fileProcessing=false;
+				$("#messageModal").modal('show');
+			});
+		}
+	}
+	
+}]);
+	
+
+});

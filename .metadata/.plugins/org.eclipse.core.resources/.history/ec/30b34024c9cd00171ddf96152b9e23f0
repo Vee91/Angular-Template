@@ -1,0 +1,316 @@
+
+
+<style>
+
+@border-colour:#CCC;
+@secondary-colour:#2875C7;
+@spacing:10px;
+@icon-width:40px;
+@header-height:40px;
+
+
+.vertical-centre (@height) {
+    height:@height;
+    line-height:@height !important;
+    display:inline-block;
+    vertical-align:middle;
+} 
+
+
+    div.header {
+        float:left;
+        width:100%;
+      /*   background:#2875C7; */
+        padding: 4px 50px;
+      /*   color:white; */
+        
+        >* { 
+            .vertical-centre(40px);
+        }
+    }
+    
+    div.header i{
+     		height: 40px;
+   			float:left;
+            width:40px;
+            font-size:1.125em;
+            font-weight:bold;
+            position:relative;
+            .border-box;
+            padding:0 10px;
+            cursor:pointer;
+    }
+    
+   div.header i.fa-angle-left{
+    text-align:left;
+   }
+   
+   
+   div.header i.fa-angle-right{
+   text-align:right;
+            margin-left:-40px;
+   }
+    
+   div.header span{
+    		float:left;
+            width:100%;
+            font-weight:bold;
+            text-transform:uppercase;
+            .border-box;
+            padding-left:40px+10px;
+            margin-left:40px*-1;
+            text-align:center;
+            padding-right:40px;
+            color:inherit;
+   }
+    
+    div.week {
+        float:left;
+        width:100%; 
+       /*  border-top:solid 1px red; */
+        
+        &:first-child {
+            border-top:none;
+        }
+        
+      
+        
+        &.names>span {
+            color:#2875C7;
+            font-weight:bold;
+        }
+    }
+    
+    
+    div.week span.day{
+    	    float:left; 
+            width:14.2857%;
+            min-height:28px;
+            .border-box;
+          /*   border-left:solid 1px blue; */
+            font-size:0.75em;
+            /* text-align:center;
+            .vertical-centre(30px); */
+            background:white;
+            cursor:pointer;
+            
+          padding: 1px 1px 1px 1px;
+            
+             &:first-child {
+                border-left:none;
+            }
+            
+            &.today {
+                background:#E3F2FF;
+            }
+            
+            &.different-month {
+                color:#C0C0C0;
+            }
+            
+            &.selected {
+                background:#2875C7;
+                color:white;
+            }
+    }
+    
+    span.day div{
+    color:white; 
+    background-color:#0080ff;
+    width: 99.5%;
+    height: 28px;
+  padding-left: 2px; 
+    vertical-align: top; 
+    text-align: left;
+    }
+    
+  span.kukie{
+    	    float:left; 
+            width:14.2857%;
+            min-height:42px;
+            .border-box;
+          /*   border-left:solid 1px blue; */
+            font-size:1em;
+            /* text-align:center;
+            .vertical-centre(30px); */
+           border-right: 1px solid white;
+             border-top: 1px solid white;
+            
+            cursor:pointer;
+            
+          padding: 15px 1px 1px 1px;
+            
+             &:first-child {
+                border-left:none;
+            }
+            
+            &.today {
+                background:#E3F2FF;
+            }
+            
+            &.different-month {
+                color:#C0C0C0;
+            }
+            
+            &.selected {
+                background:#2875C7;
+                color:white;
+            }
+    } 
+    
+span.kukie div{
+    color:black; 
+     /* background: -webkit-linear-gradient(#FFFFFF, #0080ff); /* For Safari 5.1 to 6.0 */
+       /* background: -o-linear-gradient(#FFFFFF, #0080ff); /* For Opera 11.1 to 12.0 */
+       /* background: -moz-linear-gradient(#FFFFFF, #0080ff); /* For Firefox 3.6 to 15 */
+       /* background: linear-gradient(#FFFFFF, #0080ff); /* Standard syntax (must be last) */ 
+    width: 99.5%;
+    height: 28px;
+  padding-left: 2px; 
+    vertical-align: top; 
+    text-align: left;
+    } 
+    
+    .hoverDiv{
+  z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+  color: #fff;
+  background-color: grey !important;
+  opacity: .7;
+}
+    
+    
+.hoverDivStart{
+   z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+  color: #fff;
+ background-color: grey !important;
+  opacity: .7;
+ /*  background: #800000 !important;
+   */
+}
+
+
+.hoverDivMid{
+   z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+  color: #fff;
+   background-color: grey !important;
+  opacity: .7;
+ /*  background: #800000 !important;
+   */
+}
+
+.hoverDivEnd{
+    z-index: 100;
+  /*  position: absolute;
+   height: 16px;
+  width: 43px; */
+  color: #fff;
+  background-color: grey !important;
+  opacity: .7;
+ /*  background: #800000 !important;
+   */
+
+}
+
+.hoverDivStart:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-top: 21px solid transparent;
+  border-bottom: 21px solid transparent;
+  border-left: 14px solid #cfcfcf;
+  
+  } 
+  span {
+  
+  position : relative;
+  }
+  
+  .hoverDivEnd:after {
+   content: "";
+  position: absolute;
+  top: 0;
+  left: 45px;
+  width: 0;
+  height: 0;
+  border-top: 21px solid transparent;
+  border-bottom: 21px solid transparent;
+  border-right: 14px solid #cfcfcf;
+}
+
+
+.day-leave{
+border-bottom: 2px solid red !important; 
+	/* background-color:red !important; */
+}
+
+.day-weekend{
+border-bottom: 2px solid black !important; 
+	/* background-color:rgb(34, 176, 187) !important; rgb(34, 176, 187)*/
+}
+
+.day-flexi{
+ border-bottom: 2px solid #66b266; 
+/*  text-decoration: underline;  */
+ /* background-color:green !important; */
+}
+
+.day-holiday{
+ border-bottom: 2px solid orange !important;
+	/* background-color:orange !important; */
+}
+
+
+.hide-date {
+ visibility: hidden;
+}
+
+</style>
+
+<div class="header">
+  <i class="fa fa-angle-left" ng-click="previous()" ng-show="previousYearPresent"><</i>
+    <span>{{month.format("MMMM, YYYY")}}</span>
+    <i class="fa fa-angle-right" ng-click="next()" ng-show="nextYearPresent">></i>
+</div>
+<!-- <div class="header">
+<select ng-model="calendarMonth" ng-change="changeMonth()"><option ng-repeat="month in selectMonths">{{month}}</option></select>
+<select ng-model="calendarYear" ng-change="changeMonth()"><option ng-repeat="year in selectYears">{{year}}</option></select>
+  
+</div> -->
+<div class="week names" >
+    <span class="day"><div >Sun</div></span>
+    <span class="day"><div >Mon</div></span>
+    <span class="day"><div ">Tue</div></span>
+    <span class="day"><div ">Wed</div></span>
+    <span class="day"><div ">Thu</div></span>
+    <span class="day"><div ">Fri</div></span>
+    <span class="day"><div ">Sat</div></span>
+</div>
+
+
+<div id="calenderdiv">
+<div  class="week" ng-repeat="week in weeks">
+    <span id="day{{day.date._d.getTime()}}" class="kukie" ng-mouseover="hoverDates($event,day);"  ng-click="selectStartOrEndDate(day,$event);" data-toggle="tooltip" title="{{day.holLevDescription}}" class="day" ng-class="{ today: day.isToday, 'hide-date': !day.isCurrentMonth, selected: day.date.isSame(selected) ,'day-leave':(day.holLevType=='L'),'day-weekend':(day.holLevType=='W'),'day-flexi':(day.holLevType=='F'),'day-holiday':(day.holLevType=='H')}"  ng-repeat="day in week.days">{{day.number}}</span>
+</div>
+</div>
+
+<script>
+
+$(document).ready(function(){
+	$('#calenderdiv').tooltip({
+		  selector: "span[data-toggle='tooltip']"
+	}); 
+});
+</script>
+

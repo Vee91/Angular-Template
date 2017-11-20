@@ -1,0 +1,690 @@
+define(
+		[ 'angular', 'app', 'moment', 'timeZone' ],
+		function(angular, app, moment) {
+
+			app
+					.service(
+							'levCommonServices',
+							function() {
+
+								this.distinctList = [];
+
+								this.getDayShortName = function(val) {
+									switch (val) {
+									case 1:
+										return "Mo";
+									case 2:
+										return "Tu";
+									case 3:
+										return "We";
+									case 4:
+										return "Th";
+									case 5:
+										return "Fr";
+									case 6:
+										return "Sa";
+									case 0:
+										return "Su";
+								   default:
+										 return "invalid day";
+									}
+								};
+
+								this.getMonthShortName = function(val) {
+									switch (val) {
+									case 0:
+										return "Jan";
+									case 1:
+										return "Feb";
+									case 2:
+										return "Mar";
+									case 3:
+										return "Apr";
+									case 4:
+										return "May";
+									case 5:
+										return "Jun";
+									case 6:
+										return "Jul";
+									case 7:
+										return "Aug";
+									case 8:
+										return "Sep";
+									case 9:
+										return "Oct";
+									case 10:
+										return "Nov";
+									case 11:
+										return "Dec";
+									default:
+										 return "invalid month";
+									}
+								};
+
+								this.getMonthFullName = function(val) {
+									switch (val) {
+									case 0:
+										return "January";
+									case 1:
+										return "February";
+									case 2:
+										return "March";
+									case 3:
+										return "April";
+									case 4:
+										return "May";
+									case 5:
+										return "June";
+									case 6:
+										return "July";
+									case 7:
+										return "August";
+									case 8:
+										return "September";
+									case 9:
+										return "October";
+									case 10:
+										return "November";
+									case 11:
+										return "December";
+									default:
+										 return "invalid month";
+									}
+								};
+
+								this.getMonthNumber = function(val) {
+									switch (val) {
+									case "Jan":
+										return "00";
+									case "Feb":
+										return "01";
+									case "Mar":
+										return "02";
+									case "Apr":
+										return "03";
+									case "May":
+										return "04";
+									case "Jun":
+										return "05";
+									case "Jul":
+										return "06";
+									case "Aug":
+										return "07";
+									case "Sep":
+										return "08";
+									case "Oct":
+										return "09";
+									case "Nov":
+										return "10";
+									case "Dec":
+										return "11";
+									default:
+										 return "invalid month";
+									}
+								};
+
+								
+								this.dateStandardFormat = function(dateString){
+									var splitString = dateString.split("-");
+									var dt = new Date(splitString[2], this.getMonthNumber(splitString[1]), splitString[0]);
+									return dt;
+								};
+								
+								this.addDays = function(date, days) {
+
+									date.setDate(date.getDate()
+											+ parseInt(days));
+
+									return date;
+								};
+
+								this.setStatusColor = function(colorName) {
+									var styleVar = null;
+									if (!angular.isUndefined(colorName)) {
+										if (colorName.toLowerCase() === 'Approved'
+												.toLowerCase() || colorName.toLowerCase() === 'System-Approved'
+													.toLowerCase() || 
+													colorName.toLowerCase() === 'LERF Approved'
+														.toLowerCase() || 
+														colorName.toLowerCase() === 'LERF Rejected'
+															.toLowerCase() || 
+															colorName.toLowerCase() === 'LERF Cancelled'
+																.toLowerCase()) {
+											styleVar = {
+												'color' : '#139e57'/* '#57B56E' */
+											};
+										} else if (colorName.toLowerCase() === 'Rejected'
+												.toLowerCase() || 
+												colorName.toLowerCase() === 'System-Rejected'
+													.toLowerCase()) {
+											styleVar = {
+												'color' : '#e2394c'/* '#F39BAA' */
+											};
+										} else if (colorName.toLowerCase() === 'Pending Approval'
+												.toLowerCase() || 
+												colorName.toLowerCase() === 'LERF Pending Approval'
+													.toLowerCase()) {
+											styleVar = {
+												'color' : '#ec9600'/* '#f9c874' */
+											};
+										} else if (colorName.toLowerCase() === 'Cancelled'
+												.toLowerCase()) {
+											styleVar = {
+												'color' : '#555555'/* '#6A6A6A' */
+											};
+										} /*else if (colorName.toLowerCase() === 'System-Approved'
+												.toLowerCase()) {
+											styleVar = {
+												'color' : '#139e57' '#57B56E' 
+											};
+										} else if (colorName.toLowerCase() === 'Draft'
+												.toLowerCase()) {
+											styleVar = {
+												'color' : ''
+											};
+										} else if (colorName.toLowerCase() === 'LERF Approved'
+												.toLowerCase()) {
+											styleVar = {
+												'color' : '#139e57' '#57B56E' 
+											};
+										}*/ else {
+											styleVar = {
+												'color' : 'black'
+											};
+										}
+									}
+									;
+									return styleVar;
+								};
+
+								this.setMasterStatusColor = function(
+										leaveStatus) {
+									var styleVar = null;
+									if (leaveStatus.toLowerCase() === 'COMPLETED'
+											.toLowerCase()) {
+										styleVar = {
+											'background-color' : '#606060',
+											'color' : '#fff',
+										};
+									} else if (leaveStatus.toLowerCase() === 'IN PROCESS'
+											.toLowerCase()) {
+										styleVar = {
+											'background-color' : '#0392b0',
+											'color' : '#fff',
+										};
+									} else {
+										styleVar = {
+											'color' : '#fff',
+										};
+									}
+									return styleVar;
+								};
+
+								this.handleMouseEventForBackColor = function(
+										div, action) {
+									if (action === 'enter') {
+										document.getElementById(div).style.backgroundColor = '#FBFBFB';
+									} else if (action === 'leave') {
+										document.getElementById(div).style.backgroundColor = '#FFF';
+									}
+								};
+
+								this.removeElement = function(arr, index) {
+									arr.splice(arr.indexOf(index), 1);
+								};
+
+								this.setDeafultColorWhenNull = function() {
+									var styleVar = null;
+									styleVar = {
+										'color' : '#fff'/* '#6A6A6A' */
+									};
+									return styleVar;
+								};
+								
+							})
+					.service(
+							'teamCalendar',
+							function(levCommonServices) {
+
+								this.dateArr = [];
+								this.legendTitle = null;
+								this.colCountArr = [];
+								this.totalNoOfLeaves = 0;
+
+								this.setPlanLeave = function(data){
+									if(data.event.toLowerCase() === 'p'){
+										return 'planLeaveImg handCursor';
+									}
+								};
+								
+								this.setBoxColor = function(data, colors) {
+									var styleVar = null;
+
+									for (color in colors) {
+										if (angular.equals(colors[color].id,
+												data.event)) {
+											styleVar = {
+												'background-color' : colors[color].color
+											};
+										}
+									}
+									return styleVar;
+								};
+
+								this.fetchTotalRowCal = function(
+										calendarDetailsArray) {
+									var calendarDetailsArrayCount = 0;
+									for (obj in calendarDetailsArray) {
+										if (angular
+												.isDefined(calendarDetailsArray[obj])
+												&& angular
+														.isObject(calendarDetailsArray[obj])) {
+
+											if (calendarDetailsArray[obj].event === 'AL'
+													|| calendarDetailsArray[obj].event === 'L2A'
+													|| calendarDetailsArray[obj].event === 'L'
+													|| calendarDetailsArray[obj].event === 'P'
+													)/*|| calendarDetailsArray[obj].event === 'F'*/ {
+												calendarDetailsArrayCount++;
+											}
+										}
+									}
+									return calendarDetailsArrayCount;
+								};
+
+								this.callTeamCalService = function(data) {
+									var range = 0;
+
+									for ( var i = 0; i < data[0].calendarDetails.length; i++) {
+										var obj = data[0].calendarDetails[i].dateTime;
+										this.dateArr[range] = moment.weekdaysMin(moment(obj).weekday())+ " "+moment(obj).date();
+										range++;
+									}
+
+									this.calculateRowAndTotal(data);
+
+									var lgStartDate = null, lgEndDate = null;
+									lgStartDate = new Date(
+										data[0].calendarDetails[0].dateTime);
+									lgEndDate = new Date(data[0].calendarDetails[data[0].calendarDetails.length - 1].dateTime);
+									this.legendTitle = 'Displaying Calendar from '
+											+ lgStartDate.getDate()
+											+ "-"
+											+ levCommonServices
+											.getMonthShortName(lgStartDate
+													.getMonth())
+											+ "-"
+											+ lgStartDate.getFullYear()
+											+ " to  "
+											+ lgEndDate.getDate()
+											+ "-"
+											+ levCommonServices
+											.getMonthShortName(lgEndDate
+													.getMonth())
+											+ "-"
+											+ lgEndDate.getFullYear();
+
+								};
+
+								this.calculateRowAndTotal = function(data) {
+									this.totalNoOfLeaves = 0;
+									for ( var col = 0; col < data[0].calendarDetails.length; col++) {
+										temp = 0;
+										for ( var row = 0; row < data.length; row++) {
+											var eventType = data[row].calendarDetails[col].event;
+											if (eventType === 'AL'
+													|| eventType === 'L2A'
+													|| eventType === 'L'
+													|| eventType === 'P')/*|| eventType === 'F'*/ {
+												++temp;
+											}
+										}
+										this.colCountArr[col] = temp;
+										this.totalNoOfLeaves = this.totalNoOfLeaves
+												+ temp;
+									}
+
+								};
+
+								this.addDays = function(date, days) {
+									return levCommonServices
+											.addDays(date, days);
+								};
+
+								this._removeTime = function(date) {
+									return date.day(0).hour(0).minute(0)
+											.second(0).millisecond(0);
+								};
+
+								this._removeTime1 = function(date) {
+									return date.hour(0).minute(0)
+											.second(0).millisecond(0);
+								};
+								
+								this.removeElement = function(arr, element) {
+									levCommonServices.removeElement(arr,
+											element);
+								};
+
+								this._buildMonth = function(start, month,
+										yearlist) {
+									this.weeks = [];
+									this.holidayList = [];
+
+									var done = false, date = start.clone(), monthIndex = date
+											.month(), count = 0;
+									while (!done) {
+										this.weeks.push({
+											days : this._buildWeek(
+													date.clone(), month,
+													yearlist)
+										});
+										date.add(1, "w");
+										done = count++ > 2
+												&& monthIndex !== date.month();
+										monthIndex = date.month();
+									}
+								};
+
+								// method to build weeks for calendar months
+								this._buildWeek = function(date, month,
+										yearlist) {
+									this.days = [];
+
+									for ( var i = 0; i < 7; i++) {
+
+										this.days
+												.push({
+													name : date.format("dd")
+															.substring(0, 1),
+													number : date.date(),
+													isCurrentMonth : date
+															.month() === month
+															.month(),
+													isToday : date.isSame(
+															moment(), "day"),
+
+													date : date,
+												});
+
+										for (index in yearlist) {
+											if ((yearlist[index].sd <= date
+													.toDate().getTime())
+													&& (yearlist[index].ed >= date
+															.toDate().getTime())) {
+
+												this.days[this.days.length - 1].desc = yearlist[index].desc;
+												this.days[this.days.length - 1].typ = yearlist[index].typ;
+												this.days[this.days.length - 1].status = yearlist[index].status;
+												this.holidayList
+														.push(yearlist[index]);
+												dayPushed = true;
+											}
+											if ((yearlist[index].sd <= date
+													.toDate().getTime())
+													&& (yearlist[index].sd >= date
+															.toDate().getTime())) {
+
+												this.days[this.days.length - 1].desc = yearlist[index].desc;
+												this.days[this.days.length - 1].typ = yearlist[index].typ;
+												this.days[this.days.length - 1].status = yearlist[index].status;
+												this.holidayList
+														.push(yearlist[index]);
+												dayPushed = true;
+											}
+										}
+										date = date.clone();
+										date.add(1, "d");
+									}
+									return this.days;
+
+								};
+								
+								this.convertMilliToISTMilli = function(time){
+									var momObj=moment.tz(time,"Asia/Kolkata").format("DD-MMM-YYYY");
+									return moment(momObj,"DD-MMM-YYYY")._d.getTime();
+								}; 
+								
+								this.convertMilliToLocalMilli = function(time){
+									var momObj=moment.tz(time, moment.tz.guess()).format("DD-MMM-YYYY");
+									return moment(momObj,"DD-MMM-YYYY")._d.getTime();
+								}; 
+
+							})
+
+					.service(
+							'levReqList',
+							[
+									'levCommonServices',
+									'$filter',
+									'$rootScope',
+									function(levCommonServices, $filter, $rootScope) {
+										this.subReqStatusList = null;
+										this.masterList = [];
+										this.detailsList = [];
+										this.distinctTypes = {};
+										this.leaveTypes = [];
+										this.subReqTypes = [];
+										this.workFlowList = [];
+										this.searchData = [];
+
+										this.getMasterList = function() {
+											return this.masterList;
+										};
+
+										this.getDetailsList = function() {
+											return this.detailsList;
+										};
+
+										this.getWorkFlowList = function() {
+											return this.workFlowList;
+										};
+
+										this.setReqListData = function(
+												masterList, detailsList,
+												workFlowList) {
+											this.masterList = masterList;
+											this.detailsList = detailsList;
+											this.workFlowList = workFlowList;
+										};
+
+										this.getSubReqStatus = function() {
+
+											this.subReqStatusList = [
+													{
+														subReqStatusId : '1',
+														subReqStatusName : 'System Rejected'
+													},
+													{
+														subReqStatusId : '2',
+														subReqStatusName : 'System Approved'
+													},
+													{
+														subReqStatusId : '3',
+														subReqStatusName : 'Approved'
+													},
+													{
+														subReqStatusId : '4',
+														subReqStatusName : 'Pending Approval'
+													},
+													{
+														subReqStatusId : '5',
+														subReqStatusName : 'Pending Processing'
+													},
+													{
+														subReqStatusId : '6',
+														subReqStatusName : 'Rejected'
+													},
+													{
+														subReqStatusId : '7',
+														subReqStatusName : 'Draft'
+													},
+													{
+														subReqStatusId : '8',
+														subReqStatusName : 'LERF Submitted'
+													},
+													{
+														subReqStatusId : '9',
+														subReqStatusName : 'LERF Pending Approval'
+													},
+													{
+														subReqStatusId : '10',
+														subReqStatusName : 'LERF Cancelled'
+													},
+													{
+														subReqStatusId : '11',
+														subReqStatusName : 'LERF Approved'
+													},
+													{
+														subReqStatusId : '12',
+														subReqStatusName : 'LERF Rejected'
+													},
+													{
+														subReqStatusId : '13',
+														subReqStatusName : 'Defaulted'
+													} ];
+
+											return this.subReqStatusList;
+										};
+
+										this.setStatusColor = function(status) {
+											if (status !== null
+													&& status !== undefined) {
+												return levCommonServices
+														.setStatusColor(status);
+											} else {
+												return levCommonServices.setDeafultColorWhenNull;
+											}
+										};
+
+										this.setMasterStatusColor = function(
+												status) {
+											if (status !== null
+													&& status !== undefined) {
+												return levCommonServices
+														.setMasterStatusColor(status);
+											} else {
+												return levCommonServices.setDeafultColorWhenNull;
+											}
+										};
+
+										this.getDistinctTypes = function(list) {
+											for (val in list) {
+												if (this.leaveTypes
+														.indexOf(list[val].leaveType) < 0) {
+													this.leaveTypes
+															.push(list[val].leaveType);
+												}
+												if (this.subReqTypes
+														.indexOf(list[val].status) < 0) {
+													this.subReqTypes
+															.push(list[val].status);
+												}
+											}
+
+											this.distinctTypes = {
+												leaveTypes : this.leaveTypes,
+												subReqTypes : this.subReqTypes
+											};
+
+											return this.distinctTypes;
+
+										};
+
+										this.getLeaveSubReqStatus = function(
+												list, param) {
+
+										};
+
+										this.sortList = function(list,
+												predicate, reverse) {
+											console
+													.log("reverse from service : "
+															+ reverse);
+											return $filter('orderBy')(list,
+													predicate, reverse);
+										};
+
+										this.handleMouseEventForBackColor = function(
+												div, action) {
+											levCommonServices
+													.handleMouseEventForBackColor(
+															div, action);
+										};
+										
+										this.backToRequestList = function(searchData){
+											$rootScope.backFromDetails = true;
+											this.searchData = searchData;
+										};
+										
+										this.setSubRequest=function(subRequest){
+											this.subRequest=subRequest;
+										};
+										
+									} ])
+
+					.service(
+							'levReqDetails',
+							[
+									'levCommonServices',
+									function(levCommonServices) {
+										this.setMasterStatusColor = function(
+												status) {
+											if (status !== null
+													&& status !== undefined) {
+												return levCommonServices
+														.setMasterStatusColor(status);
+											} else {
+												return levCommonServices.setDeafultColorWhenNull;
+											}
+										};
+
+										this.decideStatusSubReq = function(
+												status) {
+											var styleVar = null;
+											if (status === 'Approved') {
+												styleVar = 'glyphicon glyphicon-ok-sign';
+											} else if (status === 'Pending') {
+												styleVar = 'glyphicon glyphicon-time';
+											} else if (status === 'Rejected') {
+												styleVar = 'glyphicon glyphicon-remove-sign';
+											} else if (status === 'Seek Clarification') {
+												styleVar = 'glyphicon glyphicon-exclamation-sign';
+											}
+											return styleVar;
+										};
+
+										this.setStatusColor = function(status) {
+											if (status !== null
+													&& status !== undefined) {
+												return levCommonServices
+														.setStatusColor(status);
+											} else {
+												return levCommonServices.setDeafultColorWhenNull;
+											}
+										};
+
+									} ])
+
+					/*
+					 * .service('cloneJSON', function(jsonQObj, inputJSON) {
+					 * this.retClonedJSON = function() { return
+					 * jsonQObj.clone(inputJSON); }; })
+					 */
+					.service(
+							'reqListValidations',
+							function() {
+								this.dateSelect = function(startDate, endDate) {
+									return ((startDate !== undefined && startDate !== null) && (endDate == undefined || endDate == null))
+											|| ((endDate !== undefined && endDate !== null) && (startDate == undefined || startDate == null)) ? true
+											: false;
+								};
+
+								this.checkDateRange = function(startDate,
+										endDate) {
+									return new Date(startDate).getTime() > new Date(
+											endDate).getTime() ? true : false;
+								};
+							});
+			return app;
+		});

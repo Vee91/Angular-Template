@@ -1,0 +1,94 @@
+
+define(['angular','app','jqueryui','dragDropServices'], function(angular,app,jqueryui) {
+	var fileSizeLimitTransaction=5;
+	var fileList = "";
+	var objHTML="";
+	var rowIndex="";
+	app.controller('dragDropController',['$scope','$rootScope','$location','$filter','$http','dragDropServices','commonAppLevService',
+    function($scope, $rootScope,$location, $filter, $http, dragDropService,commonAppLevService) {
+		
+		
+		$(document).ready(function(){
+			 objHTML = $("#dragandrophandler");
+			 objHTML.on('dragenter', function (e) 
+			{
+			    e.stopPropagation();
+			    e.preventDefault();
+			    $(this).css('border', '2px dashed #1479bf');
+			    $(this).css('background-color', '#ededed');
+			});
+			 objHTML.on('dragover', function (e) 
+			{
+			     e.stopPropagation();
+			     e.preventDefault();
+			});
+			 objHTML.on('drop', function (e) 
+			{		
+				 if($scope.isLevReqDetails){
+					 rowIndex=0;
+				 }else if($scope.isApproverPage){
+					 rowIndex=0;
+				 }else{
+					 rowIndex=commonAppLevService.rowIndex;
+				 }
+			     $(this).css('border', '1px dashed #da532c');
+			     $(this).css('background-color', '');
+			     e.preventDefault();
+			     fileList = e.originalEvent.dataTransfer.files;
+			     $('#errorMessageForFile').html("");
+			     if(fileList.length>fileSizeLimitTransaction)
+			    	 $('#errorMessageForFile').text("You can upload 5 documents at time.");
+			     else
+			    	 dragDropService.validateFiles(fileList,rowIndex);
+			 	 $rootScope.uploadInProgress=true;
+			});
+			 objHTML.on('dragleave', function (e) 
+						{
+						    e.stopPropagation();
+						    e.preventDefault();
+						    $(this).css('border', '1px dashed #da532c');
+						    $(this).css('background-color', '');
+						}); 
+			 
+			$('#singleFile').on('change',function(event){
+				 $('#errorMessageForFile').html("");
+				 var fileList=[];
+				 fileList.push(document.getElementById("singleFile").files[0]);
+				 if($scope.isLevReqDetails){
+					 rowIndex=0;
+				 }else if($scope.isApproverPage){
+					 rowIndex=0;
+				 }else{
+					 rowIndex=commonAppLevService.rowIndex;
+				 }
+				 dragDropService.validateFiles(fileList,rowIndex);
+			});
+			
+			if(undefined==$scope.isLevReqDetails){
+				var currentRow=commonAppLevService.rowIndex;
+				dragDropService.generateThisRowView(currentRow);
+			}
+			
+			 
+		});
+		
+		removeThisFile=function(id){
+			dragDropService.removeThisFile(id);
+		};
+		
+		generateLeaveDoc=function(index){
+			dragDropService.generateLeaveDoc(index);
+		};
+	
+		downloadThisFile=function(id){
+			dragDropService.downloadThisFile(id);
+		};
+ 
+		deleteUploadedFile=function(index){
+			dragDropService.deleteUploadedFile(index);
+		};
+		
+	}]);
+	return app;
+});
+				

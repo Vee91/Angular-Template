@@ -1,0 +1,62 @@
+package com.plagiarism.controller;
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+import com.ultimatix.gess.leave.dto.ApplyLevOnBehalfDTO;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.AmendOnBehalfService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.DateUtils;
+import com.ultimatix.gess.leave.util.LeaveConstants;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class AmendOnBehalfController {
+	
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(AmendOnBehalfController.class);
+	
+	@Autowired
+	private AmendOnBehalfService amendService;
+	
+	@RequestMapping(value = "/getAmendLeaveList", method = RequestMethod.POST, produces = "application/json" )
+	@ResponseBody
+	public String getAmendLeaveList(@RequestBody String employeeNo){
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("AmendOnBehalfController | getAmendLeaveList  | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		Gson gson = new Gson();
+		return gson.toJson(amendService.getAmendmentLeaveList(employeeNo));		
+	}
+	
+	@RequestMapping(value = "/submitAmend", method = RequestMethod.POST, produces = "application/json" )
+	@ResponseBody
+	public List<ResponseResource> submitAmend(@RequestBody String applyJson) throws ParseException{	
+		String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("AmendOnBehalfController | submitAmend  | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		Gson gson = new Gson();
+		ApplyLevOnBehalfDTO applyLeaveDTO = gson.fromJson(applyJson, ApplyLevOnBehalfDTO.class);
+		if(applyLeaveDTO.getEndDate()!=null ){
+			Date date=	DateUtils.getDateFromString(applyLeaveDTO.getEndDate(),LeaveConstants.DATE_FORMAT_MMM);
+			String amendDate=	DateUtils.getNextDay(date,LeaveConstants.DATE_FORMAT_MMM);
+			applyLeaveDTO.setAmendEndDate(amendDate);
+			applyLeaveDTO.setEndDate(applyLeaveDTO.getEndDate());
+			applyLeaveDTO.setAmendNosDay(applyLeaveDTO.getNoOfDays());
+			applyLeaveDTO.setAmendDate(date);
+			}
+		return amendService.amendLeave(applyLeaveDTO,empId);		
+	}
+	
+	
+}

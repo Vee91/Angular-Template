@@ -1,0 +1,291 @@
+//menu in customize page
+
+//storing all menu-ids under my-request-list module
+var myRequestListMenus=[];
+
+function buildCustomiseMenu(data, appAvail,customizableMenuList) {
+	var count=1;
+	$("#customisePage").html("");
+	var menuList = data;
+
+	var gParent = "";
+
+	var firstLabelId = 0;
+	
+	var firstLevelMenusCount=[];
+	
+	var rowCount=0;
+	var colCount=0;
+	
+	var colArray = [0,0,0];
+
+	//code to biuld menu
+	var customizeMenuCssFunc =function(favImageClass){
+		var item = menuList[i];
+		var title = item["localeTitle"];
+		var menuId = parseInt(item["menuId"]);
+		var type = item["type"];
+		var level = item["level"];
+
+
+
+		if (type != 'P') {
+			if (level == 1) {
+				firstLevelMenusCount.push(menuId);
+				
+				$("#customisePage").append("<div class='row' id='row"+rowCount+"'><div class='col-xs-12 col-md-12'></div></div><div class='row header-divider' id='divider"+rowCount+"'></div>");
+				
+				$("#customisePage #row"+rowCount + ">div").append("<div class='row'>"
+						+ "<div class='col-xs-12 col-md-12' "
+						+ ">"
+						+ "<div class='firstLevel'><span id='img"+menuId+"' class='"+getImageFromTitle(title)+"_sitemap'></span>"
+						+ "<span style='padding-left:42px;'>"+title+"</span>"
+						+ "</div>"
+						+ "</div></div>"
+						+ "<div style='padding-top: 4px;' class='row' id='"+menuId+"'>"
+						+ "<div class='col-xs-4 col-md-4'>"
+						+ "<ul class='secondLevel' style='color: #1479bf;' id='customSecondMenu"+menuId+"0'></ul></div>"
+						+ "<div class='col-xs-4 col-md-4'>"
+						+ "<ul class='secondLevel' style='color: #1479bf;' id='customSecondMenu"+menuId+"1'></ul></div>"
+						+ "<div class='col-xs-4 col-md-4'>"
+						+ "<ul class='secondLevel' style='color: #1479bf;' id='customSecondMenu"+menuId+"2'></ul></div>"
+						+ "</div>");
+
+				firstLabelId = menuId;	
+				rowCount++;
+				colCount = 0;
+				colArray = [0,0,0];
+				
+			} else if (level == 2) {
+				//to get sub-menus under my-request-list module
+				if(firstLabelId==6000)
+					myRequestListMenus.push(menuId);
+
+
+				gParent = menuId;
+				
+				if(colCount > 2)
+				{
+					$("#customisePage #customSecondMenu" + firstLabelId + "2")
+					.append(
+							"<li><span>"+title +'</span><div id="img'+menuId+'" style="cursor:pointer;" ng-click="addRemoveFavMenu(\''+item.menuId+'\')" class="'+favImageClass+'"></div>'+
+							'<ul class="thirdLevel" id="customThirdMenu'+menuId+'"></ul></li>');
+					
+					colArray[2]++;
+					if(colArray[2]>colArray[1])
+					{
+						$("#customisePage #customSecondMenu" + firstLabelId + "2 li").first().detach().appendTo("#customisePage #customSecondMenu" + firstLabelId + "1");
+						colArray[2]--;
+						colArray[1]++;
+					}
+					if(colArray[1]>colArray[0])
+					{
+						$("#customisePage #customSecondMenu" + firstLabelId + "1 li").first().detach().appendTo("#customisePage #customSecondMenu" + firstLabelId + "0");
+						colArray[1]--;
+						colArray[0]++;
+					}
+				}
+				else
+				{
+					$("#customisePage #customSecondMenu" + firstLabelId + colCount)
+					.append(
+							"<li><span>"+title +'</span><div id="img'+menuId+'" style="cursor:pointer;" ng-click="addRemoveFavMenu(\''+item.menuId+'\')" class="'+favImageClass+'"></div>'+
+							'<ul class="thirdLevel" id="customThirdMenu'+menuId+'"></ul></li>');
+					
+					colArray[colCount]++;
+					colCount++;
+				}
+			}
+
+			else if (level == 3) {
+				
+				if(firstLabelId==6000)
+					myRequestListMenus.push(menuId);
+
+				$('#img'+gParent).css({'background-image':"none"}).removeAttr('ng-click').css({"cursor":"default","background":"none","filter":"none"});
+
+				$("#customisePage #customThirdMenu" + gParent)
+				.append(
+						"<li><span>"+title +'</span><div id="img'+menuId+'" style="cursor:pointer;" ng-click="addRemoveFavMenu(\''+item.menuId+'\')" class="'+favImageClass+'"></div>'+
+						'</li>');
+			}
+		}
+
+	};
+
+	//looping for all gess menus
+	for ( var i = 0; i < menuList.length; i++) {
+
+		favImageClass="";
+		if(count<=9){
+			//looping for 9 customizable menus
+		for(var z=0;z<customizableMenuList.length;z++){
+
+				if(parseInt(customizableMenuList[z])==parseInt(menuList[i].menuId)){
+					{
+						favImageClass="fav";
+						count++;
+						break;
+					}
+				}
+			}
+		}
+		customizeMenuCssFunc(favImageClass);
+	}
+	
+	//to hide 1-level menus with no sub-links
+	for(var j=0;j<firstLevelMenusCount.length;j++){
+		if(0==$("#" + firstLevelMenusCount[j]).text().trim().length){
+			$("#row" + j).hide();
+			$("#divider" + j).hide();
+		}
+	}
+} 
+
+
+function buildSiteMap(data) {
+	$("#siteMapPage").html("");
+	var menuList = data;
+
+	var gParent = "";
+
+	var firstLabelId = 0;
+	
+	var firstLevelMenusCount=[];
+	
+	var rowCount=0;
+	var colCount=0;
+	
+	var colArray = [0,0,0];
+
+	//code to build menu
+	for ( var i = 0; i < menuList.length; i++) {		
+		var item = menuList[i];
+		var title = item["localeTitle"];
+		var menuId = parseInt(item["menuId"]);
+		var type = item["type"];
+		var level = item["level"];
+		var actionName = item["action"];
+
+		//to remove pointer cursor for menus having null as url
+		if(isNull(actionName)){
+			actionName="";
+			anchorTagStyle="default";
+		}
+		else{
+			anchorTagStyle="pointer";
+		}
+		
+		
+		if (type != 'P') {
+			if (level == 1) {
+				firstLevelMenusCount.push(menuId);
+				
+				$("#siteMapPage").append("<div class='row' id='row"+rowCount+"'><div class='col-xs-12 col-md-12'></div></div><div class='row header-divider' id='divider"+rowCount+"'></div>");
+
+				$("#siteMapPage #row"+rowCount + ">div").append("<div class='row'>"
+						+ "<div class='col-xs-12 col-md-12' "
+						+ ">"
+						+ "<div class='firstLevel'><span id='img"+menuId+"' class='"+getImageFromTitle(title)+"_sitemap'></span>"
+						+ "<span style='padding-left:42px;'>"+title+"</span>"
+						+ "</div>"
+						+ "</div></div>"
+						+ "<div style='padding-top:2px;' class='row' id='"+menuId+"'>"
+						+ "<div class='col-xs-4 col-md-4'>"
+						+ "<ul class='secondLevel' style='color: #1479bf;' id='siteMapSecondMenu"+menuId+"0'></ul></div>"
+						+ "<div class='col-xs-4 col-md-4'>"
+						+ "<ul class='secondLevel' style='color: #1479bf;' id='siteMapSecondMenu"+menuId+"1'></ul></div>"
+						+ "<div class='col-xs-4 col-md-4'>"
+						+ "<ul class='secondLevel' style='color: #1479bf;' id='siteMapSecondMenu"+menuId+"2'></ul></div>"
+						+ "</div>");
+
+				firstLabelId = menuId;	
+				rowCount++;
+				colCount = 0;
+				colArray = [0,0,0];
+
+			} else if (level == 2) {
+				gParent = menuId;
+				
+				if(colCount > 2)
+				{
+					$("#siteMapPage #siteMapSecondMenu" + firstLabelId + "2")
+					.append(
+							"<li>"+
+							"<a id='a"
+								+ menuId
+								+ "' style='cursor:"+anchorTagStyle+"'"
+								+ "href="
+								+ actionName
+								+ " >"+title+"</a>"+
+							'<ul class="thirdLevel" id="siteMapThirdMenu'+menuId+'"></ul></li>');
+					
+					colArray[2]++;
+					if(colArray[2]>colArray[1])
+					{
+						$("#siteMapPage #siteMapSecondMenu" + firstLabelId + "2 li").first().detach().appendTo("#siteMapPage #siteMapSecondMenu" + firstLabelId + "1");
+						colArray[2]--;
+						colArray[1]++;
+					}
+					if(colArray[1]>colArray[0])
+					{
+						$("#siteMapPage #siteMapSecondMenu" + firstLabelId + "1 li").first().detach().appendTo("#siteMapPage #siteMapSecondMenu" + firstLabelId + "0");
+						colArray[1]--;
+						colArray[0]++;
+					}
+				}
+				else
+				{
+					$("#siteMapPage #siteMapSecondMenu" + firstLabelId + colCount)
+						.append(
+								"<li>"+
+							"<a id='a"
+								+ menuId
+								+ "' style='cursor:"+anchorTagStyle+"'"
+								+ "href="
+								+ actionName
+								+ " >"+title+"</a>"+
+								'<ul class="thirdLevel" id="siteMapThirdMenu'+menuId+'"></ul></li>');
+					colArray[colCount]++;
+					colCount++;
+				}
+				
+			}
+			else if (level == 3) {
+				
+			//if 2nd-level menu has childs,then remove href,hover
+			if($($($("#siteMapThirdMenu" + gParent).parent()).find('a')[0]).attr('href')==""){
+				$($($("#siteMapThirdMenu" + gParent).parent()).find('a')[0]).removeAttr('href');
+				
+				$($($("#siteMapThirdMenu" + gParent).parent()).find('a')[0]).addClass('sitemap-no-hover');
+				
+			}
+				
+				$("#siteMapPage #siteMapThirdMenu"+gParent).parent().css({"color":"#000000"});
+
+				$('#img'+gParent).css({'content':"none"}).removeAttr('ng-click').css;({"cursor":"default"});
+				$('#tooltip'+gParent).remove();
+
+				$("#siteMapPage #siteMapThirdMenu" + gParent)
+				.append(
+						"<li style='color: #1479bf;'>"+
+						"<a id='a"
+						+ menuId
+						+ "' style='cursor:"+anchorTagStyle+"'"
+						+ "href="
+						+ actionName
+						+ " >"+title+"</a>"+
+						'</li>');
+			}
+			
+		}
+	}
+	
+	//to hide 1-level menus with no sub-links
+	for(var j=0;j<firstLevelMenusCount.length;j++){
+		if(0==$("#" + firstLevelMenusCount[j]).text().trim().length){
+			$("#row" + j).hide();
+			$("#divider" + j).hide();
+		}
+	}
+}

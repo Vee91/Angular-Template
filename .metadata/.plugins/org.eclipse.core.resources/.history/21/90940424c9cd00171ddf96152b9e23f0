@@ -1,0 +1,642 @@
+
+define(['angular','app','jqueryui'], function(angular,app,jqueryui) {
+
+app.controller('balReportHomeController',['$scope','$rootScope','$location','$filter','$http','$compile','$location', 
+	                                          
+function($scope, $rootScope,$location, $filter, $http, $compile,$location) {
+		
+	$rootScope.showTabFlag=false;
+	$rootScope.showbalReportStatus=false;
+	var prefix = "/leaverest/rest/";
+	$scope.urlSrc ="";
+	$scope.showLop=false;
+	var date = new Date();
+	$scope.currentDate=date;
+	$scope.homeGBFlag=false;
+	$scope.hostGBFlag=false;
+	
+	var fetchLeaveEncashMsg= prefix+"fetchLeaveEncashMsg";
+	$http.post(fetchLeaveEncashMsg).success(function(data){
+		if(null !=data && undefined !=data && ""!=data){
+			$scope.encashedMessage=data.msg;
+		}
+	});
+	
+	var path = $location.path();
+	if (path === '/balReportHome') {
+		$rootScope.superUserFlag="N";
+		var checkBalTabAccess= prefix+"checkBalTabAccess";
+		$http.post(checkBalTabAccess,{
+			"superUserFlag" :$rootScope.superUserFlag,
+			"empId" :$scope.searchData
+		}).success(function(data){
+			if(null!=data && undefined!=data  && ""!=data ){
+				$rootScope.showTabFlag=true;
+				$scope.balReportFlag=data.balanceFlag;
+				$scope.lopFlag =data.lopFlag;
+				$scope.stmtFlag=data.stmtFlag;
+				$scope.sickEligibilityFlag=data.sickEligibilityFlag;
+				$scope.deputationFlag=data.deputationFlag;
+				$scope.tabClicked=1;
+				$scope.urlSrc ="pages/leave/balance_leaveReportTab.html";
+				$scope.getLeaveBalReport();
+			}
+		});
+	}else if (path === '/onBehalfBalReport'){
+		$rootScope.showbalReportStatus=true;
+		$rootScope.superUserFlag="Y";
+
+		var checkBalSuperAccess= prefix+"checkBalSuperAccess";
+		$http.post(checkBalSuperAccess).success(function(data){
+			if(null!=data && undefined!=data  && ""!=data ){
+				if(data.accessFlag=="N"){
+					$location.path('/leaveAccessProblem'); 
+				}else if(data.accessFlag=="Y"){
+					$scope.accessFlag=data.accessFlag;
+				}
+			}
+		});
+
+	}
+	
+	$scope.checkBalTabAccess = function() {
+		var checkBalTabAccess= prefix+"checkBalTabAccess";
+		$http.post(checkBalTabAccess,{
+			"superUserFlag" :$rootScope.superUserFlag,
+			"empId" : $scope.searchData
+		}).success(function(data){
+			if(null!=data && undefined!=data  && ""!=data ){
+				$rootScope.showTabFlag=true;
+				$scope.balReportFlag=data.balanceFlag;
+				$scope.lopFlag =data.lopFlag;
+				$scope.stmtFlag=data.stmtFlag;
+				$scope.sickEligibilityFlag=data.sickEligibilityFlag;
+				$scope.deputationFlag=data.deputationFlag;
+				$scope.tabClicked=1;
+				$scope.urlSrc ="pages/leave/balance_leaveReportTab.html";
+				$scope.getLeaveBalReport();
+		}
+		});
+	};
+	
+	$scope.checkSuperUserAccess = function() {
+		var checkBalSuperAccess= prefix+"checkBalSuperAccess";
+		$http.post(checkBalSuperAccess).success(function(data){
+			if(null!=data && undefined!=data  && ""!=data ){
+				$rootScope.showTabFlag=true;
+				$scope.balReportFlag=data.balanceFlag;
+				$scope.lopFlag =data.lopFlag;
+				$scope.stmtFlag=data.stmtFlag;
+				$scope.sickEligibilityFlag=data.sickEligibilityFlag;
+				$scope.deputationFlag=data.deputationFlag;
+				$scope.tabClicked=1;
+				$scope.urlSrc ="pages/leave/balance_leaveReportTab.html";
+				$scope.getLeaveBalReport();
+		}
+		});
+	};
+	
+	$scope.getLeaveBalReport=function(){
+		$rootScope.showbalReportStatus=false;
+		
+		var fetchLeaveBalReport= prefix+"fetchLeaveBalReport";
+		$http.post(fetchLeaveBalReport,{
+			"superUserFlag" :$rootScope.superUserFlag,
+			"empId" :$rootScope.searchData
+		}).success(function(data){
+			if(data!==null || data!==undefined || data==""){
+				if($scope.tabClicked==1){
+					$scope.date = new Date();
+					$rootScope.hostCountry=data.hostCountry;
+					$rootScope.homeCountry=data.homeCountry;
+					$rootScope.homeCountryCode=data.homeCountryCode;
+					$rootScope.hostCountryCode=data.hostCountryCode;
+					$rootScope.homeLeaveDetails=data.EmployeeHomeBalanceDetails;		
+					$rootScope.hostLeaveDetails=data.EmployeeHostBalanceDetails;		
+					/*if($rootScope.homeCountryCode=="GB" ||$rootScope.homeCountryCode=="IE"){
+						$scope.homeGBFlag=true;
+						$scope.homeLeaveType=getDistinctLeaveTypes($rootScope.homeLeaveDetails);
+					}	
+					if($rootScope.hostCountryCode=="GB" ||$rootScope.hostCountryCode=="IE"){
+						$scope.hostGBFlag=true;
+						$scope.hostLeaveType=getDistinctLeaveTypes($rootScope.hostLeaveDetails);
+					}*/
+					$('#homeFlagDiv').attr('src', 'appResources/img/flags/'+data.homeCountryCode+'.jpg');
+					$('#hostFlagDiv').attr('src', 'appResources/img/flags/'+data.hostCountryCode+'.jpg');
+					$scope.empSearchData=data;
+					$rootScope.showbalReportStatus=true;
+					$scope.disableSearchButton = "False";
+					$scope.empSearchDataStatus = 'Complete';
+					$rootScope.showEmployeeSearch=false	;
+					
+					
+				}else{
+					$scope.tabClick($scope.tabClicked);
+				}
+				
+			}
+		});
+	};
+	
+	function getDistinctLeaveTypes(list) {
+		this.leaveTypes = [];
+		for (val in list) {
+			if (this.leaveTypes
+					.indexOf(list[val].countryLevTypeName) < 0) {
+				this.leaveTypes
+						.push(list[val].countryLevTypeName);
+			}
+		}
+		this.leaveData=[];
+		this.balObj={};
+		for(val in this.leaveTypes){
+			this.dataObj=[];
+			for(obj in list){
+				if(this.leaveTypes[val]==list[obj].countryLevTypeName){
+					this.dataObj.push(list[obj]);
+				}
+			}
+			this.balObj={
+				"leaveType" :	this.leaveTypes[val],
+				"leaveObj" : 	this.dataObj
+			};
+			this.leaveData.push(this.balObj);
+			
+		}
+		return this.leaveData;
+	};
+	
+		
+	$scope.balReportBack=function(){
+		$rootScope.showEmployeeSearch=true;
+		$rootScope.IncludePage="";
+		$scope.urlSrc ="";
+	};
+	
+	$scope.resetTabActiveClass=function(){
+		$('#lopTab').removeClass('active');
+		$('#sickEligibilityTab').removeClass('active');
+		$('#leaveStatementTab').removeClass('active');
+		$('#deputationTab').removeClass('active');
+		$('#balanceReportTab').addClass('active');
+		
+	};
+	
+	function validateSearchText(value){
+		var regexForOnlyNumbers = /^[0-9\b]+$/; 
+		if(value==null){
+			$('#balReportErrorDiv').append("<div><span class='lev-field-error'> Please enter Employee number</span></div>");
+			return false;
+		}
+		if (!regexForOnlyNumbers.test(value)){
+			$('#balReportErrorDiv').append("<div><span class='lev-field-error'> Please enter correct Employee Number</span></div>");
+			return false;
+		}
+		return true;
+	}
+		//  on Behalf search by employeeId
+	$scope.searchByEmpNo = function(searchData) {
+		$scope.resetTabdata();
+		$scope.resetTabActiveClass();
+		$rootScope.showTabFlag=false;
+		$scope.showEmpDetailsFlag=false;
+		$('#balReportErrorDiv').html("");
+		$rootScope.searchData=searchData;
+		if(validateSearchText($rootScope.searchData)){
+			$rootScope.showbalReportStatus=false;
+			$scope.disableSearchButton = "True";
+			$scope.empSearchDataStatus = 'Pending';
+			var fetchEmployeeDetails=prefix+"fetchEmployeeDetails";
+			$http.post(fetchEmployeeDetails,{
+				"empId" :searchData
+			}).success(function(data){
+				if(undefined==data.EmployeeDetails || null ==data.EmployeeDetails || ""==data.EmployeeDetails){
+					$('#balReportErrorDiv').append("<div><span class='lev-field-error'> Employee number does not exists </span></div>");
+					$scope.empSearchDataStatus = 'Complete';
+				}else{
+					$scope.checkBalTabAccess();
+					$scope.showEmpDetailsFlag=true;
+					$scope.empSearchDataStatus = 'Complete';
+					$rootScope.employeeDetails=data.EmployeeDetails[0];
+					$scope.employeeDetails=data.EmployeeDetails[0];
+				}
+			});
+		}
+	};
+
+	$scope.tabClick = function(id) {
+		$scope.resetTabdata();
+		if (1 == id ) {
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/balance_leaveReportTab.html";
+			$scope.getLeaveBalReport();
+		} else if (id == 2 ) {
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/balance_lopTab.html";
+			$scope.getLOPDetails();
+		}else if (id == 3 ) {
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/balance_sickLeaveEligibilityTab.html";
+			$scope.getSickEligilibilty();
+		
+		}else if(id==5){
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/balance_deputAdjustment.html";
+			$scope.getDeputationDetails();
+		}else if(id==6){
+				$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/balance_statementTab.html";
+			$scope.balanceSmtFlag='Y';
+			$scope.getStmtDropDown();
+		}
+		
+	};
+		
+	$scope.getSickEligilibilty=function(){
+		$rootScope.showbalReportStatus=false;
+		
+		var getEmpSickEligiReport=prefix+"getEmpSickEligiReport";
+		$http.post(getEmpSickEligiReport,{
+			
+				"superUserFlag" :$rootScope.superUserFlag,
+				"empId" :$rootScope.searchData
+			
+		}).success(function(data) {
+			if(null!=data && ""!=data && undefined!=data){
+				$rootScope.showbalReportStatus=true;
+				$scope.sickEligibilityDetails = data.EmployeeSickEligiReport;
+			}
+			
+		}).error(function(data) {
+			alert("There is some problem. Please refresh or try later");
+		});
+	};
+		
+	$scope.resetTabdata=function(){
+	//	$rootScope.showbalReportStatus=false;
+		$rootScope.homeLeaveDetails="";
+		$rootScope.hostLeaveDetails="";
+		$scope.leaveLopDeatils="";
+		$scope.sumaryshow = false;
+		$scope.sickEligibilityDetails="";
+		$scope.deputationList="";
+	};
+		
+		
+		$scope.sumaryshow = false;
+		$scope.showprocessingFlag = false;
+		$scope.shoeDepuataionReport = false;
+		
+		
+			
+	$scope.showHostModal = function(countryLevTypeId) {
+		$scope.showprocessingModalFlag = false;
+		$scope.homeLeaveModalDeatils = null;
+		$scope.hostLeaveModalDeatils = null;
+
+		var getBalReportModalDetails=prefix+"getBalReportModalDetails";
+		
+		$http.post(getBalReportModalDetails,{
+			'countryLevTypeId' : countryLevTypeId,
+			"superUserFlag" :$rootScope.superUserFlag,
+			"empId" :$rootScope.searchData
+		}).success(function(data) {
+			$scope.sumaryshow = false;
+			$scope.homeLeaveModalDeatils = data.EmployeeHomeBalanceModalDetails;
+			$scope.hostLeaveModalDeatils = data.EmployeeHostBalanceModalDetails;
+			$scope.showprocessingModalFlag = true;
+			$("#hostBalReportModal").modal('show');
+		}).error(function(data) {
+			alert("There is some problem. Please refresh or try later");
+		});
+	};
+		
+	$scope.showHomeModal = function(countryLevTypeId) {
+		$scope.showprocessingModalFlag = false;
+		$scope.homeLeaveModalDeatils = null;
+		$scope.hostLeaveModalDeatils = null;
+
+		var getBalReportModalDetails=prefix+"getBalReportModalDetails";
+		
+		$http.post(getBalReportModalDetails,{
+			'countryLevTypeId' : countryLevTypeId,
+			"superUserFlag" :$rootScope.superUserFlag,
+			"empId" :$rootScope.searchData
+		}).success(function(data) {
+			$scope.sumaryshow = false;
+			$scope.homeLeaveModalDeatils = data.EmployeeHomeBalanceModalDetails;
+			$scope.hostLeaveModalDeatils = data.EmployeeHostBalanceModalDetails;
+			$scope.showprocessingModalFlag = true;
+			$("#homeBalReportModal").modal('show');
+		}).error(function(data) {
+			alert("There is some problem. Please refresh or try later");
+		});
+	};
+		
+	$scope.getLOPDetails = function() {		
+		$rootScope.showbalReportStatus=false;
+		var getEmpLevLopDetails= prefix+"getEmpLevLopDetails";
+		
+		$http.post(getEmpLevLopDetails,{
+			
+				"superUserFlag" :$rootScope.superUserFlag,
+				"empId" :$rootScope.searchData
+			
+		}).success(function(data) {
+			$scope.sumaryshow = false;
+			if (null != data.EmployeeLopDetails || data.EmployeeLopDetails.length != 0) {
+				$rootScope.showbalReportStatus=true;
+				$scope.leaveLopDeatils = data.EmployeeLopDetails;
+			}else{
+				$scope.showLop=true;
+			}
+		}).error(function(data) {
+		alert("There is some problem. Please refresh or try later");
+		});
+	};
+		
+	$scope.showSummaryReport=function(){
+		$scope.sumaryshow = false;
+
+		var getEmpLevLopSumaryDetails= prefix+"getEmpLevLopSumaryDetails";
+		$http.post(getEmpLevLopSumaryDetails,{
+			"superUserFlag" :$rootScope.superUserFlag,
+			"empId" :$rootScope.searchData
+		}).success(function(data) {
+			$scope.sumaryshow = true;
+			$scope.leaveLopSumaryDeatils = data.EmployeeLevLopSumaryDetails;
+		}).error(function(data) {
+			alert("There is some problem. Please refresh or try later");
+		});
+	};
+		
+		$scope.date = new Date();
+	
+		
+	$scope.getDeputationDetails = function() {
+		$rootScope.showbalReportStatus=false;
+		var fetchDeputationDetails= prefix+"fetchDeputationDetails";
+		$http.post(fetchDeputationDetails,{
+			"superUserFlag" :$rootScope.superUserFlag,
+			"empId" :$rootScope.searchData
+		}).success(function(data){
+			if(data!==null || data!==undefined || data==""){
+				$rootScope.showbalReportStatus=true;
+				$scope.deputationList=data.adjustmentList;
+			}
+		});
+		
+	};
+		
+	$scope.resetSearch=function(){
+		$rootScope.homeLeaveDetails="";
+		$rootScope.hostLeaveDetails="";
+		$scope.leaveLopDeatils="";
+		$scope.sumaryshow = false;
+		$scope.sickEligibilityDetails="";
+		$scope.deputationList="";
+		$scope.showEmpDetailsFlag=false;
+		$scope.employeeDetails="";
+		$scope.empSearchDataStatus = 'Complete';
+		$rootScope.urlSrc ="";
+		$rootScope.showTabFlag=false;
+		$scope.searchData="";
+		$('#balReportErrorDiv').html("");
+	};
+		
+	$scope.generateSickReport=function(){
+		var generateSickEligibilityReport = prefix + "generateSickEligibilityReport";
+		$http.post(generateSickEligibilityReport,$scope.sickEligibilityDetails
+		).success(function(data) {
+			var reportName=data.reportName;
+			window.location = "/leaverest/rest/downloadReport?fileName="+reportName;
+			$scope.disableGenerateReportButton=false;
+		});
+		
+	};
+
+	$scope.generateLeaveReport=function(){
+		var generateLeaveBalReport = prefix + "generateLeaveBalReport";
+		$http.post(generateLeaveBalReport,{
+			"homeLeaveDeatils":$rootScope.homeLeaveDetails,
+			"hostLeaveDeatils":$rootScope.hostLeaveDetails,
+			"hostCountry":$rootScope.hostCountry,
+			"homeCountry":$rootScope.homeCountry
+		}).success(function(data) {
+			var reportName=data.reportName;
+			window.location = "/leaverest/rest/downloadReport?fileName="+reportName;
+		});
+	};
+	
+	
+	$scope.enchaseLeave=function(){
+		$location.path('/colEncash');
+		
+	};
+	
+	//My Leave Statement
+
+		
+	//My Leave Statement
+
+	$scope.transPeriodList = [
+                      {"lookUpCode":'LAST1MONTH',
+                    	  "lookUpDesc": 'Last 1 Month'},
+                      {"lookUpCode":'LAST1QAUARTEr',
+                    	  "lookUpDesc": 'Last 1 Quarter'},
+                      {"lookUpCode":'LAST1YEAR',
+                        	  "lookUpDesc": 'Last 1 Year'}];
+	
+	$scope.statementName="Leave Balance Statement";
+	$scope.transObj={
+			transFromToFlag:"Y"
+	};
+	$scope.transFlag=false;
+	$scope.periodFlag=false;
+	$scope.balanceObj={};	
+	
+	$scope.getStmtDropDown=function(){
+		var fetchStmtDD = prefix + "fetchStmtDD";
+		$http.post(fetchStmtDD,{
+			"empId" :$rootScope.searchData
+		}).success(function(data) {
+			if(null!=data && undefined!=data && ""!=data){
+				$scope.transList=data.DDList;
+				$scope.countryList=getDistinctTypes($scope.transList);
+			}
+		});
+	};
+	
+	function getDistinctTypes(list) {
+		this.countryTypes=[];
+		for (val in list) {
+			if(this.countryTypes.indexOf(list[val].fieldDatabaseColumn) < 0){
+				this.countryTypes.push(list[val].fieldDatabaseColumn);
+			}
+		}
+		return this.countryTypes;
+	};
+
+	$scope.leaveTypeDD=function(){
+		if(null!=$scope.balanceObj.country && undefined!=$scope.balanceObj.country && " "!=$scope.balanceObj.country){
+			$scope.leaveTypeList=getDistinctStmtLeaveTypes($scope.balanceObj.country,$scope.transList);
+			
+		}
+	};
+	
+	function getDistinctStmtLeaveTypes(country,list){
+		this.leaveTypes=[];
+		for(val in list){
+			if(list[val].fieldDatabaseColumn == country){
+				if(this.leaveTypes.indexOf(list[val].countryApplyTypeId)<0){
+					this.leaveTypes.push({ lookUpCode : list[val].countryApplyTypeId,
+														lookUpDesc : list[val].lookupValue});
+					}
+			}
+		}
+		return this.leaveTypes;
+		}
+	
+	$scope.showBalanceStmt=function(){
+		$scope.transFlag=false;
+		$scope.balanceSmtFlag='Y';
+		$scope.statementName="Leave Balance Statement";
+	};
+	
+	$scope.showTranHistory=function(){
+		$scope.transFlag=true;
+		$scope.balanceSmtFlag='N';
+		$scope.statementName="Leave Transaction Statement";
+	};
+	
+	$scope.changeTransFlag=function(){
+		$scope.transObj={};
+		$scope.transObj.transFromToFlag="Y";
+		$scope.periodFlag=false;
+
+	};
+	
+	$scope.changeTransPeriodFlag=function(){
+		$scope.transObj={};
+		$scope.transObj.transFromToFlag="N";
+		$scope.periodFlag=true;
+
+	};
+	$scope.getLeaveStatement=function(){
+		$('#stmtErrorDiv').html("");
+		if($scope.balanceSmtFlag=="Y"){
+			if(validateLeaveStmt($scope.balanceObj)){
+				if(validateTransHistory($scope.transObj,$scope.transFromToFlag)){
+					$scope.showLeaveStmtFlag=false;
+					$scope.balanceObj.fromDate=$scope.transObj.fromDate;
+					$scope.balanceObj.toDate=$scope.transObj.toDate;
+					$scope.balanceObj.period=$scope.transObj.period;		
+					$scope.balanceObj.empId=$rootScope.searchData;
+					var fetchBalanceStmt = prefix + "fetchBalanceStmt";
+					$http.post(fetchBalanceStmt,$scope.balanceObj
+					).success(function(data) {
+						$scope.showLeaveStmtFlag=true;
+						$scope.balanceList=data.balanceList;
+						applyPagination($scope.balanceList);
+					});
+				}
+			}
+		}else{
+			if(validateTransHistory($scope.transObj)){
+				$scope.transObj.empId=$rootScope.searchData;
+				$scope.showLeaveStmtFlag=false;
+				var generateTransHistory = prefix + "generateTransHistory";
+				$http.post(generateTransHistory,$scope.transObj
+				).success(function(data) {
+					$scope.showLeaveStmtFlag=true;
+					$scope.transList=data.transList;
+					applyPagination($scope.transList);
+				});
+			}
+		}
+	};
+
+	$scope.generateStmtReport=function(){
+		if($scope.balanceSmtFlag=="Y"){
+			
+			$scope.showLeaveStmtFlag=false;
+			$scope.balanceObj.fromDate=$scope.transObj.fromDate;
+			$scope.balanceObj.toDate=$scope.transObj.toDate;
+			$scope.balanceObj.period=$scope.transObj.period;		
+			$scope.balanceObj.empId=$rootScope.searchData;
+			var generateBalanceStmt = prefix + "generateBalanceStmt";
+			$http.post(fetchBalanceStmt,$scope.balanceObj
+			).success(function(data) {
+				$scope.showLeaveStmtFlag=true;
+				$scope.balanceList=data.balanceList;
+				applyPagination($scope.balanceList);
+			});
+		}else{
+			$scope.transObj.empId=$rootScope.searchData;
+			var generateStmtReport = prefix + "generateStmtReport";
+			$http.post(generateStmtReport,$scope.transObj
+			).success(function(data) {
+				var reportName=data.reportName;
+				window.location = "/leaverest/rest/downloadReport?fileName="+reportName;
+				$scope.disableGenerateReportButton=false;
+			});
+		}
+	
+	
+	};
+	
+	$scope.resetStmtSearch=function(){
+		$scope.statementName="Leave Balance Statement";
+		$scope.transObj={
+				transFromToFlag:"Y"
+		};
+		$scope.transFlag=false;
+		$scope.periodFlag=false;
+		$scope.balanceObj={};	
+		$scope.balanceSmtFlag="Y";
+		$scope.showLeaveStmtFlag="";
+	};
+	
+	function applyPagination(list) {
+		var noOfReqPerPage = 10;
+		$rootScope.pagination(list,
+				noOfReqPerPage,
+				'paginationSelect', 0);
+	}
+	
+	function validateLeaveStmt(balanceObj){
+		var flag=true;
+		if(null==balanceObj.country || undefined==balanceObj.country ||""==balanceObj.country){
+			flag=false;
+		}else if(null==balanceObj.leaveType || undefined==balanceObj.leaveType || ""==balanceObj.leaveType){
+			flag=false;
+		}
+		if(!flag){
+			$('#stmtErrorDiv').append("<div><span class='lev-field-error'> Please select required value</span></div>");
+		}
+		return flag;
+	}
+	
+	function validateTransHistory(transObj){
+		var flag=true;
+		if(transObj.transFromToFlag=="Y"){
+			if(null==transObj.fromDate || undefined== transObj.fromDate || ""==transObj.fromDate){
+				flag=false;
+			}
+			if(null==transObj.toDate || undefined== transObj.toDate || ""==transObj.toDate){
+				flag=false;
+			}
+		}else if(transObj.transFromToFlag=="N"){
+			if(null==transObj.period || undefined== transObj.period || ""==transObj.period){
+				flag=false;
+			}
+		}
+		if(!flag){
+			$('#stmtErrorDiv').append("<div><span class='lev-field-error'> Please select required value</span></div>");
+		}
+		return flag;
+	}
+	
+	}]);
+	return app;
+});		

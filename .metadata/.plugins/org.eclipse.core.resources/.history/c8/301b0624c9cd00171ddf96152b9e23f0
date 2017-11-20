@@ -1,0 +1,254 @@
+define([ 'angular', 'app', 'moment', 'fyaService', 'displayMenu','LeaveCommonDirectives',
+		'jqueryui', 'utils', 'bootstrap' ], function(angular, app, moment,
+		jqueryui, bootstrap) {
+	app.controller('cmnEmpSearchCtrl', [
+			'$scope',
+			'$http',
+			'$compile',
+			'$routeParams',
+			'$location',
+			'$q',
+			'leaveApprovalService',
+			'$rootScope',
+			function($scope, $http, $compile, $routeParams, $location, $q,
+					leaveApprovalService,$rootScope) {
+				
+				$scope.redirectURL = "https://gess.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+				$scope.backupURL= "https://gess.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+				
+				$scope.bulkAction="N";
+				$scope.bulkAction=$routeParams.bulkAction;
+				$scope.submitSecShowBulk=false;
+				$scope.leaveApprObj={};
+				
+				$scope.leaveApprObj.empSearchService="/leaverest/rest/findEmployee?";
+			   	 $scope.leaveApprObj.empSearchData=[];
+			   	 
+			   	 $scope.leaveApprObj.noOfRecords=100;
+			   	 $scope.leaveApprObj.reqPerPage=10;
+			   	 
+			   	 $scope.leaveApprObj.startIndex=1;
+			   	 $scope.leaveApprObj.endIndex=0;
+			   	 $scope.leaveApprObj.totSearchCount=0;
+			   	 $scope.leaveApprObj.tempSearchData = {};
+			   	 
+			   	$scope.leaveApprObj.empSearchService1="/leaverest/rest/searchEmployee";
+			   	
+			   	
+			   	$scope.leaveApprObj.reassignReqNo=null;
+			   	$scope.leaveApprObj.selEmpNo=undefined;
+			   	
+			   	$scope.selEmpNo=undefined;
+			   	$scope.selEmpFirstName=undefined;
+			   	$scope.selEmpLastName=undefined;
+			   	$scope.selEmpStatus=undefined;
+			   	
+			   	$scope.selctionSec=false;
+			   	
+			   	$scope.searchClicked=false;
+			   	
+			   	$rootScope.processing=false;
+			    $scope.navigationShow=true; 
+			    $scope.msgFlag=false;
+			    $scope.reassignTo=undefined;
+			    
+			    
+			   
+			   	$scope.empSearch=function(firstName,lastName,empNo){
+			   		debugger;
+			   		if(empNo === undefined || empNo === null || empNo === ""){
+			   			$scope.msgFlag=true;
+			   			$rootScope.processing=false;
+			   		}
+			   		else {
+			   		$rootScope.processing=true;
+					var fullName=undefined;
+					$scope.leaveApprObj.empSearchData=null;
+					
+					$scope.leaveApprObj.startIndex = 1;
+					
+					console.log("After click on next : Start Index   " + $scope.leaveApprObj.startIndex);
+					
+					$scope.leaveApprObj.tempSearchData= {
+						1:empNo,
+						2:firstName,
+						3:lastName,
+						4:fullName
+					};
+					
+					var empSearchArr=[];
+					
+					empSearchArr.push($http.post($scope.leaveApprObj.empSearchService1  +"?start="+$scope.leaveApprObj.startIndex+"&pageSize=10" ,$scope.leaveApprObj.tempSearchData));
+					empSearchArr.push($http.post("/leaverest/rest/searchEmployeeCount", $scope.leaveApprObj.tempSearchData));
+					
+					console.log("Emp Search URL : " + $scope.leaveApprObj.empSearchService1+"start="+$scope.leaveApprObj.startIndex+"&pageSize=10",$scope.leaveApprObj.tempSearchData);
+					var resultData=[];
+					$q.all(empSearchArr).then(function(result){
+						
+						angular.forEach(result,function(response) {
+							resultData.push(response.data);
+						});
+						 $scope.leaveApprObj.empSearchData=resultData[0];
+						 $scope.leaveApprObj.totSearchCount=resultData[1].count;
+						 
+						 if($scope.leaveApprObj.totSearchCount>0){
+							 $scope.msgFlag=false;
+							 console.log("Data from q.all Employee Count : " + resultData[1] + "JSON : " + JSON.stringify(resultData[1]));
+							 
+							 console.log("Employee Search Result: " + $scope.leaveApprObj.empSearchData);
+							 
+							
+							 $scope.leaveApprObj.endIndex = $scope.leaveApprObj.empSearchData.length;
+							 
+							 $scope.searchClicked=true;
+							 $rootScope.processing=false;
+							 //leaveApprovalService.setSubmitShow(true);
+							 
+							 if($scope.leaveApprObj.totSearchCount <=10){
+								 $scope.navigationShow=false; 
+							 }
+							 else{
+								 $scope.navigationShow=true; 
+							 }
+							 
+							 if($scope.leaveApprObj.totSearchCount ===1 && undefined===$scope.bulkAction){
+								
+								 $scope.$parent.submitSecShow=true;
+								
+									leaveApprovalService.setSelectedEmpNo($scope.leaveApprObj.empSearchData[0].employeeNo);
+							 }
+							 else if ($scope.leaveApprObj.totSearchCount ===1 && "bulk"===$scope.bulkAction){
+								 $scope.submitSecShowBulk=true;
+							 }
+							 
+							// $scope.$parent.submitSecShow=true;
+						 }
+					
+						 else{
+							 $scope.msgFlag=true;
+							 $rootScope.processing=false;
+						 }
+					
+					
+						 
+					}
+			   	,function(result){
+						console.log("ERROR IN EMP SEARCH");
+						
+					});
+			   	}
+					
+					 console.log("data from java service for Emp Search  : "+  $scope.leaveApprObj.empSearchData+" "+JSON.stringify( $scope.leaveApprObj.empSearchData));
+					// console.log("Data from q.all Employee Count : " + resultData[1] + "JSON : " + JSON.stringify(resultData[1]));
+						
+				};
+				
+				$scope.searchReset=function(){
+					
+					$("#empNo").val('');
+					$("#lastName").val('');
+					$("#firstName").val('');
+					$scope.searchClicked=false;
+					$scope.$parent.submitSecShow=false;
+					$scope.msgFlag=false;
+					$scope.leaveApprObj.tempSearchData = undefined;
+				};
+				
+				$scope.nextClick=function(firstName,lastName,empNo,fullName){
+					
+					$scope.leaveApprObj.empSearchData=[];
+					
+					$scope.leaveApprObj.startIndex = $scope.leaveApprObj.startIndex + 10;
+					
+					console.log("After click on next : Start Index   " + $scope.leaveApprObj.startIndex);
+					
+					$scope.leaveApprObj.tempSearchData= {
+						1:empNo,
+						2:firstName,
+						3:lastName,
+						4:fullName
+					};
+					
+					console.log("Emp Search URL : " + $scope.leaveApprObj.empSearchService1+"start="+$scope.leaveApprObj.startIndex+"&pageSize=10",$scope.leaveApprObj.tempSearchData);
+					$http.post($scope.leaveApprObj.empSearchService1  +"?start="+$scope.leaveApprObj.startIndex+"&pageSize=10" ,$scope.leaveApprObj.tempSearchData).success(function(data) {
+						
+						   $scope.leaveApprObj.empSearchData=data;
+						   $scope.leaveApprObj.endIndex=($scope.leaveApprObj.startIndex + $scope.leaveApprObj.empSearchData.length)  - 1;
+						   console.log("data from java service for Emp Search  : "+ data+" "+JSON.stringify(data));
+						}).error(function(data) {
+							alert("Error in getting Emp Search Deta");
+						});
+					};
+				
+				$scope.prevClick=function(firstName,lastName,empNo){
+					
+					$scope.leaveApprObj.startIndex = $scope.leaveApprObj.startIndex - 10;
+					console.log("After click on Prev : Start Index   " + $scope.leaveApprObj.startIndex);
+					
+				};
+			
+			
+				$scope.setEmpNo=function(obj){
+					
+					console.log("Selected Object : " + JSON.stringify(obj));
+					
+					if("bulk"===$scope.bulkAction){
+						$scope.reassignTo=obj.employeeNo;
+					}else{
+						$scope.$parent.submitSecShow=true;
+						 leaveApprovalService.setSelectedEmpNo(obj.employeeNo);
+						 $scope.selctionSec=true;
+					}
+					 
+					
+				};
+			
+				$scope.setRedirectURL = function(value) {
+					if(angular.isArray(value)) {
+						if(angular.isObject(value[0].success) && angular.isDefined(value[0].success['WORKLIST_URL'])) {
+							$scope.redirectURL = value[0].success['WORKLIST_URL'];
+						}
+					} else {
+						$scope.redirectURL = $scope.backupURL;
+					}
+				};
+				//bulk Reassign
+				
+				$scope.reassignPopup=function(){
+					
+					$('#messageReassign').modal('show');
+				};
+			
+				$scope.reassignAction=function(){
+					$http.post("/leaverest/rest/worklistAction?reassignTo="+$scope.leaveApprObj.empSearchData[0].employeeNo).success(
+							function(data) {
+								$scope.setRedirectURL(data);
+								redirectToWorklist();
+								
+							}).error(function(data) { 
+								 
+								alert("Error!!");
+								 
+							});
+				};
+				
+				function redirectToWorklist() {
+
+					var postFormStr = "<form method='POST' action='"+$scope.redirectURL+"'>\n";
+					postFormStr += "<input type='hidden' name='c' value='bulk'</input>";
+					postFormStr += "</form>";
+
+					var formElement = $(postFormStr);
+
+					$('body').append(formElement);
+					$(formElement).submit();
+
+				}
+			
+			}]);
+	
+	
+	
+	
+	return app;
+});

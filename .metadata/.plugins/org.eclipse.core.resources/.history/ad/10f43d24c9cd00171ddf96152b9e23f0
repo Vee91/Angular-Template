@@ -1,0 +1,32 @@
+
+
+<div ng-controller="bulkAppController">
+ 
+ 	<div class="col-md-12">
+ 		<div class="col-md-4">
+ 			<div class="row" ng-if="showErrMsg">
+				<div class="col-md-12 error">{{errorMsg}}</div>
+		</div>
+ 		</div>
+ 		<div class="col-md-4">
+ 		
+ 			<div class="row" style="margin-top: 8%;">
+ 			<span style="float: left;">Enter Approval Comments:</span><br/>
+ 			<textarea ng-model="comments" style="float: left; width: 50%;"></textarea>
+ 			</div>
+ 			<div class="row" style="margin-top: 5%;">
+ 				<button id="submitBtn" class="btn-primary col-md-2 finalBtn"
+						ng-Click="submit();" style="margin-right:5%; margin-left: 6%">
+						<span style="font-size: 13px;"></span><span>Submit</span>
+					</button>
+					<button id="cancelBtn" class="btn-primary col-md-2 finalBtn"
+						ng-Click="cancel();">
+						<span style="font-size: 13px;"></span><span>Cancel</span>
+					</button>
+ 			</div>
+ 			
+ 		</div>
+ 		<div class="col-md-4"></div>
+ 	</div>
+ 
+</div>

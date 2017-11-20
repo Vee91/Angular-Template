@@ -1,0 +1,127 @@
+
+<link href="appResources/css/RTT.css" rel="stylesheet" />
+<div ng-controller="creditEntController">
+
+	<div class="row header-main-row">
+		<div
+			class="col-xs-12 col-sm-12 col-md-12 col-lg-12 header-main-column text-left">
+			
+			<div class="row header-childrow">
+				<div class="col-xs-12 col-sm-3 col-md-2 col-lg-2  text-left">
+					<span class="header-pagetitle" translate=""><span style="margin-left:-6px;"
+						class="ng-scope">Credit Entitlement</span></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="row content-main-row">
+		<div class="col-lg-8">
+			<div class="col-lg-6 text-left">
+				<span class="font1">Please select country and leave type from dropdown:</span>
+			</div>
+		</div>
+		<div class="col-lg-10" style="padding-top: 10px; padding-bottom: 10px;">
+			<div class="col-xs-12 col-sm-12 col-lg-3 text-left" >
+				<span class="font2">Country<span class="lab">*</span></span> 
+				<span style="margin: 0px">
+				 <select style="margin-top: 5px; margin-bottom: 5px; margin-left: 40px; width: 120px;"
+					ng-Change="selectCountry()" type="text" name="countVal" id="countVal_{{index}}" 
+					ng-model="user.selectedCountry" ng-required="true">
+						<option value="">select</option>
+						<option ng-repeat="type in count">{{type}}</option>
+				</select>
+
+				</span>
+			</div>
+			<div class="col-xs-12 col-sm-12 col-lg-7 text-left" style="padding-top: 3px;">
+				<span class="font2">Leave Type<span class="lab">*</span>
+				</span>
+                <!--   <select style="margin-left:30px" ng-options="leave.label for leave in types" ng-model="user.leave"> -->
+				<span> <select style="margin-left: 30px;width:190px;"
+					type="text" name="leaveVal" id="leaveVal_{{index}}"
+					ng-model="user.selectedLeave.COUNTRY_LEV_TYPE_ID" ng-required="true"
+					ng-change="onChnageCountryLevId(this.user.selectedLeave.COUNTRY_LEV_TYPE_ID)">
+						<option value="">select</option>
+						<option ng-repeat="type in leavty"
+							value="{{type.COUNTRY_LEV_TYPE_ID}}">{{type.LEAVE_TYPE_NAME}}</option>
+				</select>
+				</span>
+			</div>
+		</div>
+		
+		<div ng-hide="!createFinalSheet" class="col-lg-5">
+			<span style="color:grey;float:left;font-size:10px;font-weight: bold;margin-top: 5px;">
+			To view the details for whom credits were successful/ Unsuccessful please click on</span>
+			<button type="button" class="btn btn-info" 
+			style="height: 20px; width: 100px; "<a data-ng-click="createFinalCreditSheet();">
+			<span style="color:blue;font-weight: bold;font-size: 9px;" >CREDIT STATUS</span>
+			</a></button>
+		
+		</div>
+		
+		<div ng-hide="!createCategoryFinalSheet" class="col-lg-6">
+			<span style="color:grey;float:left;font-size:10px;font-weight: bold;margin-top: 5px;">
+			To view the details for which category update was successful/ Unsuccessful please click on</span>
+			<button type="button" class="btn btn-info" 
+			style="height: 20px; width: 110px; "<a data-ng-click="createFRFinalCategorySheet();">
+			<span style="color:blue;font-weight: bold;font-size: 9px;" >CATEGORY STATUS</span>
+			</a></button>
+		
+		</div>
+		
+		<div class="col-lg-8" data-ng-show="user.selectedLeave.COUNTRY_LEV_TYPE_ID!=='599'">
+			<div class="col-lg-7 text-left">
+					<span class="font1">Please select your choice to upload credits for Single associate or Multiple associates</span>
+			</div>
+		</div>
+		
+		<div class="col-lg-8" data-ng-show="user.selectedLeave.COUNTRY_LEV_TYPE_ID=='599'">
+			<div class="col-lg-7 text-left">
+					<span class="font1">Please select your choice to upload credits for France RTT Associates.
+					</span>
+			</div>
+		</div>
+		
+		<br>
+		<br>
+				<br>
+		<br>
+				<br>
+		<br>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-bottom: 5px;">
+
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 header-main-column text-left">
+				
+				<ul class="nav nav-tabs ng-scope">
+					<li class="active" id="SingleTab"  data-ng-show="user.selectedLeave.COUNTRY_LEV_TYPE_ID!=='599';" >
+					<a href="" data-toggle="tab" data-ng-click="tabClick(1);" translate="">
+						<span class="ng-scope">SINGLE</span></a></li>
+						
+					<li id="multipleTab"  data-ng-show="user.selectedLeave.COUNTRY_LEV_TYPE_ID!=='599';">
+					<a href="" data-toggle="tab" data-ng-click="tabClick(2);" translate="">
+						<span class="ng-scope">MULTIPLE</span></a></li>
+						
+					<li id="categoriesTab"  data-ng-show="user.selectedLeave.COUNTRY_LEV_TYPE_ID=='599';">
+					<a href="" data-toggle="tab" data-ng-click="tabClick(3);" translate="">
+						<span class="ng-scope">CATEGORIES</span></a></li>
+						
+				</ul>
+			<div style="border-top:3px solid #044B90;padding-bottom:10px;"></div>		
+			
+			<div id="myTabContent" class="tab-content " >
+				<div class="tab-pane fade in active" id="tab1" ng-include
+					src="urlSrc" data-ng-class="urlSrc"></div>
+					
+			</div>
+		</div>
+	</div>
+
+	<div data-ng-include="" data-src="'pages/leave/leave_xssSecure.html'"></div>
+
+	   </div>
+
+
+
+ 
+ </div>

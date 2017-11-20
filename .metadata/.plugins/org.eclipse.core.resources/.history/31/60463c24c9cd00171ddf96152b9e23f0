@@ -1,0 +1,1952 @@
+
+<link href="appResources/css/applyLev.css" rel="stylesheet" />
+<link href="appResources/css/angular-datepicker.css" rel="stylesheet" />
+<link href="appResources/css/clm-icons.css" rel="stylesheet" />
+<link href="extResources/angular/css/introjs.css" rel="stylesheet" />
+<!-- Force latest IE rendering engine or ChromeFrame if installed -->
+<!--[if IE]>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<![endif]-->
+
+
+<style>
+.introjs-disabled, .introjs-disabled:hover, .introjs-disabled:focus{
+display:none;
+}
+.introjs-prevbutton{
+border-right:1px solid #d4d4d4;
+}
+ .workspace{
+ left:372px !important;
+ width:950px !important;
+ }
+ .introjs-showElement, tr.introjs-showElement > td, tr.introjs-showElement > th{
+pointer-events:none;
+}
+.introjs-tooltip{
+min-width:450px;
+} 
+.introjs-overlay{
+background:#000 !important;
+}
+.btn-new::after{
+content:"\e072";
+font-family:'Glyphicons Halflings';
+margin-left:7px;
+}
+.btn-new:hover{
+color:#fff !important;
+border:2px solid #6CB7EC !important;
+}
+.introjs-tooltipbuttons{
+text-align:left;
+}
+.introjs-skipbutton{
+margin-right:275px;
+}
+</style>
+<div  data-ng-controller="onBehalfApplyLeaveCtrl" >
+<div id="calendarCollapse">
+<div id="directiveDiv" ng-intro-options="IntroOptions" ng-intro-method="CallMe"
+     ng-intro-oncomplete="CompletedEvent" ng-intro-onexit="ExitEvent"
+     ng-intro-onchange="ChangeEvent" ng-intro-onbeforechange="BeforeChangeEvent" ng-intro-onafterchange="AfterChangeEvent"
+     ng-intro-autostart="false" >
+<div  data-ng-show="!isMaternity && !isLwp">
+
+<!-- Apply leave header part begins  -->
+<div class="row header-main-row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 header-main-column text-left">
+<div class="row header-childrow">
+
+<!-- <div class=" col-sm-push-4 col-md-push-6 col-lg-push-6 col-xs-12 col-sm-2 col-md-1 col-lg-1 text-right"><button class="btn btn-default btn-new" data-ng-click="CallMe();" style="min-width: 114px;text-align: left;height: 32px;"><div style="float:left;">Start Tour</div></button></div> -->
+<div class=" col-sm-push-4 col-md-push-6 col-lg-push-5 col-xs-12 col-sm-5 col-md-4 col-lg-5 " style="margin-top:8px;">
+<div class="row content-main-row" data-ng-style="{false:{'padding-left':'101px'},true:{'padding-left':'81px'}}[isMobile()]">
+<!--  <span class="col-xs-6 col-sm-8 col-md-8 col-lg-6 country-flag-css text-right"><span style="padding:4px" id="countryFlagdiv"><img id="countryFlag" style="box-shadow:0px 0px 1px 1px #ccc;-webkit-box-shadow:0px 0px 1px 1px #ccc;-moz-box-shadow:0px 0px 1px 1px #ccc;width:20px;height:15px;" onerror="this.style.display='none'" /><span class=" country-name-color" style="line-height:1.2;" data-ng-bind="countryName" translate></span></span></span>-->
+</div>
+</div>
+</div>
+<span  class="lev-field-error" data-ng-bind="errorMsg" translate></span>
+<!-- <span  style="color:red" ng-bind="submitLeaveResponse" translate></span> -->
+</div>
+</div>
+<!-- Apply leave header part ends  -->
+
+<!-- Apply leave main body begings here -->
+<div class="row content-main-row">
+<!------------------------------ Left side of screen begins here---------------------------------- -->
+<div id="leftSectionId" class=" col-xs-12 col-sm-12 col-md-3 col-lg-3">
+<!-- ---------------Leave Balance code starts here---------------- -->
+<div id="levBalId" class="row content-main-row " >
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero leave-balance-row" id="leaveBalanceRow">
+<div class="row balance-childrow">
+<div class="col-xs-* col-md-12 col-lg-12" style="padding-top:5px;padding-bottom:5px;padding-left:7px;padding-right:7px;">
+<div class="leave-balance-header text-left" translate>Available Leave Balance:</div>
+</div>
+</div>
+<div  class="row balance-childrow text-left">
+<span  class="lev-field-error" data-ng-bind="levBalErrMsg"></span>
+<span class="col-xs-3 col-sm-6 col-md-6 col-lg-3" data-ng-repeat="typeBal in levBalList" style="padding-right:0px;padding-left:7px;">
+<span class="balance-name" style="cursor:default;" data-toggle="tooltip" title="{{typeBal.countryLevTypeName}}" data-ng-bind="typeBal.shname" translate> </span><span class="balance-name">:</span> <span class="balance-count" data-ng-bind="typeBal.posted" translate></span>
+</span>
+</div>
+
+</div>
+<script>
+$(document).ready(function(){
+	$('#levBalId').tooltip({
+		  selector: "span[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+
+<div class="row content-main-row text-right" style="margin-bottom:1px;" data-ng-controller="YearlyViewCtrl">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero ">
+<a id="yearlyDiv" href="" data-ng-click="buildYearlyView();" ><img  src="appResources/img/yearlyviewicon.png" style="margin-bottom: 4px;"/><span class="quickapply-name-color" style="padding-left:3px;" translate>Yearly View</a>
+<script>
+
+$(document).ready(function(){
+	$('#yearlyDiv').tooltip({
+		  selector: "img[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div></div>
+<!-- ---------------Calendar code starts here---------------- -->
+<div style="border: 1px solid #ccc;margin-bottom:10px;" id="calendarRow">
+<div id="calendarMainId" class="row content-main-row" style="min-height:228px;height:auto;margin-bottom:10px;">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero">
+<calendar1   data-ng-show="isOneCalendar==true" is-amend="isAmend" month="leave.calMonth" start-date="leave.startDate" end-date="leave.endDate"  year-list="leave.yearlist" leave-days="leave.leaveDays" holiday-list="leave.holidayList">
+</calendar1> 
+</div>
+
+</div>
+<!-- Labels for leaves holiday weekend flexi etc  -->
+<div id="leaveLabelsId" class="row content-main-row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero leave-legend-row" style="padding-top:3px;">
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 holiday-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Holiday</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 planned-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Planned Leave</div>
+</div>
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 weekend-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Weekend</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 approvedleave-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" style="padding-right:3px;" translate>Approved Leave</div>
+</div>
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div data-ng-if="('IN'==countryFlg)" data-ng-show="('IN'==countryFlg)" class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 flexi-property" style="width:8px;margin-top:3px;"></div><div data-ng-if="('IN'==countryFlg)" data-ng-show="('IN'==countryFlg)" class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Flexi Holiday</div>
+<div data-ng-class="{'pending-margin' : (!('IN'==countryFlg))}" class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 pendingleave-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Pending Leave</div>
+</div>
+</div>
+</div>
+</div>
+<!-- holiday description of calendar month  -->
+<div id="levDescId" class="row content-main-row" ng-if="!isAmendPage">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero holiday-flexi-section">
+<div class="row content-main-row" style="padding-bottom:5px;">
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+<div class="holiday-flexi-header text-left" translate>Holidays<span data-ng-if="('IN'==countryFlg)" data-ng-show="('IN'==countryFlg)">/Flexis</span>:</div>
+</div>
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
+<a href="" class="plan-scrollup" onclick="getPlanLevDtls();" id="planLeave"><img style="margin-bottom:2px;" src="appResources/img/PlanLeaveIcon.png" /><span class="plan-lev-header" translate>Plan Leave</span>
+<script>
+$('.plan-scrollup').click(function () {
+        $("html, body").animate({
+            scrollTop: 0
+        }, 0);
+        return false;
+    });
+</script>
+</a>
+</div>
+</div>
+<div class="row content-main-row" data-ng-repeat="pointer in leave.holidayList track by $index" style="padding-bottom:8px;">
+<div class="col-lg-offset-1 col-xs-1 col-md-1 col-lg-1" style="margin-left:12px;width:8px;margin-top:3px;" data-ng-class="{'flexi-property':(pointer.typ=='F'),'holiday-property':(pointer.typ=='H')}"></div>
+<div class="col-xs-5 col-md-5 col-lg-5 holiday-flexi-row text-left" style="padding-left:8px;padding-right:0px;">
+<span data-ng-if="pointer.typ=='F' || pointer.typ=='H'" data-ng-show="pointer.typ=='F' || pointer.typ=='H'" translate>{{pointer.sd | date:'EEE, d  MMMM'}}</span> 
+</div>
+<div class="col-xs-5 col-md-5 col-lg-5 holiday-flexi-row text-left padding-zero">
+<span data-ng-if="pointer.typ=='F' || pointer.typ=='H'" data-ng-show="pointer.typ=='F' || pointer.typ=='H'" translate>{{pointer.desc}}</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- ------------------------------------Right side begins here------------------------------ -->
+<div class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
+<!-- -------------------------- Personal Deatails section ------------------------------------- -->
+<div class="row content-main-row" style="margin-bottom:15px;">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:#f7f7f7;box-shadow:0px 1px 4px 0px rgba(153, 153, 153, 0.6);min-height:100px; padding:10px 0px 5px 0px;border:1px solid #ccc;">
+
+<div class="row content-main-row" id="addressRow">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-bottom: 5px;">
+
+<ul class="nav nav-pills" data-ng-if="!isAmend" data-ng-show ="!isAmend">
+    <li class="active" ><a id="present" href="" data-toggle="pill" data-ng-click="changeAddressTab('present');" translate>PRESENT</a></li>
+    <li ><a id="permanent" href="" data-toggle="pill"  data-ng-click="changeAddressTab('permanent');" translate>PERMANENT</a></li>
+    <li ><a id="other" href="" data-toggle="pill"  data-ng-click="changeAddressTab('other');" translate>OTHER</a></li>
+</ul>
+<div data-ng-if="!isAmend" data-ng-show ="!isAmend" style="border-top:3px solid #da532c;padding-bottom:10px;"></div>
+
+<div data-ng-if="!isAmend" data-ng-show ="!isAmend" class="tab-content" style="padding-top:10px;padding-bottom: 15px;background-color:#ffffff;border:1px solid #ccc;">
+    <div data-ng-show="'present'==tabSelected" class="tab-pane" style="display:block;">
+      <div class="row content-main-row text-left">
+      <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2" style="padding-right:2px">
+      <label class="personal-details" translate>Mobile No.</label>
+	  <input id="presentMobNo" type="text"   data-ng-model="presentMobNo" data-ng-change="changeAddress('present');" placeholder="Mobile No"  class="form-control"  allow-only-numbers ondrop="return false;" onpaste="return false;" />
+	  </div>
+	  <div class="col-xs-12 col-sm-8 col-md-5 col-lg-5" style="padding-right:2px">
+      <label class="personal-details" translate>Address</label>
+	  <textarea id="presentAdd" type="text" data-ng-model="presentAdd" data-ng-change="changeAddress('present');" style="max-width:100%; overflow:hidden;" placeholder="Present address"  class="form-control" ></textarea>
+	  </div>
+	  </div>
+    
+    </div>
+    <div data-ng-show="'permanent'==tabSelected" class="tab-pane  text-left" style="display:block;">
+      <div class="row content-main-row text-left">
+      <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2" style="padding-right:2px">
+      <label class="personal-details" translate>Mobile No.</label>
+	  <input id="permanentMobNo" type="text"  data-ng-model="permanentMobNo" data-ng-change="changeAddress('permanent');" placeholder="Mobile No"  class="form-control" allow-only-numbers ondrop="return false;" onpaste="return false;" />
+	  </div>
+	  <div class="col-xs-12 col-sm-8 col-md-5 col-lg-5" style="padding-right:2px">
+      <label class="personal-details" translate>Address</label>
+	  <textarea id="permanentAdd" type="text" data-ng-model="permanentAdd" data-ng-change="changeAddress('permanent');" style="max-width:100%; overflow:hidden;"  placeholder="Permanent address"  class="form-control" ></textarea>
+	  </div>
+	  </div>
+    </div>
+    <div data-ng-show="'other'==tabSelected" class="tab-pane  text-left" style="display:block;">
+      <div class="row content-main-row text-left">
+      <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2" style="padding-right:2px">
+      <label class="personal-details" translate>Mobile No.</label>
+	  <input id="otherMobNo" type="text"  data-ng-model="otherMobNo" data-ng-change="changeAddress('other');" placeholder="Mobile No"  class="form-control" allow-only-numbers ondrop="return false;" onpaste="return false;" />
+	  </div>
+	  <div class="col-xs-12 col-sm-8 col-md-5 col-lg-5" style="padding-right:2px">
+      <label class="personal-details" translate>Address</label>
+	  <textarea id="otherAdd" type="text" data-ng-model="otherAdd" data-ng-change="changeAddress('other');" style="max-width:100%; overflow:hidden;"   placeholder="Other address"  class="form-control"></textarea>
+	  </div>
+	  </div>
+    </div>
+  </div> 
+  
+  
+  <div id="presentAddAmend" data-ng-if="isAmend" data-ng-show ="isAmend" class="tab-pane  in" style="padding-top:10px;padding-bottom: 15px;background-color:#ffffff;border:1px solid #ccc;font-size:13px !important">
+      <div class="row content-main-row text-left">
+      <div class="col-xs-12 col-sm-4 col-md-3 col-lg-2" style="padding-right:2px">
+      <label class="personal-details" translate>Mobile No</label>
+	  <div data-ng-bind="amendObj.contactNumCell"></div>
+	  </div>
+	  <div class="col-xs-12 col-sm-8 col-md-8 col-lg-5" style="padding-right:2px">
+      <label class="personal-details" translate>Address</label>
+	  <div data-ng-bind="amendObj.contactAddress"></div>
+	  </div>
+	  </div>
+ </div>
+  
+</div>
+</div>
+<!-- Phase 2 code -->
+<div class="row content-main-row " ng-show="!isAmend">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left" style="font-style: italic;font-size:12px">
+<span><input type="checkbox" ng-model="defaultAddress" ng-click="manualAddress();" ng-true-value="'YES'" ng-false-value="'NO'" style="padding-top:2px;"> </span>
+	  <span style="vertical-align: text-bottom;" translate>The contact details displayed will be applicable for all leave applications</span>
+</div>
+</div>
+<!-- Phase 2 code -->
+</div>
+</div>
+<!----------------------------- Apply Leave Form begins here--------------------------------- -->
+<div class="row content-main-row text-left" style="margin-bottom:10px;" ><!-- onclick="hideErrMsg('Errmsg',$index);" -->
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="background-color:#f7f7f7;box-shadow:0px 1px 4px 0px rgba(153,153,153,0.6);min-height:80px;padding-top:10px;padding-bottom:10px;border:1px solid #ccc;">
+<ng-form role="form" name="applyLevFrm" ng-submit="" id="applylevFrm" novalidate>
+<!-- <span class="text-left lev-field-error"  data-ng-bind="errMsg| translate"></span> -->
+<div id="workspacePop"> 
+<div data-ng-repeat="singleLeaveObj in leave.leaveList1"  >
+<div class="row content-main-row" data-ng-if="(!leave.leaveList1[$index].newLeave.isDisabled) && (!isAmend)" data-ng-show="(!leave.leaveList1[$index].newLeave.isDisabled) && (!isAmend)" style="margin-bottom:10px">
+<span class="lev-field-error" data-ng-bind="leave.leaveList1[$index].dependencyError | translate" translate></span>
+<span class="text-left lev-field-error"  data-ng-bind="leave.leaveList1[$index].errorMsg | translate"></span>
+<span id="Errmsg" style="display:block;" class="text-left lev-field-error" data-ng-bind="leave.leaveList1[$index].newLeave.ErrDisplay | translate"></span>
+<!-- style="display:none;" onclick="hideErrMsg('Errmsg',$index);" -->
+<span class="text-left lev-field-error"  data-ng-bind="leave.leaveList1[$index].serverErrMsg | translate"></span>
+<span class="text-left lev-field-error"  data-ng-bind="leave.leaveList1[$index].draftErr | translate"></span>
+
+<span data-ng-if="errorQuick" data-ng-show="errorQuick" style="padding-right:5px;" ><img data-ng-src="appResources/img/please_note_icon.png" /></span><span class="text-left" style="font-size:11px;font-weight:bold;" data-ng-bind="errorQuick | translate" ></span>
+<div class="col-lg-12 padding-zero" style="background-color:#ffffff;border:1px solid #ccc;padding-bottom: 10px;">
+
+<div class="row" style="margin:0px; padding:0px 0px 0px 0px" >
+<div class="col-xs-offset-9 col-sm-offset-10 col-md-offset-11 col-lg-offset-11 col-xs-3 col-md-1 col-sm-2 col-lg-1 text-right" style="padding-right:5px;padding-left:0px;" >
+<a id="edDiv" href="" style="text-decoration:none;" ng-click="enableRow($index);"><span class="text-right" ng-hide="counter < 1"><img src="appResources/img/Edit.png" data-toggle="tooltip" title="Edit" /></span></a>
+<script>
+
+$(document).ready(function(){
+	$('#edDiv').tooltip({
+		  selector: "img[data-toggle='tooltip']"
+	}); 
+});
+</script>
+<a id="dltDiv" href="" style="text-decoration:none;" data-ng-click="deleteRow($index);"><span class="text-right" data-ng-hide="counter < 1"><img src="appResources/img/delete_icon.png" data-toggle="tooltip" title="Delete" /></span></a>
+<script>
+
+$(document).ready(function(){
+	$('#dltDiv').tooltip({
+		  selector: "img[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+</div>
+<div class="row" style="margin:0px;padding: 0px 0px 10px 0px;">
+
+<div  class="col-xs-6  col-md-2 col-lg-2 form-group" style="padding-right: 2px;">
+<label class="applylev-form-header" translate>Start Date</label><span class="asterisk">*</span>
+<div  kunalsdatepicker is-flexi="{{$parent.isFlexi}}" date-end="{{leave.leaveList1[$index].newLeave.endDate}}" date-set="{{(leave.calMonth).format('DD-MMM-YYYY')}}" date-set-hidden="true" date-min-limit="{{minYear}}" date-max-limit="{{maxYear}}" year-list="{{leave.yearlist}}" date-format="dd-MMM-yyyy">
+<input formnovalidate="formnovalidate" validate-sdate index="{{$index}}" style="padding-left: 2px;cursor:pointer;" start-date="{{leave.leaveList1[$index].newLeave.startDate}}" type="text" id="startDate_{{$index}}" name="startDate_{{$index}}" data-ng-class="{'dirty-field': applyLevFrm.startDate_{{$index}}.$dirty && applyLevFrm.startDate_{{$index}}.$error.required && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)}" class="form-control applyLeaveInputField date-property" placeholder="DD-MMM-YYYY" data-ng-change="defaultDuration($index)" data-ng-model="leave.leaveList1[$index].newLeave.startDate" data-ng-disabled="'Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName" ondrop="return false;" onpaste="return false;" ng-required="true" />
+<script> 
+$('.applyLeaveInputField').keypress(function (event) {
+event.preventDefault();
+});
+
+$('.applyLeaveInputField').keydown(function (event) {
+if (event.keyCode === 8) {
+return false;
+ };
+});
+
+$('.applyLeaveInputField').bind('cut copy paste', function (e) {
+    e.preventDefault(); //disable cut,copy,paste
+});
+</script>
+<div class="lev-field-error"   data-ng-show="applyLevFrm.startDate_{{$index}}.$dirty && applyLevFrm.startDate_{{$index}}.$error.required  && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)">Start date is required.</div>
+<div class="lev-field-error" data-ng-bind="leave.leaveList1[$index].errorSDate" translate></div>
+</div>
+</div>
+
+<div class="col-xs-6  col-md-2 col-lg-2 form-group" style="padding-right: 2px;">
+<label class="applylev-form-header" translate>End Date</label><span class="asterisk">*</span>
+<div  kunalsdatepicker is-flexi="{{$parent.isFlexi}}" date-start="{{leave.leaveList1[$index].newLeave.startDate}}" date-set="{{(leave.calMonth).format('DD-MMM-YYYY')}}"  date-set-hidden="true" date-min-limit="{{minYear}}" date-max-limit="{{maxYear}}" year-list="{{leave.yearlist}}" date-format="dd-MMM-yyyy" >
+<input validate-edate index="{{$index}}" style="padding-left: 2px;cursor:pointer;" type="text" id= "endDate_{{$index}}" name="endDate_{{$index}}" data-ng-class="{'dirty-field':applyLevFrm.endDate_{{$index}}.$dirty && applyLevFrm.endDate_{{$index}}.$error.required  && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)}" class="form-control applyLeaveInputField date-property"  placeholder="DD-MMM-YYYY" data-ng-change="defaultDuration($index)" data-ng-model="leave.leaveList1[$index].newLeave.endDate" data-ng-disabled="'Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName" ondrop="return false;" onpaste="return false;" ng-required="true"/>
+
+<div class="lev-field-error"  data-ng-show="applyLevFrm.endDate_{{$index}}.$dirty && applyLevFrm.endDate_{{$index}}.$error.required  && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)" translate>End date is required.</div>
+<div class="lev-field-error" data-ng-bind="leave.leaveList1[$index].errorEDate" translate></div>
+</div>
+</div>
+
+<div class=" col-xs-11  col-md-3 col-lg-3 form-group" style="padding-right:2px;">
+<div class="row" style="margin:0px;">
+<div class="col-xs-10 col-md-10 col-lg-11" style="padding:0px;">
+<label class="applylev-form-header" translate>Leave Type</label><span class="asterisk">*</span>
+<select id="leaveTypeName_{{$index}}" name="levType_{{$index}}" data-ng-class="{'dirty-field':submitted && applyLevFrm.levType_{{$index}}.$dirty && applyLevFrm.levType_{{$index}}.$error.required}" class="form-control" style="padding:1px 0px 2px 0px;" ng-change="getAdditionalfields(leave.leaveList1[$index].newLeave.leaveTypeName,$index)" data-ng-model="leave.leaveList1[$index].newLeave.leaveTypeName" ng-required="true">
+<option data-ng-repeat="type in leaveTypes" >{{type.countryLeaveTypeName}}</option></select><!-- ng-options="type.countryLeaveTypeName for type in leaveTypes"<option value="" label="Select">Select</option> set default select after u get leavetype data from service so select by default will be set for ng-options-->
+
+</div>
+<!--  Phase 2 code -->
+<!-- <div class="col-xs-2 col-md-2 col-lg-1" style="padding-top:23px;padding-left:2px;padding-right:2px;">
+<span class="form-group" style="padding-left: 0px;padding-top:24px;">
+
+<a id="infoDiv" href="" ng-click="getInfoView();" >
+<img ng-show="isInfoNormal" ng-mouseenter="hoverInfoView();" src="appResources/img/InfoIcon.png"/>
+<img ng-show="!isInfoNormal" data-toggle="tooltip" title="Leave Type Info" ng-mouseleave="hoverInfoView();" src="appResources/img/InfoIconHover.png"/>
+</a>
+<script>
+
+$(document).ready(function(){
+	$('#infoDiv').tooltip({
+		  selector: "img[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</span>
+</div> -->
+<!--  Phase 2 code -->
+</div>
+<div class="lev-field-error"  data-ng-show="applyLevFrm.levType_{{$index}}.$dirty && applyLevFrm.levType_{{$index}}.$error.required" translate>Select valid leave type.</div>
+
+</div>
+
+<div class="col-xs-2 col-md-1 col-lg-1 form-group text-center" style="padding-left: 0px;padding-right: 0px;">
+<label class="applylev-form-header" translate>No. of Days</label>
+<div  id="noOfDays_{{$index}}" data-ng-bind="leave.leaveList1[$index].newLeave.noOfDays | translate" ng-disabled="true" ></div>
+<div style="padding-left: 24px;padding-right: 24px;"></div>
+</div>
+
+<div class="col-xs-8  col-md-3 col-lg-3 form-group" style="padding-right:2px;">
+<label class="applylev-form-header" translate>Detailed Reason</label><span class="asterisk">*</span>
+<textarea id="reason_{{$index}}" name="reason_{{$index}}" data-ng-change="validateReason($index);" data-ng-class="{'dirty-field':applyLevFrm.reason_{{$index}}.$dirty && applyLevFrm.reason_{{$index}}.$error.required && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)}" class="form-control"  style="height:25px; max-width:100%;padding:3px 6px 3px 2px;overflow:hidden;"  ng-model="leave.leaveList1[$index].newLeave.reason" data-ng-disabled="'Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName" ng-required="true"></textarea>
+<div class="lev-field-error"  data-ng-show="applyLevFrm.reason_{{$index}}.$dirty && applyLevFrm.reason_{{$index}}.$error.required && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)" translate>Reason is required.</div>
+</div>
+
+<div class=" col-xs-1   col-md-1 col-lg-1 form-group" style="padding-left: 0px;padding-top:27px;width:3%" >
+<div><a href="" data-ng-hide="$index==0" data-ng-click="copyReason($index);"><img src="appResources/img/copy-icon.png"/></a></div>
+</div>
+
+</div>
+
+
+
+<!-- ---------Check Box of Half Day --------------------->
+<div  class="row" style="margin:0px;">
+<div class="col-xs-12 col-sm-6 col-md-2 col-lg-2 text-left form-group " data-ng-if="leave.leaveList1[$index].showHalfDay" data-ng-show="leave.leaveList1[$index].showHalfDay">
+<span><input type="checkbox" data-ng-model="leave.leaveList1[$index].checkHalfDay" data-ng-change="defaultDuration($index);"/></span> <span class="applylev-form-header" style="vertical-align: text-top;">Half Day</span>
+</div>
+</div>
+<!-- -------------Durations code ---------------- -->
+<div data-ng-if="leave.leaveList1[$index].checkHalfDay" data-ng-show="leave.leaveList1[$index].checkHalfDay" class="row" style="margin:0px;">
+<div class=" col-xs-6  col-md-2 col-lg-2 form-group" style="padding-right:2px;">
+<label class="applylev-form-header" translate>Start Duration</label><span class="asterisk">*</span>
+<select class="form-control" style="padding:2px 0px 2px 0px;" ng-change="getNoOfDays($index)" data-ng-model="leave.leaveList1[$index].newLeave.startDuration" >
+<option data-ng-repeat="type in leave.leaveList1[$index].sDateDurations" >{{type}}</option></select>
+</div>
+<div class=" col-xs-6  col-md-2 col-lg-2 form-group" style="padding-right:2px;">
+<label class="applylev-form-header" translate>End Duration</label><span class="asterisk">*</span>
+<select class="form-control" style="padding:2px 0px 2px 0px;" ng-change="getNoOfDays($index)" data-ng-model="leave.leaveList1[$index].newLeave.endDuration" >
+<option data-ng-repeat="type in leave.leaveList1[$index].eDateDurations" >{{type}}</option></select>
+</div>
+</div>
+<div id="manualAddressId"  data-ng-show="leave.leaveList1[$index].isManualAddress" class="row" style="margin:0px;">
+<div class="col-xs-12 col-sm-4 col-md-3 col-lg-2 form-group" style="padding-right:2px">
+<label class="applylev-form-header" translate>Mobile No</label>
+<!--  ng-class="{'dirty-field':submitted && applyLevFrm.mobileNo_{{$index}}.$dirty && applyLevFrm.mobileNo_{{$index}}.$error.required}" data-ng-class="{'dirty-field':submitted && applyLevFrm.manualAddress_{{$index}}.$dirty  && applyLevFrm.manualAddress_{{$index}}.$error.required}"-->
+<input id="manualMobileNo_{{$index}}" type="text" name="mobileNo_{{$index}}"  class="form-control " placeholder="Mobile No"  ng-model="leave.leaveList1[$index].newLeave.contactNumCell" allow-only-numbers ondrop="return false;" onpaste="return false;" />
+<!-- <div class="lev-field-error"  data-ng-show="submitted && applyLevFrm.manualMobileNo_{{$index}}.$dirty && applyLevFrm.manualMobileNo_{{$index}}.$error.required">Mobile No is required.</div> -->
+</div>
+<div class="col-xs-12 col-sm-8 col-md-8 col-lg-5 form-group" style="padding-right:2px">
+<label class="applylev-form-header" translate>Address</label>
+<textarea id="manualAddress_{{$index}}" style="max-width:100%; overflow:hidden;"  type="text" name="address_{{$index}}"  class="form-control " placeholder="Address"  data-ng-model="leave.leaveList1[$index].newLeave.contactAddress" ></textarea>
+<!-- <div class="lev-field-error"  data-ng-show="submitted && applyLevFrm.manualAddress_{{$index}}.$dirty && applyLevFrm.manualAddress_{{$index}}.$error.required" translate>Valid address is required.</div> -->
+</div>
+
+</div>
+<!--  ----------------Additional fields code begins here------------------->
+
+<div id="addFieldId_{{leave.leaveList1[$index].newLeave.id}}">
+<!---------------------------- Parent Rows  ---------------------->
+<!-- <ng-form name="additionalFldFrm" id="additionalFldFrm" novalidate> -->
+<div id="parentId{{$index}}"  data-ng-show="leave.leaveList1[$index].showParent" class="row" style="margin:0px;padding-bottom: 10px;">
+<div  class="col-xs-12 col-md-3 col-lg-3 form-group text-left parent-row">
+<span id="{{$index}}field0" ></span>
+</div>
+<div  class="col-xs-12 col-md-3 col-lg-3 form-group text-left parent-row">
+<span id="{{$index}}field1" ></span>
+</div>
+<div  class="col-xs-12 col-md-3 col-lg-3 form-group text-left parent-row">
+<span id="{{$index}}field2" ></span>
+</div>
+<div  class="col-xs-12 col-md-3 col-lg-3 form-group text-left parent-row">
+<span id="{{$index}}field3" ></span>
+</div>
+<div  class="col-xs-12 col-md-3 col-lg-3 form-group text-left parent-row">
+<span id="{{$index}}field4" ></span>
+</div>
+
+</div>
+<!-- </ng-form> -->
+
+<!----------------------------HIS Details Maternity Leave  --------------------------------------------->
+<div id="childIdHIS{{$index}}" data-ng-show="(leave.leaveList1[$index].showChild && ((leave.leaveList1[$index].newLeave.countryLeaveTypeId==56) && (leave.leaveList1[$index].newLeave.Attribute1_Value=='Childbirth' || leave.leaveList1[$index].newLeave.Attribute1_Value=='Miscarriage')))" class="row" style="margin:10px 0px 25px 0px;">
+<div class="col-lg-12" id="accordion2" role="tablist" aria-multiselectable="true" style="margin:0px;">
+ <div style="">
+<div   role="tab" class="row applev-panel-heading" >
+<a role="button" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo" ng-click="changeCollapseTwo();" aria-expanded="true" aria-controls="collapseTwo" style="text-decoration:none;">
+<div id="collapseTwoIcon" class="col-lg-1 text-left" style="padding-left:0px;padding-right:5px;width:4%"><img src="appResources/img/HisIcon.png" style="height:30px;background-color:#da532c;"/></div>
+<div  class="col-lg-10 text-left" style="padding-top:5px;padding-left:3px;">
+
+ <span class="applev-panel-title" translate>HIS Details</span>
+
+</div>
+<div id="collapseTwoHeader" class="col-lg-1 glyphicon glyphicon-chevron-up padding-zero text-right" style="position:absolute;margin-top:8px;right:20px;"></div>
+</a>
+</div>
+      
+<div id="collapseTwo" class="panel-collapse collapse in collapse-temp" role="tabpanel" aria-labelledby="headingTwo">
+<div class="row" style="margin:0px;border-top:0px solid #ccc;border-right:1px solid #ccc;border-bottom:1px solid #ccc;border-left:1px solid #ccc;">
+
+
+<!----------------------------HIS Details Maternity Leave Row1 ---------------------->
+<div  class="col-lg-8 form-group text-left" style="postion:relative; padding-top:10px;padding-bottom:10px;padding-left:5px;padding-right:2px;">
+<span id="{{$index}}maternityField0" style="font-family:Segoe UI;font-size: 12px;font-weight:normal !important;color: #454545;" translate>
+Have you exhausted the benefits available to you under Basic coverage[Eligible Domiciliary 
+claims and Higher Hospitalization as per your grade] of TCS Health Insurance Scheme ? 
+</span>
+</div>
+ <div  class="col-lg-4 form-group text-left" style="postion:relative;padding-top:10px;padding-bottom:10px;padding-left:5px;padding-right:2px;">
+<span id="{{$index}}maternityField1" data-ng-init="hisAvailed"><!-- leave.leaveList1[$index].newLeave.hisAvailed='N' -->
+<label class="radio"><input id="radio_maternity_yes" type="radio" name="radioMaternity" data-ng-model="leave.leaveList1[$index].newLeave.hisAvailed" data-ng-value="'Y'">
+    							<span class="outer"><span class="inner"></span></span>
+    							<span class="quick-leave-names" translate>Yes</span></label>
+    							
+    							
+<label class="radio"><input id="radio_maternity_no" type="radio" name="radioMaternity" data-ng-model="leave.leaveList1[$index].newLeave.hisAvailed" data-ng-value="'N'">
+    							<span class="outer"><span class="inner"></span></span>
+    							<span class="quick-leave-names" translate>No</span></label>   
+    						
+  </span>
+</div>
+
+<!----------------------------HIS Details Maternity Leave  Row2 ---------------------->
+<div  class="col-lg-8 form-group text-left"  data-ng-show="leave.leaveList1[$index].newLeave.hisAvailed=='Y'" style="postion:relative; padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:2px;">
+<span id="{{$index}}maternityField2" style="font-family:Segoe UI;font-size: 12px;font-weight:normal !important;color: #454545;" translate>
+<span class="asterisk">*</span>Did it include maternity related claim/s?
+</span>
+</div>
+ <div  class="col-lg-4 form-group text-left"  data-ng-show="leave.leaveList1[$index].newLeave.hisAvailed=='Y'" style="postion:relative;padding-top:5px;padding-bottom:5px;padding-left:5px;padding-right:2px;">
+<span id="{{$index}}maternityField3" >
+<label class="radio" style="line-height:20px;"><input id="radio_maternityRelated_yes" type="radio" name="radioMaternityRelated" data-ng-model="leave.leaveList1[$index].newLeave.hisIncludedML" data-ng-value="'Y'">
+    							<span class="outer" style="margin-top:3px;margin-bottom:3px;"><span class="inner"></span></span>
+    							<span class="quick-leave-names" translate>Yes</span></label>
+    							
+    							
+<label class="radio" style="line-height:20px;"><input id="radio_maternityRelated_no" type="radio" name="radioMaternityRelated" data-ng-model="leave.leaveList1[$index].newLeave.hisIncludedML" data-ng-value="'N'">
+    							<span class="outer" style="margin-top:3px;margin-bottom:3px;"><span class="inner"></span></span>
+    							<span class="quick-leave-names" translate>No</span></label>   
+    													
+</span>
+</div>
+
+
+</div>
+</div>
+ 
+  </div>
+</div>
+</div>
+ <!----------------------------HIS Details Maternity Leave  Ends----------------------------------------------> 
+
+
+<!----------------------------Additional fields Child Rows  ---------------------->
+<div id="childId{{$index}}"  data-ng-show="leave.leaveList1[$index].showChild" class="row" style="margin: 10px 0px 20px 0px;">
+<div class="col-lg-12" id="accordion1" role="tablist" aria-multiselectable="true" style="margin:0px;">
+<div>
+ <div   role="tab" class="row applev-panel-heading" >
+ <a role="button" data-toggle="collapse" data-parent="#accordion1" href="#collapseOne" data-ng-click="changeCollapseOne();" aria-expanded="true" aria-controls="collapseOne" style="text-decoration:none;">
+ <div id="collapseOneIcon" data-ng-show="!((leave.leaveList1[$index].newLeave.countryLeaveTypeId==56 || leave.leaveList1[$index].newLeave.countryLeaveTypeId==808) && (leave.leaveList1[$index].newLeave.Attribute1_Value=='Childbirth' || leave.leaveList1[$index].newLeave.Attribute1_Value=='Miscarriage'))" class="col-lg-1 col-xs-2 text-left" style="padding-left:0px;padding-right:5px;"><img src="appResources/img/AdditionalDetIcon.png" style="height:30px;background-color:#da532c;"/></div>
+ <div id="collapseOneIcon"  data-ng-show="((leave.leaveList1[$index].newLeave.countryLeaveTypeId==56 || leave.leaveList1[$index].newLeave.countryLeaveTypeId==808) && (leave.leaveList1[$index].newLeave.Attribute1_Value=='Childbirth' || leave.leaveList1[$index].newLeave.Attribute1_Value=='Miscarriage'))" class="col-lg-1 col-xs-2 text-left" style="padding-left:0px;padding-right:5px;"><img src="appResources/img/NominationIcon.png" style="height:30px;background-color:#da532c;"/></div>   
+    <div  class="col-xs-9 col-lg-10 text-left" style="padding-top:5px;padding-left:3px;">
+      
+          <span  data-ng-show="!((leave.leaveList1[$index].newLeave.countryLeaveTypeId==56 || leave.leaveList1[$index].newLeave.countryLeaveTypeId==808) && (leave.leaveList1[$index].newLeave.Attribute1_Value=='Childbirth'))" class="applev-panel-title" translate>Additional Fields</span>
+          <span  data-ng-show="((leave.leaveList1[$index].newLeave.countryLeaveTypeId==56 || leave.leaveList1[$index].newLeave.countryLeaveTypeId==808) && (leave.leaveList1[$index].newLeave.Attribute1_Value=='Childbirth'))" class="applev-panel-title" translate>Nomination Details</span>
+        
+      </div>
+      <div id="collapseOneHeader" class="col-lg-1 glyphicon glyphicon-chevron-up padding-zero text-right" style="position:absolute;margin-top:8px;right:20px"></div>
+      </a>
+      </div>
+<div id="collapseOne" class="panel-collapse collapse in collapse-temp" role="tabpanel" aria-labelledby="headingOne" data-ng-style="{false: {'max-height': '130px'}, true: {'max-height': '350px'}}[isMobile()]"
+style="max-height: 130px;border-top:0px solid #ccc;border-right:1px solid #ccc;border-bottom:1px solid #ccc;border-left:1px solid #ccc;">
+<div class="row" style="margin:0px;font-weight:400;min-height:65px;padding-top: 10px">
+
+<div  class="col-lg-3 form-group text-left child-class-padding" data-ng-style="{true:{'max-width': '33.33333334%'}}['Additional Paternity Leave'==leave.leaveList1[$index].newLeave.leaveTypeName]">
+<span id="{{$index}}childField0" ></span>
+</div>
+ <div  class="col-lg-3 form-group text-left child-class-padding" data-ng-style="{true:{'max-width': '33.33333334%'}}['Additional Paternity Leave'==leave.leaveList1[$index].newLeave.leaveTypeName]">
+<span id="{{$index}}childField1" ></span>
+</div>
+<div  class="col-lg-3 form-group text-left child-class-padding" data-ng-style="{true:{'max-width': '33.33333334%'}}['Additional Paternity Leave'==leave.leaveList1[$index].newLeave.leaveTypeName]">
+<span id="{{$index}}childField2" ></span>
+</div>
+<div  class="col-lg-3 form-group text-left child-class-padding" data-ng-style="{true:{'max-width': '33.33333334%'}}['Additional Paternity Leave'==leave.leaveList1[$index].newLeave.leaveTypeName]">
+<span id="{{$index}}childField3" ></span>
+</div>
+</div>
+<div class="row" style="margin:0px;font-weight:400;min-height:65px;">
+<div  class="col-lg-3 form-group text-left child-class-padding">
+<span id="{{$index}}childField4" ></span>
+</div>
+<div  class="col-lg-3 form-group text-left child-class-padding">
+<span id="{{$index}}childField5" ></span>
+</div>
+</div>
+
+
+</div>
+ 
+  </div>
+</div>
+
+</div>
+
+
+
+</div>
+
+<!--  ----------------Additional fields code ends here------------------->
+
+<!--Disclaimers code starts here  -->
+<div style="">
+<div class="row content-main-row disclaimer-class" style="margin:0px;">
+
+
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-if="leave.leaveList1[$index].showDsclmr5" data-ng-show="leave.leaveList1[$index].showDsclmr5">
+<span style="vertical-align: middle;">
+<input type="checkbox" data-ng-model="leave.leaveList1[$index].defaultDsclmrVal5"  ng-click=""  style="padding-top:2px;">
+</span>
+<span style="" data-ng-bind="leave.leaveList1[$index].disclaimer5" translate>
+</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr6">
+<span style="vertical-align: middle;">
+<input type="checkbox" ng-model="leave.leaveList1[$index].defaultDsclmrVal6"  ng-click=""  style="padding-top:2px;" >
+</span>
+<span style="" data-ng-bind="leave.leaveList1[$index].disclaimer6" translate>
+</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr7">
+<span style="vertical-align: middle;">
+<input type="checkbox" ng-model="leave.leaveList1[$index].defaultDsclmrVal7"  ng-click=""  style="padding-top:2px;" >
+</span>
+<span style="" data-ng-bind="leave.leaveList1[$index].disclaimer7" translate>
+</span>
+<span class="asterisk">*</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr8">
+<span style="vertical-align: middle;">
+<input type="checkbox" ng-model="leave.leaveList1[$index].defaultDsclmrVal8" data-ng-click=""  style="padding-top:2px;" >
+</span>
+<span style="" data-ng-bind="leave.leaveList1[$index].disclaimer8" translate>
+</span>
+<span class="asterisk">*</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr11">
+<span style="vertical-align: middle;">
+<input type="checkbox" ng-model="leave.leaveList1[$index].defaultDsclmrVal11"  data-ng-click="" ng-true-value="'YES'" ng-false-value="'NO'" style="padding-top:2px;" ng-required="{{showDsclmr11}}">
+</span>
+<span style="vertical-align: text-bottom;" data-ng-bind="leave.leaveList1[$index].disclaimer11" translate>
+</span>
+<span class="asterisk">*</span>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr12">
+<span style="vertical-align: middle;">
+<input type="checkbox" ng-model="leave.leaveList1[$index].defaultDsclmrVal12"  data-ng-click=""  style="padding-top:2px;" ng-required="{{showDsclmr12}}">
+</span>
+<span style="" data-ng-bind="leave.leaveList1[$index].disclaimer12" translate>
+</span>
+<span class="asterisk">*</span>
+</div>
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showEmailDsclmr">
+<span style="padding-right:5px;" ><img ng-src="appResources/img/please_note_icon.png" /></span><span style="vertical-align: sub;" data-ng-bind="leave.leaveList1[$index].emailDisclaimer" translate>
+</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr1">
+<span style="vertical-align: text-bottom;" data-ng-bind="leave.leaveList1[$index].disclaimer1" translate>
+</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr2">
+<span style="vertical-align: text-bottom;" data-ng-bind="leave.leaveList1[$index].disclaimer2" translate>
+</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr3">
+<span class="glyphicon glyphicon-bullhorn" style="color:#2084c9;font-size: 14px;"></span>
+<span style="vertical-align: text-bottom;" data-ng-bind="leave.leaveList1[$index].disclaimer3" translate>
+</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr4">
+<span class="glyphicon glyphicon-bullhorn" style="color:#2084c9;font-size: 14px;"></span>
+<span style="vertical-align: text-bottom;" data-ng-bind="leave.leaveList1[$index].disclaimer4" translate>
+</span>
+</div>
+
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr9">
+<span class="glyphicon glyphicon-bullhorn" style="color:#2084c9;font-size: 14px;"></span>
+<span style="vertical-align: text-bottom;" data-ng-bind="leave.leaveList1[$index].disclaimer9" translate>
+</span>
+</div>
+
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left disclaimer-padding" data-ng-show="leave.leaveList1[$index].showDsclmr10">
+<span class="glyphicon glyphicon-bullhorn" style="color:#2084c9;font-size: 14px;"></span>
+<span style="vertical-align: text-bottom;" data-ng-bind="leave.leaveList1[$index].disclaimer10" translate>
+</span>
+</div>
+
+</div>
+</div>
+
+
+<!-- upload by ekta -->
+<ng-form method="POST" enctype="multipart/form-data" data-file-upload="options"> 
+<div data-ng-controller="dragDropController" style="padding:0px 10px 0px 10px;">
+<div class="row content-main-row" style="margin-bottom:10px;">
+<div class="col-md-7 col-lg-7 text-left padding-zero" id="uploadRow">
+<img src="appResources/img/UploadIcon.png" style="margin-bottom:8px;"/>
+<span class="doc-upload-header" translate>Upload Documents</span>
+<div id="errorMessageForFile" class="lev-field-error"></div>
+<div id="dragandrophandler" class="doc-upload-body text-center" translate><span>Drop documents here</span>
+</div>
+<div class="row" style="margin:0px;">
+<div class="col-md-10 col-lg-10" style="color: #555555;text-align:left;vertical-align: bottom;word-wrap: break-word;font-size:10px;font-weight:bold;padding-left:0px;margin-top:3px">
+<span >Supported file type : pdf, png, jpg, jpeg, docx, doc, xls, xlsx, ppt, pptx, txt, ods, tiff, bmp </span>
+<br/>
+<span >File size limit : 5 MB</span>
+</div>
+<div class="col-md-2 col-lg-2 text-right"  id="uploadDocId" style="padding-right:0px;margin-top:3px">
+<label>
+<input name="file" type="file" id="singleFile" class="span4"
+						 style="width: 85px; max-height: 23px; overflow: hidden;display:none;">
+						 <div style="cursor: pointer" class="clm-icon-browse attachDocIcon" data-toggle="tooltip" title="Click to Upload"></div>
+</label>
+
+<script>
+$(document).ready(function(){
+	$('#uploadDocId').tooltip({
+		  selector: "div[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+</div>
+</div>
+<div class="col-xs-12 col-sm-6 col-md-5 col-lg-5">
+<div class="row doc-upload-conatainer" style="margin:0px;padding-left:0px;background-color: white;"  >
+<div id="uploadedDivName"></div>
+<div id="uploadedDocDiv0"></div>
+<div id="uploadedDocDiv1"></div>
+<div id="uploadedDocDiv2"></div>
+<div id="uploadedDocDiv3"></div>
+</div>
+</div>
+</div>
+
+
+</div>
+
+</ng-form>
+<!-- ----------------Document Uplaod header ends here --------------- -->
+
+
+
+</div>
+</div>
+
+<!-- Amendment starts here -->
+<div data-ng-if="isAmend" data-ng-show="isAmend">
+
+<div class="row content-main-row"  style="margin-bottom:5px">
+<span class="text-left lev-field-error"  data-ng-bind="leave.leaveList1[$index].errorMsg" translate></span>
+<span class="text-left lev-field-error"  data-ng-bind="leave.leaveList1[$index].serverErrMsg" translate></span>
+<div class="col-lg-12 padding-zero" style="background-color:#ffffff;border:1px solid #ccc;padding-bottom: 10px;padding-top:10px;">
+
+<div class="row" style="margin:0px; padding:0px;">
+
+<div  class="col-xs-6  col-md-2 col-lg-2 form-group">
+<span class="applylev-form-header" translate>Start Date</span><span class="asterisk">*</span>
+<div  class="leave-row-fyi" data-ng-bind="amendObj.startDate"></div>
+</div>
+
+<!-- <div class="col-xs-6  col-md-2 col-lg-2 form-group">
+<span class="applylev-form-header" translate>End Date</span><span class="asterisk">*</span>
+<div class="leave-row-fyi"data-ng-bind="amendObj.endDate"></div>
+</div> -->
+
+<div class="col-xs-6  col-md-2 col-lg-2 form-group" style="padding-right: 2px;">
+<label class="applylev-form-header" style="margin-bottom:2px;" translate>End Date</label><span class="asterisk">*</span>
+
+<div kunalsdatepicker year-list="{{leave.yearlist}}" date-format="dd-MMM-yyyy" date-set="{{(leave.calMonth).format('DD-MMM-YYYY')}}"  date-set-hidden="true" date-min-limit="{{minYear}}" date-max-limit="{{maxYear}}">
+<input style="padding-left: 2px;cursor:pointer;" type="text" id= "endDate_{{$index}}"  class="form-control applyLeaveInputField date-property" placeholder="DD-MMM-YYYY" 
+ ng-class="{'dirty-field':applyLevFrm.endDate_{{$index}}.$dirty && applyLevFrm.endDate_{{$index}}.$error.required  && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)}"
+ ng-change="defaultDuration($index)"
+ ng-model="amendObj.endDate"
+ />
+<script> $('.applyLeaveInputField').keypress(function (event) { event.preventDefault();});</script>
+<div class="lev-field-error" ng-show="applyLevFrm.endDate_{{$index}}.$dirty && applyLevFrm.endDate_{{$index}}.$error.required  && !('Flexi Holiday'==leave.leaveList1[$index].newLeave.leaveTypeName)" translate>End date is required.</div>
+<div ng-bind="leave.leaveList1[$index].errorEDate" translate></div>
+</div>
+</div>
+
+<div class=" col-xs-11  col-md-3 col-lg-3 form-group" style="padding-right:2px;">
+<span class="applylev-form-header" translate>Leave Type</span><span class="asterisk">*</span>
+<div class="leave-row-fyi" style="padding:2px 0px 2px 0px;" data-ng-bind="amendObj.leaveTypeName"></div>
+</div>
+<div class=" col-xs-1   col-md-1 col-lg-1 form-group" style="padding-left: 0px;padding-top:20px;width:3%"></div>
+
+
+<div class="col-xs-3 col-md-1 col-lg-1 form-group" style="padding-left: 0px;padding-right: 0px;">
+<span class="applylev-form-header" translate>No. of Days</span>
+<div class="leave-row-fyi"  ng-bind="amendObj.noOfDays"></div>
+</div>
+
+<div class="col-xs-8  col-md-3 col-lg-3 form-group" style="padding-right:2px;">
+<span class="applylev-form-header" translate>Detailed Reason</span><span class="asterisk">*</span>
+<div class="leave-row-fyi"  style="word-wrap:break-word;min-height:40px;max-height:100%;max-width:100%;padding:2px inherit 2px inherit;" data-ng-bind="amendObj.reason"></div>
+</div>
+
+<div class=" col-xs-1 col-md-1 col-lg-1 form-group" style="padding-left: 0px;padding-top:27px;width:3%" ></div>
+
+</div>
+
+
+<div  class="row" style="margin:0px;padding-bottom:15px;">
+<div  class="col-lg-4 form-group text-left" >
+<span class="applylev-form-header" ng-bind="amendObj.Attribute1_Name" translate></span><span class="asterisk">*</span>
+<div class="leave-row-fyi"  ng-bind="amendObj.Attribute1_Value"></div>
+</div>
+<div  class="col-lg-3 form-group text-left" style="postion:relative; width:auto">
+<span class="applylev-form-header"  translate>Email Id</span><span class="asterisk">*</span>
+<div class="leave-row-fyi"  ng-bind="amendObj.contactNumHome"></div>
+</div>
+
+
+</div>
+
+
+
+
+<div class="row" style="margin:0px;">
+<div class="col-lg-12"  role="tablist" aria-multiselectable="true" style="margin:0px;">
+ <div   role="tab" class="row applev-panel-heading" >
+ <div id="collapseOneIcon" class="col-lg-1 text-left" style="padding-left:0px;padding-right:5px;width:4%"><img src="appResources/img/AdditionalDetIcon.png" style="height:30px;background-color:#da532c;"/></div>
+
+    <div  class="col-lg-10 text-left" style="padding-top:5px;">
+      <span  data-toggle="collapse" data-parent="#accordion1" aria-expanded="true" aria-controls="collapseAmend" style="text-decoration:none;">
+          <span  class="applev-panel-title" translate>Additional Fields</span>
+
+        </span>
+      </div>
+      
+      </div>
+<div id="collapseAmend" class="panel-collapse collapse in collapse-temp" role="tabpanel" aria-labelledby="headingOne" style="border-top:0px solid #ccc;border-right:1px solid #ccc;border-bottom:1px solid #ccc;border-left:1px solid #ccc;">
+<div class=" row" style="margin:0px;">
+
+
+
+<div  class="col-lg-3 form-group text-left" style="postion:relative; padding-top:10px;padding-bottom:10px;padding-left:5px;padding-right:2px;">
+<span class="applylev-form-header" ng-bind="amendObj.Attribute2_Name" translate></span>
+<div class="leave-row-fyi" style="font-weight:400;" ng-bind="amendObj.Attribute2_Value"></div>
+</div>
+ <div  class="col-lg-3 form-group text-left" style="postion:relative;padding-top:10px;padding-bottom:10px;padding-left:5px;padding-right:2px;">
+<span class="applylev-form-header" ng-bind="amendObj.Attribute3_Name" translate></span>
+<div class="leave-row-fyi" style="font-weight:400;" ng-bind="amendObj.Attribute3_Value"></div>
+</div>
+<div  class="col-lg-3 form-group text-left" style="postion:relative;padding-top:10px;padding-bottom:10px;padding-left:5px;padding-right:2px;">
+<span class="applylev-form-header" ng-bind="amendObj.Attribute4_Name" translate></span>
+<div class="leave-row-fyi" style="font-weight:400;" ng-bind="amendObj.Attribute4_Value"></div>
+</div>
+<div  class="col-lg-3 form-group text-left" style="postion:relative;padding-top:10px;padding-bottom:10px;padding-left:5px;padding-right:2px;">
+<span class="applylev-form-header" ng-bind="amendObj.Attribute5_Name" translate></span>
+<div class="leave-row-fyi" style="font-weight:400;" ng-bind="amendObj.Attribute5_Value"></div>
+</div>
+
+
+</div>
+</div>
+
+
+</div>
+
+</div>
+
+
+</div>
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+<!-- --------Apply leave Row info (disabled row) code begins here----->
+<div class="row content-main-row" ng-show="leave.leaveList1[$index].newLeave.isDisabled && (!isAmend)"  style="margin-bottom:10px">
+<span class="lev-field-error" data-ng-bind="leave.leaveList1[$index].dependencyError | translate" translate></span>
+<span class="text-left lev-field-error"  ng-bind="leave.leaveList1[$index].errorMsg" translate></span>
+<span class="text-left lev-field-error"  data-ng-bind="leave.leaveList1[$index].serverErrMsg | translate"></span>
+
+<div id="ErrRow_{{$index}}" class="col-lg-12 padding-zero" style="background-color:#E8E8E8;padding-bottom:5px;box-shadow:1px 1px 1px #999999;">
+
+<div class="row" style="margin:0px; padding:0px 0px 0px 0px" >
+<div class="col-xs-offset-9 col-sm-offset-10 col-md-offset-11 col-lg-offset-11 col-xs-3 col-md-1 col-sm-2 col-lg-1 text-right" style="padding-right:5px;padding-left:0px;" >
+<a id="editDiv" href="" style="text-decoration:none;" ng-click="enableRow($index);"><span class="text-right" ><img src="appResources/img/Edit.png" data-toggle="tooltip" title="Edit" /></span></a>
+<script>
+
+$(document).ready(function(){
+	$('#editDiv').tooltip({
+		  selector: "img[data-toggle='tooltip']"
+	}); 
+});
+</script>
+<a id="delDiv" href="" style="text-decoration:none;" ng-click="deleteRow($index);"><span class="text-right" ng-hide="counter < 1"><img src="appResources/img/delete_icon.png" data-toggle="tooltip" title="Delete" /></span></a>
+<script>
+
+$(document).ready(function(){
+	$('#delDiv').tooltip({
+		  selector: "img[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+</div>
+
+<div class="row" style="margin:0px; padding:0px 0px 5px 0px;">
+
+<div  class="col-xs-6  col-md-2 col-lg-2 form-group">
+<span class="applylev-form-header" translate>Start Date</span><span class="asterisk">*</span>
+<div  class="leave-row-fyi" data-ng-bind="leave.leaveList1[$index].newLeave.startDate"></div>
+</div>
+
+<div class="col-xs-6  col-md-2 col-lg-2 form-group">
+<span class="applylev-form-header" translate>End Date</span><span class="asterisk">*</span>
+<div class="leave-row-fyi"data-ng-bind="leave.leaveList1[$index].newLeave.endDate"></div>
+</div>
+<div class="col-xs-11  col-md-3 col-lg-3  form-group" style="padding-right:2px;">
+<span class="applylev-form-header" translate>Leave Type</span><span class="asterisk">*</span>
+<div class="leave-row-fyi" style="padding:2px 0px 2px 0px;" data-ng-bind="leave.leaveList1[$index].newLeave.leaveTypeName"></div>
+</div>
+<!-- <div class=" col-xs-1   col-md-1 col-lg-1 form-group" style="padding-left: 0px;padding-top:20px;width:3%"></div> -->
+
+
+<div class="col-xs-2 col-md-1 col-lg-1 form-group text-center" style="padding-left: 0px;padding-right: 0px;">
+<span class="applylev-form-header" translate>No. of Days</span>
+<div class="leave-row-fyi"  ng-bind="leave.leaveList1[$index].newLeave.noOfDays"></div>
+</div>
+
+<div class="col-xs-8  col-md-3 col-lg-3 form-group" style="padding-right:2px;">
+<span class="applylev-form-header" translate>Detailed Reason</span><span class="asterisk">*</span>
+<div class="leave-row-fyi"  style="word-wrap:break-word;min-height:40px;max-height:100%;max-width:100%;padding:2px inherit 2px inherit;" data-ng-bind="leave.leaveList1[$index].newLeave.reason"></div>
+</div>
+
+<div class=" col-xs-1 col-md-1 col-lg-1 form-group" style="padding-left: 0px;padding-top:27px;width:3%" ></div>
+
+</div>
+
+
+</div>
+</div>
+<!-- --------Apply leave Row info (disabled row) code ends here----->
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+</div>
+<!-- Phase 2 code -->
+<div id="saveLev" ng-show="!isAmend" class="row content-main-row" style="padding-bottom:15px;">
+<div class="col-lg-12 padding-zero">
+
+<a href="" style="text-decoration:none;" data-ng-click="saveLeave();" ng-show="!isAmend">
+<img src="appResources/img/AddMoreIcon.png" style="padding-right: 5px;margin-bottom: 2px;"/>
+<span class="add-leave-button" translate>ADD ANOTHER LEAVE</span>
+</a>
+
+</div>
+</div>
+<!-- Phase 2 code -->
+
+<div class="row content-main-row" ng-show="!isAmend" id="submitRow">
+<div class="col-xs-12 col-sm-6 col-md-6 col-lg-7 text-left" style="padding-left:0px;margin-top:8px;margin-bottom:5px;">
+<p style="font-size: 12px !important; color: #808080; font-style: italic; vertical-align: -webkit-baseline-middle;line-height:1.3">Submit button will be enabled only after all the mandatory fields are filled. </p>
+</div>
+<div class="col-lg-5 text-right padding-zero">
+<button type="button" style="outline: none !important;color:#fff;background-color: #2084c9;" class="btn btn-primary btn-lg" data-ng-click="(disableSubmitAll() || applyLevFrm.$invalid || additionalFldFrm.$invalid || disableSubmit) || submitLeave();" data-ng-disabled="(disableSubmitAll() || applyLevFrm.$invalid || additionalFldFrm.$invalid || disableSubmit)" data-ng-class="{'disabled':(disableSubmitAll() || applyLevFrm.$invalid || additionalFldFrm.$invalid || disableSubmit)}"  translate>Submit</button>
+<button type="button" style="outline:none !important;"  data-ng-style="{true:{'margin-right':'3px','margin-top':'10px'}}[isMobile()]" class="btn btn-default btn-lg" data-ng-click="callReset();" translate >Reset All</button>
+
+</div>
+</div>
+
+<div class="row content-main-row" ng-show="isAmend">
+<div class="col-lg-12 text-right padding-zero" ng-if="!isAmendPage">
+<button type="button" style="outline: none !important;" class="btn btn-primary btn-lg" data-ng-click="submitLeave();" translate>Submit</button>
+<button type="button" data-ng-disabled="true" class="btn btn-default btn-lg" data-ng-class="{'disabled':(true)}" translate>Save As Draft</button>
+<button type="button" data-ng-disabled="true" class="btn btn-default btn-lg" data-ng-class="{'disabled':(true)}" translate>Reset All</button>
+</div>
+<div class="col-lg-12 padding-zero" ng-if="isAmendPage">
+	<button type="button" style="outline: none !important;margin-left: 38%;padding-top: 3px;padding-bottom: 3px;" class="btn btn-primary btn-lg" data-ng-click="submitLeave();" translate>Save amendment</button>
+	<button type="button" style="outline: none !important;padding-top: 3px;padding-bottom: 3px;" class="btn btn-default btn-lg" data-ng-click="closeAmendment();" translate>close</button>
+</div>
+</div>
+
+
+</ng-form>
+</div>
+</div>
+
+
+
+</div>
+</div>
+<!-- Apply leave main bodyends here -->
+<!-- ------------------ reset modal for apply leave------------------------->
+<div id="archiveResetModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+						<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span class="popUpTitleText ng-binding" style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="min-height: 130px;padding:30px;text-align: left;">
+							<div>
+								<span>Are you sure you want to reset all the leaves details filled?</span>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button" data-dismiss="modal"
+								ng-click="resetAll();">OK</button>
+								<button class="leave-modal-button" 
+								data-dismiss="modal">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+<!-- -------------Quick Apply Modal begings here--------------- -->
+<div id="quickApplyId" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="margin:0px;max-width:1366px;margin:auto;">
+
+<div class="row text-left" style="margin:0px 20px 0px 20px;">
+<div class="col-xs-12  col-sm-12  col-md-12  col-lg-12 modal-body leave-modal-body leave-modal-text" style="margin-top:125px;box-shadow:0px 0px 15px 4px;">
+<div class=" text-right" style="margin:0px;margin-bottom:5px;">
+
+<a href=""><img src="appResources/img/Close.png" data-dismiss="modal" ng-click="resetQuickLev();"/></a>
+
+</div>
+<div class="row text-right" style="margin:0px;">
+<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 ">
+<!-- ---------------Leave Balance code starts here---------------- -->
+<div id="qckBalId" class="row content-main-row " style="margin-top:5px;">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero leave-balance-row">
+<div class="row balance-childrow">
+<div class="col-xs-* col-md-12 col-lg-12" style="padding-top:5px;padding-bottom:5px;">
+<div class="leave-balance-header text-left" translate>Available Leave Balance:</div>
+</div>
+</div>
+<div class="row balance-childrow text-left">
+<span class="col-xs-3 col-sm-6 col-md-6 col-lg-3" data-ng-repeat="typeBal in levBalList" style="padding-right:0px;">
+<span class="balance-name" style="cursor:default;" data-toggle="tooltip" title="{{typeBal.countryLevTypeName}}" data-ng-bind="typeBal.shname" translate> </span><span class="balance-name">:</span> <span class="balance-count" data-ng-bind="typeBal.posted" translate></span>
+</span>
+</div>
+
+</div>
+<script>
+$(document).ready(function(){
+	$('#qckBalId').tooltip({
+		  selector: "span[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+<!-- 
+<div class="row content-main-row text-right" style="margin-bottom:5px;">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero ">
+<span href="" ><span><img src="appResources/img/YearlyCalendarIcon.png" style="height:22px; width:22px;"/></span></span>
+</div></div> -->
+<!-- ---------------Calendar code starts here---------------- -->
+<div style="border: 1px solid #ccc;margin-bottom:10px;">
+<div id="calendarMainId" class="row content-main-row" style="height:auto;margin-bottom:10px;">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero">
+<calendar1 class="text-center" start-date="leave.startDate" end-date="leave.endDate"  year-list="leave.yearlist" leave-days="leave.leaveDays" holiday-list="leave.holidayList">
+</calendar1> 
+</div>
+</div>
+<!-- Labels for leaves holiday weekend flexi etc  -->
+<div id="leaveLabelsId" class="row content-main-row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero leave-legend-row" style="padding-top:3px;">
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 holiday-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Holiday</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 planned-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Planned Leave</div>
+</div>
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 weekend-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Weekend</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 approvedleave-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Approved Leave</div>
+</div>
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div ng-show="('IN'==countryFlg)" class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 flexi-property" style="width:8px;margin-top:3px;"></div><div ng-show="('IN'==countryFlg)" class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Flexi Holiday</div>
+<div ng-class="{'pending-margin' : (!('IN'==countryFlg))}" class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 pendingleave-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Pending Leave</div>
+</div>
+</div>
+</div>
+</div>
+<!-- holiday description of calendar month  -->
+<!-- <div id="levDescId" class="row content-main-row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero holiday-flexi-section">
+<div class="row content-main-row" style="padding-bottom:5px;">
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+<div class="holiday-flexi-header text-left" translate>Holidays/Flexi's:</div>
+</div>
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
+<a href="" style="text-decoration:none;" ng-click="planLeave()"><img src="appResources/img/PlanLeaveIcon.png" /><span class="plan-lev-header" translate>Plan Leave</span></a>
+</div>
+</div>
+<div class="row content-main-row" ng-repeat="pointer in leave.holidayList track by $index" style="padding-bottom:5px;">
+<div class="col-lg-offset-1 col-xs-1 col-md-1 col-lg-1" style="margin-left:10px;" ng-class="{'flexi-property':(pointer.typ=='F'),'holiday-property':(pointer.typ=='H')}"></div>
+<div class="col-xs-5 col-md-5 col-lg-5 holiday-flexi-row text-left" style="padding-left:8px;padding-right:0px;">
+<span ng-show="pointer.typ=='F' || pointer.typ=='H'" translate>{{pointer.sd | date:'EEE, d  MMMM'}}-</span> 
+</div>
+<div class="col-xs-5 col-md-5 col-lg-5 holiday-flexi-row text-left padding-zero">
+<span ng-show="pointer.typ=='F' || pointer.typ=='H'" translate>{{pointer.desc}}</span>
+</div>
+</div>
+</div>
+</div> -->
+</div>
+<div  class="col-xs-12 col-sm-9 col-md-9 col-lg-9 " id="quickApplyFeatures">
+
+<div class="row text-left" style="margin:0px;padding-bottom:10px;">
+<div  class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:0px;">
+<span><img src="appResources/img/QuickApplyIconTitle.png" /></span>
+<span class="quick-apply-header" style="vertical-align:middle;" translate>Quick Apply</span>
+</div>
+</div>
+<div class="row quick-leave-types" style="margin:0px;padding:10px;">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="border: 1px solid #ccc;padding-bottom:5px;padding-top:5px;">
+<div class="row" style="margin:0px;padding-bottom:5px;">
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero">
+<!-- -------------row for select leave type in quick leave-----------------  -->
+								<div class="row" style="margin:0px;">
+								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 text-left">
+								<span class="quick-select-type" translate>
+								Select Leave Type<span class="asterisk">*</span>
+								</span>
+								</div>
+								</div>
+<!-- ------------------row for select leave type options quick leave-------------------  -->
+								<div class="row" style="margin:0px;">
+								<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 text-left" data-ng-repeat="typeBal in levBalList">
+								<label class="radio"><input id="radio_{{$index}}" type="radio"  name="quickLevType" data-ng-change="isFlexiType($parent.quickLevType,'{{quickLevType}}');" data-ng-model="$parent.quickLevType" data-ng-value="typeBal.countryLevTypeName">
+    							<span class="outer"><span class="inner"></span></span>
+    							<span class="quick-leave-names" data-ng-bind="typeBal.countryLevTypeName" translate></span></label>
+    							</div>
+								</div>
+								
+								</div>
+								</div>
+								<div class="row" style="margin:0px;">
+								<div class="col-xs-12 col-md-12 col-md-12 col-lg-12 padding-zero" style="border-top:1px solid #e5e5e5;padding-top: 5px;padding-bottom: 4px;">
+<!-- -------------row for select leave date in quick leave-----------------  -->								
+								<div class="row" style="margin:0px;">
+								<div class="col-xs-12 col-md-12 col-lg-12 text-left">
+								<span class="quick-select-type" translate>
+								Select Date<span class="asterisk">*</span>
+								</span>
+								</div>
+								</div>
+<!-- ------------------row for select leave date options quick leave--------------------->								
+								<div class="row" style="margin:0px;">
+								<div class="col-xs-12 col-md-4 col-lg-4 text-left">
+								<label class="radio"><input id="quickDate1" type="radio" name="quickDate" data-ng-disabled="disableQckDate(displayedQckDates.prevWorkingDay,'quickDate1');" data-ng-model="quickDate" data-ng-click="selectQckDate();" data-ng-value="displayedQckDates.prevWorkingDay" >
+    							<span class="outer quickDate1" id="outer1"><span class="inner"></span></span>
+    							<span class="quick-leave-names quickDate1" data-ng-bind="displayedQckDates.prevWorkingDay" translate></span></label>
+								</div>
+								
+								<div class="col-xs-12 col-md-4 col-lg-4 text-left">
+								<label class="radio"><input id="quickDate2" type="radio" name="quickDate" data-ng-disabled="disableQckDate(displayedQckDates.selectedDate,'quickDate2');" data-ng-model="quickDate" data-ng-click="selectQckDate();" data-ng-value="displayedQckDates.selectedDate" >
+    							<span class="outer quickDate2" id="outer2"><span class="inner"></span></span>
+    							<span class="quick-leave-names quickDate2" data-ng-bind="displayedQckDates.selectedDate" translate></span></label>
+								</div>
+								
+								<div class="col-xs-12 col-md-4 col-lg-4 text-left">
+								<label class="radio"><input id="quickDate3" type="radio" name="quickDate" data-ng-disabled="disableQckDate(displayedQckDates.nextWorkingDay,'quickDate3');" data-ng-model="quickDate" data-ng-click="selectQckDate();" data-ng-value="displayedQckDates.nextWorkingDay" >
+    							<span class="outer quickDate3" id="outer3"><span class="inner"></span></span>
+    							<span class="quick-leave-names quickDate3" data-ng-bind="displayedQckDates.nextWorkingDay" translate></span></label>
+								</div>
+								</div>
+								</div>
+								</div>
+								
+								
+								
+								
+								
+								
+<!-- ------Section for sick leave images-------------- -->
+<div class="row" style="margin:0px;" data-ng-show="(!(countryFlg=='UY' || countryFlg=='AR' || countryFlg=='MX' || countryFlg=='US' || countryFlg=='CL' || countryFlg=='CO' || countryFlg=='EC'))">								
+	<div class="col-xs-12 col-md-12 col-md-12 col-lg-12 padding-zero" data-ng-show="(quickLevType=='Sick Leave' || quickLevType=='Sick Leave - Short Term')" style="border-top:1px solid #e5e5e5;padding-top:5px;">
+	<div class="row" style="margin:0px;">
+	<div class="col-xs-12 col-md-12 col-lg-12 text-left padding-zero">
+	<span class="quick-select-type" translate>
+	Please select a reason for sick leave<span class="asterisk">*</span>
+	</span>
+	</div>
+	</div>
+	
+	<div class="row" style="margin:0px;">
+	<div class="col-xs-6 col-md-4 col-lg-4 " style="padding:5px;padding-left:0px !important;"><div id="sick1" class="row" data-ng-click="setSickReason(1);" style="margin:0px;cursor:pointer;"><div class="col-xs-12 col-md-12 col-lg-12 text-left sickleave-tile"><span class="row" style="margin:0px;"><span class="col-xs-12 col-lg-4"><img data-ng-show="!isSick1" src="appResources/img/Sick3_NS.png" style="height:66px"/><img data-ng-show="isSick1" src="appResources/img/Sick3_S.png" style="height:66px"/></span><span class="col-xs-12 col-lg-8" style="padding-top:20px;" translate>Fever,Cough,Cold</span></span></div></div></div>
+	<div class="col-xs-6 col-md-4 col-lg-4 " style="padding:5px;"><div id="sick2" class="row" data-ng-click="setSickReason(2);" style="margin:0px;cursor:pointer;"><div class="col-xs-12 col-md-12 col-lg-12 text-left sickleave-tile"><span class="row" style="margin:0px;"><span class="col-xs-12 col-lg-4"><img data-ng-show="!isSick2" src="appResources/img/Sick4_NS.png" style="height:66px"/><img data-ng-show="isSick2" src="appResources/img/Sick4_S.png" style="height:66px"/></span><span class="col-xs-12 col-lg-8" style="padding-top:20px;" translate>Digestive System Disorder</span></span></div></div></div>
+	<div class="col-xs-6 col-md-4 col-lg-4 " style="padding:5px;padding-right:0px !important;"><div id="sick3" class="row" data-ng-click="setSickReason(3);" style="margin:0px;cursor:pointer;"><div class="col-xs-12 col-md-12 col-lg-12 text-left sickleave-tile"><span class="row" style="margin:0px;"><span class="col-xs-12 col-lg-4"><img data-ng-show="!isSick3" src="appResources/img/Sick2_NS.png" style="height:66px"/><img data-ng-show="isSick3" src="appResources/img/Sick2_S.png" style="height:66px"/></span><span class="col-xs-12 col-lg-8" style="padding-top:20px;" translate>Headache,Nausea</span></span></div></div></div>
+	<div class="col-xs-6 col-md-4 col-lg-4 " style="padding:5px;padding-left:0px !important;"><div id="sick4" class="row" data-ng-click="setSickReason(4);" style="margin:0px;cursor:pointer;"><div class="col-xs-12 col-md-12 col-lg-12 text-left sickleave-tile"><span class="row" style="margin:0px;"><span class="col-xs-12 col-lg-4"><img data-ng-show="!isSick4" src="appResources/img/Sick1_NS.png" style="height:66px"/><img data-ng-show="isSick4" src="appResources/img/Sick1_S.png" style="height:66px"/></span><span class="col-xs-12 col-lg-8" style="padding-top:20px;" translate>Orthopedic Ailment</span></span></div></div></div>
+	<div class="col-xs-6 col-md-4 col-lg-4 " style="padding:5px;"><div id="sick5" class="row" data-ng-click="setSickReason(5);" style="margin:0px;cursor:pointer;"><div class="col-xs-12 col-md-12 col-lg-12 text-left sickleave-tile"><span class="row" style="margin:0px;"><span class="col-xs-12 col-lg-4"><img data-ng-show="!isSick5" src="appResources/img/Sick6_NS.png" style="height:66px"/><img data-ng-show="isSick5" src="appResources/img/Sick6_S.png" style="height:66px"/></span><span class="col-xs-12 col-lg-8" style="padding-top:20px;" translate>Infection/Parasetic Disease</span></span></div></div></div>
+	<div class="col-xs-6 col-md-4 col-lg-4 " style="padding:5px;padding-right:0px !important;"><div id="sick6" class="row" data-ng-click="setSickReason(6);" style="margin:0px;cursor:pointer;"><div class="col-xs-12 col-md-12 col-lg-12 text-left sickleave-tile"><span class="row" style="margin:0px;"><span class="col-xs-12 col-lg-4"><img data-ng-show="!isSick6" src="appResources/img/Sick5_NS.png" style="height:66px"/><img data-ng-show="isSick6" src="appResources/img/Sick5_S.png" style="height:66px"/></span><span class="col-xs-12 col-lg-8" style="padding-top:20px;" translate>Others</span></span></div></div></div>
+	</div>
+	<div class="row text-left"  style="margin:0px;" data-ng-show="isSickOther">
+	<label class="col-xs-12 col-sm-1 col-md-1 col-lg-1 applylev-form-header" style="padding-left: 10px;padding-right: 0px;padding-top: 3px;"translate>Reason:</label>
+	<span class="col-xs-12 col-sm-11 col-md-11 col-lg-11" style="padding-left:0px;margin:0px 0px 10px 0px;">
+	<input type="text" class="form-control" ng-model="quickReason"  /></span>
+	</div>	
+	</div>
+		</div>									
+								
+								
+</div>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero" >
+								
+								
+				
+								
+								
+								
+								
+<!-- ------------------Confirmation box -----------------------------------  -->		
+<div class="row" style="margin:0px;">								
+								<div class="col-xs-12 col-md-12 col-md-12 col-lg-12 padding-zero" data-ng-show="!(quickLevType=='') && !(quickDate=='')" style="padding:10px;padding-left:0px;padding-right:0px;padding-bottom:0px;">
+								<!-- <div class="row" style="margin:0px;">
+								<div class="col-xs-12 col-md-12 col-lg-12 text-left padding-zero">
+								
+								</div>
+								</div> -->
+								
+								<div class="row" style="margin:0px;">
+								
+								<span class="col-xs-12 col-sm-12 col-md-8 col-lg-9 padding-zero quickapp-confirm-msg text-left"   translate>
+								<span style="vertical-align: -webkit-baseline-middle;line-height:1;">You are applying a single day</span> <span class="confirm-msg-date" style="vertical-align: -webkit-baseline-middle;line-height:1;" data-ng-bind="quickLevType"></span> <span style="vertical-align: -webkit-baseline-middle;line-height:1;">for</span> <span style="vertical-align: -webkit-baseline-middle;line-height:1;" class="confirm-msg-date" data-ng-bind="quickDate"></span><span style="vertical-align: -webkit-baseline-middle;line-height:1;">. Please click on Confirm to submit request.</span>
+								</span>
+								<span class="col-xs-6 col-sm-6 col-md-4 col-lg-3 padding-zero quickapp-confirm-msg text-right" translate>
+								<button type="button" class="btn btn-primary btn-lg text-right" data-dismiss="modal" data-ng-click="submitQuickLev();" ng-disabled="((quickReason=='' && (!(countryFlg=='UY' || countryFlg=='AR' || countryFlg=='MX' || countryFlg=='US' || countryFlg=='CL' || countryFlg=='CO' || countryFlg=='EC'))) && (quickLevType=='Sick Leave' || quickLevType=='Sick Leave - Short Term'))" translate>Confirm</button>
+							
+								
+								<button type="button" class="btn btn-default btn-lg text-right" data-dismiss="modal" data-ng-click="resetQuickLev();" translate>Cancel</button>
+								
+									</span>
+    							
+								</div>
+								</div>
+								</div>
+							</div>
+							</div>
+
+
+
+</div></div>
+
+
+
+
+
+							
+						</div>
+					</div>
+			</div>
+<!-- -------------Quick Apply Modal ends here--------------- -->
+
+<!-- -------------Plan Leave Modal begings here--------------- -->
+<div id="planLevId" class="modal fade" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+<div class="row text-left" style="margin:0px 10px 0px 54px;">
+<div class="col-xs-12 col-md-12 col-sm-12 col-lg-12 modal-body leave-modal-body leave-modal-text" style="margin-top:110px;box-shadow:0px 0px 15px 4px;">
+
+<div class="text-right" style="margin:0px;">
+
+<a href=""><img src="appResources/img/Close.png" data-dismiss="modal" ng-click="closePlan();"/></a>
+
+</div>
+
+<div class="row text-right" style="margin:0px;">
+
+<div class="col-xs-12 col-sm-3 col-md-3 col-lg-3 ">
+<!-- ---------------Leave Balance code starts here---------------- -->
+<div id="planBalId" class="row content-main-row " style="margin-top:5px;">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero leave-balance-row">
+<div class="row balance-childrow">
+<div class="col-xs-* col-md-12 col-lg-12" style="padding-top:5px;padding-bottom:5px;">
+<div class="leave-balance-header text-left" translate>Available Leave Balance:</div>
+</div>
+</div>
+<div class="row balance-childrow text-left">
+<span class="col-xs-3 col-sm-6 col-md-6 col-lg-3" data-ng-repeat="typeBal in levBalList" style="padding-right:0px;">
+<span class="balance-name" style="cursor:default;" data-toggle="tooltip" title="{{typeBal.countryLevTypeName}}" data-ng-bind="typeBal.shname" translate> </span><span class="balance-name">:</span> <span class="balance-count" data-ng-bind="typeBal.posted" translate></span>
+</span>
+</div>
+
+</div>
+<script>
+$(document).ready(function(){
+	$('#planBalId').tooltip({
+		  selector: "span[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+
+<!-- <div class="row content-main-row text-right" style="margin-bottom:5px;">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero ">
+<span href="" ><span><img src="appResources/img/YearlyCalendarIcon.png" style="height:22px; width:22px;"/></span></span>
+</div></div> -->
+<!-- ---------------Calendar code starts here---------------- -->
+<div style="border: 1px solid #ccc;margin-bottom:10px;">
+<div id="calendarMainId" class="row content-main-row" style="height:auto;margin-bottom:10px;">
+<div class="col-xs-* col-md-12 col-lg-12 padding-zero">
+<calendar1 class="text-center" start-date="leave.startDate" end-date="leave.endDate" month="plan.calMonth" year-list="leave.yearlist" leave-days="leave.leaveDays" holiday-list="leave.holidayList">
+</calendar1> 
+</div>
+</div>
+<!-- Labels for leaves holiday weekend flexi etc  -->
+
+<div id="leaveLabelsId" class="row content-main-row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero leave-legend-row" style="padding-top:3px;">
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 holiday-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Holiday</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 planned-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Planned Leave</div>
+</div>
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 weekend-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Weekend</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 approvedleave-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Approved Leave</div>
+</div>
+<div class="row content-main-row" style="padding-bottom: 3px;">
+<div ng-show="('IN'==countryFlg)" class="col-lg-offset-1 col-xs-1 col-sm-1 col-md-1 col-lg-1 flexi-property" style="width:8px;margin-top:3px;"></div><div ng-show="('IN'==countryFlg)" class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Flexi Holiday</div>
+<div ng-class="{'pending-margin' : (!('IN'==countryFlg))}" class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 pendingleave-property" style="width:8px;margin-top:3px;"></div><div class="col-xs-5 col-sm-5 col-md-5 col-lg-5  leave-legend-subrow text-left" translate>Pending Leave</div>
+</div>
+</div>
+</div>
+</div>
+<!-- holiday description of calendar month  -->
+<!-- <div id="levDescId" class="row content-main-row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 padding-zero holiday-flexi-section">
+<div class="row content-main-row" style="padding-bottom:5px;">
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+<div class="holiday-flexi-header text-left" translate>Holidays/Flexi's:</div>
+</div>
+<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 text-right">
+<a href="" style="text-decoration:none;" ng-click="planLeave()"><img src="appResources/img/PlanLeaveIcon.png" /><span class="plan-lev-header" translate>Plan Leave</span></a>
+</div>
+</div>
+<div class="row content-main-row" ng-repeat="pointer in leave.holidayList track by $index" style="padding-bottom:5px;">
+<div class="col-lg-offset-1 col-xs-1 col-md-1 col-lg-1" style="margin-left:10px;" ng-class="{'flexi-property':(pointer.typ=='F'),'holiday-property':(pointer.typ=='H')}"></div>
+<div class="col-xs-5 col-md-5 col-lg-5 holiday-flexi-row text-left" style="padding-left:8px;padding-right:0px;">
+<span ng-show="pointer.typ=='F' || pointer.typ=='H'" translate>{{pointer.sd | date:'EEE, d  MMMM'}}-</span> 
+</div>
+<div class="col-xs-5 col-md-5 col-lg-5 holiday-flexi-row text-left padding-zero">
+<span ng-show="pointer.typ=='F' || pointer.typ=='H'" translate>{{pointer.desc}}</span>
+</div>
+</div>
+</div>
+</div> -->
+</div>
+
+<div  class="col-xs-12 col-sm-9 col-md-9 col-lg-9 " id="planlevRow">
+
+
+<div class="row text-left" style="margin:0px;padding-bottom:10px;">
+<div  class="col-xs-12 col-md-12 col-md-12 col-lg-12" style="padding:0px;">
+<span><img src="appResources/img/PlanLeaveIconTitle.png" /></span>
+<span class="quick-apply-header" style="vertical-align:middle;" translate>Plan Leave</span>
+</div>
+<div class="row text-left"  style="margin:0px;" data-ng-show="showPlanSuccess">
+<div  class="col-xs-12 col-md-12 col-md-12 col-lg-12 alert alert-success" data-ng-class="{'paln-success-margin':showPlanSuccess}" style="padding:0px;height:25px;">
+<span><img src="appResources/img/success-message.png" style="margin-left:5px;margin-top:2px;"/></span><span style="padding-left:8px;vertical-align:middle;" data-ng-bind="outputPlanMesg"></span>
+</div></div>
+</div>
+<form name="levPlanFrm" ng-submit="" novalidate>
+<div style="padding-bottom:15px;">
+<div class="row quick-leave-types"   style="margin:0px;padding-top:10px;padding-left:10px;padding-right:10px;padding-bottom:5px;">
+<div ng-repeat="singleLeaveObj in leave.planList">
+<div class="text-left lev-field-error" ng-bind="leave.planList[$index].serverMsg | translate" ></div>
+<div class="col-lg-12 padding-zero" style="background-color:#ffffff;padding-bottom:5px;border:1px solid #ccc;margin-bottom:5px;">
+
+<div class="row" style="margin:0px; padding:0px 0px 0px 0px" ng-show="leave.planList[$index].planLeave.isDisabled">
+<div class="col-xs-offset-9 col-sm-offset-10 col-md-offset-11 col-lg-offset-11 col-xs-3 col-md-1 col-sm-2 col-lg-1 text-right" style="padding-right:10px;padding-left:0px;margin-top:10px;" >
+<a href="" style="text-decoration:none;" ng-click="enablePlanRow($index);"><span class="text-right" ng-hide="planCounter < 1"><span class="glyphicon glyphicon-pencil" style="color:#2084c9;"></span></span></a>
+<a href=""   style="text-decoration:none;" ng-click="deletePlanRow($index);"><span class="text-right" ng-hide="planCounter < 1"><span class="glyphicon glyphicon-trash" style="color:#2084c9;padding-left:5px;"></span></span></a>
+</div>
+</div>
+
+<div class="row text-left" data-ng-class="{'plan-row-padding':!leave.planList[$index].planLeave.isDisabled}" style="margin:0px;padding-bottom:10px;padding-left:0px;padding-right:0px;">
+<div class="col-md-1 col-lg-1 text-center">
+
+<label class="radio"><input  type="radio" name="radioPlan" data-ng-click="updatePlanRowSelected($index);" data-ng-model="planRowSelected" data-ng-value="{{leave.planList[$index].planLeave.id}}">
+    							<span class="outer"><span class="inner"></span></span>
+    							</label>
+</div>
+<div  class="col-xs-6  col-md-2 col-lg-2 form-group" style="padding-right:2px;" ng-show="!leave.planList[$index].planLeave.isDisabled">
+<label class="applylev-form-header" translate>Start Date</label><span class="asterisk">*</span>
+<div kunalsdatepicker  date-end="{{leave.planList[$index].planLeave.endDate}}" date-set="{{(plan.calMonth).format('DD-MMM-YYYY')}}" date-set-hidden="true" date-min-limit="{{minYear}}" date-max-limit="{{maxYear}}" year-list="{{leave.yearlist}}" date-format="dd-MMM-yyyy">
+<input validate-splandate index="{{$index}}" style="padding-left: 2px;cursor:pointer;" id= "startDate_{{$index}}" name="startDate_{{$index}}" start-date="{{leave.planList[$index].planLeave.startDate}}" type="text"   class="form-control applyLeaveInputField date-property" placeholder="DD-MMM-YYYY" data-ng-model="leave.planList[$index].planLeave.startDate" ng-required="true" />
+
+<script> 
+$('.applyLeaveInputField').keypress(function (event) {
+event.preventDefault();
+});
+
+$('.applyLeaveInputField').keydown(function (event) {
+if (event.keyCode === 8) {
+return false;
+ };
+});
+
+$('.applyLeaveInputField').bind('cut copy paste', function (e) {
+    e.preventDefault(); //disable cut,copy,paste
+});
+</script>
+
+<div class="lev-field-error" ng-bind="leave.planList[$index].errorSPlanDate" translate></div>
+</div>
+</div>
+<div  class="col-xs-6  col-md-2 col-lg-2 form-group" ng-show="leave.planList[$index].planLeave.isDisabled">
+<label class="applylev-form-header">Start Date</label><span class="asterisk">*</span>
+<div class="leave-row-fyi" data-ng-bind="leave.planList[$index].planLeave.startDate"></div>
+</div>
+<div class="col-xs-6  col-md-2 col-lg-2 form-group" ng-show="!leave.planList[$index].planLeave.isDisabled">
+<label class="applylev-form-header" translate>End Date</label><span class="asterisk">*</span>
+<div kunalsdatepicker date-start="{{leave.planList[$index].planLeave.startDate}}" date-set="{{(plan.calMonth).format('DD-MMM-YYYY')}}"  date-set-hidden="true" date-min-limit="{{minYear}}" date-max-limit="{{maxYear}}" year-list="{{leave.yearlist}}" date-format="dd-MMM-yyyy" >
+<input validate-eplandate index="{{$index}}" style="padding-left: 2px;cursor:pointer;" type="text" id= "endDate_{{$index}}" name="endDate_{{$index}}" end-date="{{leave.planList[$index].planLeave.endDate}}" class="form-control applyLeaveInputField date-property"  placeholder="DD-MMM-YYYY" ng-model="leave.planList[$index].planLeave.endDate" ng-required="true"/>
+
+
+<div class="lev-field-error" ng-bind="leave.planList[$index].errorEPlanDate" translate></div>
+</div>
+</div>
+<div class="col-xs-6  col-md-2 col-lg-2 form-group" ng-show="leave.planList[$index].planLeave.isDisabled">
+<label class="applylev-form-header">End Date</label><span class="asterisk">*</span>
+<div class="leave-row-fyi" data-ng-bind="leave.planList[$index].planLeave.endDate" ></div>
+</div>
+
+
+<div class="col-xs-6  col-md-3 col-lg-3 form-group" ng-show="!leave.planList[$index].planLeave.isDisabled">
+<label class="applylev-form-header" translate>Associate's Comments</label><span class="asterisk">*</span>
+<textarea name="associateCmnts_{{$index}}" class="form-control"  style="height:25px; max-width:100%;padding:3px 6px 6px 2px;overflow:hidden;" data-ng-change="removePlanSuccess();" data-ng-model="leave.planList[$index].planLeave.reason" ng-required="true"></textarea>
+
+</div>
+<div class="col-xs-6  col-md-3 col-lg-3 form-group" ng-show="leave.planList[$index].planLeave.isDisabled">
+<label class="applylev-form-header">Associate's Comments</label><span class="asterisk">*</span>
+<div  class="leave-row-fyi" style="word-wrap: break-word;max-height:100%; max-width:100%;padding:2px inherit 2px inherit;" data-ng-bind="leave.planList[$index].planLeave.reason" ></div>
+</div>
+<div  class="col-xs-6  col-md-3 col-lg-3 form-group"  ng-show="$index < (leave.planList.length - 1)">
+<label class="applylev-form-header">Approver's Comments</label>
+<div  class="leave-row-fyi" style="word-wrap: break-word;max-height:100%; max-width:100%;padding:2px inherit 2px inherit;" ng-bind="leave.planList[$index].planLeave.approverComment" ></div>
+</div>
+</div>
+</div>
+</div>			
+</div>
+
+
+
+
+							
+							
+							
+							
+							
+</div>
+<!-- <div class="row content-main-row text-left" style="padding-bottom:15px;margin-top:10px;">
+<div class="col-lg-12 padding-zero">
+<a href="" style="text-decoration:none;" ng-click="savePlanLeave(); "><img src="appResources/img/AddMoreIcon.png" style="padding-right: 5px;margin-bottom: 2px;"/><span class="add-leave-button">ADD ANOTHER LEAVE</span></a>
+</div>
+</div> -->
+
+
+<div class="row content-main-row">
+<div class="col-lg-12 text-right padding-zero">
+<button type="button"  class="btn btn-primary btn-lg" ng-click="submitPlanLeave();" ng-disabled="disableSubmitPlan();">Submit</button>
+<button type="button" data-dismiss="modal" data-ng-click="convertPlanToLeave();" ng-disabled="disableConvertPlan();" class="btn btn-default">Convert to Leave</button>
+<button type="button" class="btn btn-default btn-lg" ng-click="resetPlanRow();">Reset Plan</button>
+</div>
+</div>
+</form>
+</div>
+</div>
+
+						</div>
+					</div>
+			</div>
+<!-- -------------Plan Leave Modal ends here--------------- -->
+
+<!-- Modal for singapore paternity leave -->
+<div id="singaporeModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+						<!-- <div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-hidden="true">&times;</button>
+
+						</div> -->
+						<div class="modal-body success-modal-body success-modal-text" style="min-height: 130px; padding:30px;text-align: left;">
+							<div>
+								<span>{{singaporeMsg}}</span>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+								data-dismiss="modal">OK</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+<!--Apply Leave success Modal  -->
+<div id="archiveSuccessModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+						<div class="modal-header ng-scope">
+	            	<h3 class="modal-title">
+		        	<span class="glyphicon glyphicon-ok-circle successImg"></span> 
+		        	<span class="popUpTitleText ng-binding">Success</span>
+		        	</h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="min-height: 130px;padding:30px;text-align: left;">
+							<div>
+								<span>{{outputMesgH}}</span>
+							</div>
+							<div>
+								<span>{{outputMesg1}}</span>
+							</div>
+							<div>
+								<span>{{outputMesg2}}</span>
+							</div>
+							<div>
+								<span>{{outputMesg3}}</span>
+							</div>
+							<div>
+								<span>{{outputMesg4}}</span>
+							</div>
+							<div>
+								<span>{{outputMesgF}}</span>
+							</div>
+							
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+								ng-click="redirectReqList();">OK</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+	<!--Apply Leave success Modal  -->
+<div id="archiveSuccessModal2" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+						<div class="modal-header ng-scope">
+	            	<h3 class="modal-title">
+		        	<span class="glyphicon glyphicon-ok-circle successImg"></span> 
+		        	<span class="popUpTitleText ng-binding">Success</span>
+		        	</h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="min-height: 130px;padding:30px;text-align: left;">
+							<div>
+								<span>{{outputMesg}}</span>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+								ng-click="redirectReqList();">OK</button>
+						</div>
+						</div>
+					</div>
+				</div>
+</div>		
+			
+		
+			
+
+<!-- Yearly view Modal -->
+<div id="yearViewModal" class="modal fade " data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+<div class="row text-left" style="margin:0px 30px 20px 30px;">
+
+<div class="col-xs-12  col-sm-12  col-md-12  col-lg-12 modal-body yearly-modal-body leave-modal-text" style="margin-top:20px;padding:5px;box-shadow:0px 0px 10px 2px;" id="calenderRow">
+<div class="text-right" style="margin:0px;">
+<a href=""><img src="appResources/img/Close.png" data-dismiss="modal" ng-click="removeQuickCSS();"/></a>
+</div>
+<div class="row text-left" style="margin:0px 0px 10px 0px;">
+<div  class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<span><img src="appResources/img/yearlyviewiconTitle.png" /></span>
+<span class="quick-apply-header" style="vertical-align: middle;" translate>Yearly View</span>
+</div>
+</div>
+<div class="row text-right" style="margin:0px;">
+<div  class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
+
+
+<div class="row" style="margin:0px 0px 20px 0px" >
+					   <div class="col-md-6 col-lg-6" style="margin:5px 0px 0px 0px;padding-left:0px;">
+						<div id="levBalYearlyId" class="row content-main-row ">
+		<div class="col-xs-* col-md-12 col-lg-12 padding-zero" style="border:1px solid #999999;padding-bottom:6px;">
+		<div class="row balance-childrow">
+		<div class="col-xs-* col-md-12 col-lg-12" style="padding-top:5px;padding-bottom:5px;">
+		<div class="leave-balance-header text-left" translate>Available Leave Balance:</div>
+		</div>
+		</div>
+		<div  class="row balance-childrow text-left">
+	<span class="col-xs-3 col-sm-3 col-md-3 col-lg-3" data-ng-repeat="typeBal in levBalList">
+	<span class="balance-name" style="cursor:default;" data-toggle="tooltip" title="{{typeBal.countryLevTypeName}}" data-ng-bind="typeBal.shname" translate> </span><span class="balance-name">:</span> <span class="balance-count" data-ng-bind="typeBal.posted" translate></span>
+	</span>
+	</div>
+	<script>
+
+	$(document).ready(function(){
+	$('#levBalYearlyId').tooltip({
+		  selector: "span[data-toggle='tooltip']"
+	}); 
+	});
+	</script>
+				</div>
+				</div>
+						
+						
+					
+					</div>
+					<div class="col-md-6 col-lg-6" style="margin:5px 0px 0px 0px;">
+					
+					<div id="leaveLabelsId" class="row content-main-row">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12  yearly-legend-subrow" style="padding-top:5px;padding-bottom:4px;background-color:#ffffff;border:1px solid #999999;">
+<div class="row content-main-row" style="padding-bottom: 5px;">
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 holiday-property"  style="margin:0px;width:8px;margin-top:4px;"></div><div class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left" translate>Holiday</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 flexi-property" data-ng-if="('IN'==countryFlg)" data-ng-show="('IN'==countryFlg)" style="margin:0px;width:8px;margin-top:4px;"></div><div class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left" data-ng-if="('IN'==countryFlg)" data-ng-show="('IN'==countryFlg)" translate>Flexi Holiday</div>
+<div data-ng-class="{'pending-margin' : (!('IN'==countryFlg))}" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 weekend-property" style="margin:0px;width:8px;margin-top:4px;"></div><div class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left" translate>Weekend</div>
+</div>
+<div class="row content-main-row" style="padding-bottom: 5px;">
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 pendingleave-property" style="width:8px;margin-top:4px;"></div><div class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left" translate>Pending Leave</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 approvedleave-property" style="width:8px;margin-top:4px;"></div><div class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left" translate>Approved Leave</div>
+<div class=" col-xs-1 col-sm-1 col-md-1 col-lg-1 planned-property" style="width:8px;margin-top:4px;" ></div><div class="col-xs-3 col-sm-3 col-md-3 col-lg-3  yearly-legend-subrow text-left" translate>Planned Leave</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="col-xs-4" style="text-align: center;" ng-hide="true">
+							<a data-ng-hide="pageSize.length>0" class="disabled" href>No
+								Records</a>
+							<p data-ng-hide="items.length==0" data-ng-model="selectedPage"
+								id="paginationSelect" style="vertical-align: top;">{{pageSize[currentPage].label}}</p>
+</div> 
+<div ng-repeat="slide in pagedItems[currentPage]">
+<div class="row" style="margin:0px 0px 10px 0px;">
+<div class="col-md-1 text-right" style="margin-left:37.666667%">
+<p  data-ng-hide="currentPage == 0"  style="margin-top: 4px;"> 
+<a href data-ng-click="prevPage('paginationSelect')" class="glyphicon glyphicon-triangle-left" style="font-size: 14px; text-decoration: none;"> </a>
+</p>
+</div>
+<div class="col-md-1 text-center" style="">
+<h4 style="color: #4f82b1;font-family: Segoe UI;font-size:22px;margin-top: 0px;">{{slide.year}}</h4>
+</div>
+<div class="col-md-1 text-left" style="">
+<p style=" margin-top: 4px;" data-ng-hide="(currentPage >= (pageSize.length-1))||(0 == pageSize.length)" >
+<a href data-ng-click="nextPage('paginationSelect')" class="glyphicon glyphicon-triangle-right"style="font-size: 14px; text-decoration: none;"></a>
+</p>
+</div>
+</div>
+
+<div id="calenderYearlydiv" class="row" style="margin:0px;">
+<div class="col-xs-12 col-md-3 col-lg-3" id="month" ng-repeat="month in slide.calData" 
+ng-class="{'cal-backgrnd-clr1' : {{(((($index/4)-(($index/4)%1))+($index%4))%2)==0}},'cal-backgrnd-clr2' : {{(((($index/4)-(($index/4)%1))+($index%4))%2)!=0}}}"style="height:310px;">
+<div class="text-center" style="color:#4f82b1; font-family: Segoe UI; font-size: 14px;margin-bottom: 10px;font-weight:bold;">{{month.monthName}}</div>
+<div class="row content-main-row text-center" style="border-bottom: 1px solid #4f82b1">
+<div class="col-lg-12 padding-zero" style="margin-bottom: 5px;padding-left: 0px;">
+    <span class="yearly-cal-day">Su</span>
+    <span class="yearly-cal-day">Mo</span>
+    <span class="yearly-cal-day">Tu</span>
+    <span class="yearly-cal-day">We</span>
+    <span class="yearly-cal-day">Th</span>
+    <span class="yearly-cal-day">Fr</span>
+    <span class="yearly-cal-day">Sa</span>
+
+</div>
+</div>
+
+
+<div>
+<div  class="week" ng-repeat="week in month.weeks">
+    <span class="kukie1"  style="border-top-width: 1px;border-bottom-width:1px;border-top-style: solid;border-bottom-style: solid; border-color: #f7f7f7;height:43px;" data-toggle="tooltip" title="{{day.holLevDescription}}" ng-repeat="day in week.days" ng-class="{'weekend-box1':(day.holLevType=='W'),'weekend-box2': !day.isCurrentMonth}">
+    <div style="position: relative;" class="calendar-tile-css" id="day{{day.date._d.getTime()}}" name="{{endDate._d.getTime()}}" ng-class="{'hide-date': !day.isCurrentMonth , 'disable-date':(day.date._d.getTime() < startDate._d.getTime() || day.date._d.getTime() > endDate._d.getTime() || $parent.$parent.$parent.isFlexi)}" ng-mouseover="hoverDates($event,day);" data-ng-click="(day.date._d.getTime() < startDate._d.getTime() || day.date._d.getTime() > endDate._d.getTime()) || (startDate._d.getTime()<= day.date._d.getTime() && day.date._d.getTime() <=endDate._d.getTime()|| $parent.$parent.$parent.isAmend) || selectStartOrEndDate(day,$event)" >
+    <div style="height:24px;" class="text-center" data-ng-class="{ 'day-pendingleave':(day.holLevType=='L' && day.status=='2'),'day-approvedleave':(day.holLevType=='L' && (day.status=='3' || day.status=='13' || day.status=='10' || day.status=='14' || day.status=='15' || day.status=='17')),'day-flexi':(day.holLevType=='F'),'day-holiday':(day.holLevType=='H'),'day-plannedleave':(day.holLevType=='P')}"><div style="padding-top:4px;">{{day.number}}</div></div>
+    </div>                                       
+    </span>
+    
+</div>
+
+</div>
+
+</div>
+<script>
+
+$(document).ready(function(){
+	$('#calenderYearlydiv').tooltip({
+		  selector: "span[data-toggle='tooltip']"
+	}); 
+});
+</script>
+</div>
+</div>
+
+</div>
+</div>
+
+
+
+
+
+							
+</div>
+</div>
+</div>
+
+</div> <!-- LWPP and Maternity div ends here -->
+
+<!-- LWP undertaking form   -->
+<!-- <div  data-ng-show="isLwp">
+
+<div class="row" style="margin:0px;">
+<div class="col-lg-12 text-left" style="font-size:16px;font-weight:bold;color:#224272">
+<span>Leave Without Pay Undertaking Form</span>
+</div>
+</div>
+<div class="row" style="margin:20px 0px 20px 0px">
+
+<div class="col-lg-offset-2 col-lg-8 col-lg-offset-2">
+<div class="row" style="background-color:#f7f7f7;box-shadow:0px 1px 4px 1px #999999;margin:0px;">
+<div class="col-lg-12 text-center" style="padding-top:20px;">
+<span style="font-size: large;text-decoration:underline;font-weight: bolder;">LWP Undertaking form </span>
+</div>
+<div class="col-lg-12 text-center" style="margin-bottom:15px;">
+<span style="font-size:14px;font-weight: bold;font-family: Arial;color: dodgerblue;" data-ng-bind="lwpTitle"></span>
+</div>
+<div class=" col-lg-12 text-left" style="font-size:14px;font-weight: bold;font-family: arial;margin-bottom:25px;">
+<span data-ng-bind="para_1"></span>
+</div>
+<div class=" col-lg-12 text-left" style="font-size:14px;font-weight: bold;font-family: arial;margin-bottom:25px;">
+<span data-ng-bind="para_2"></span>
+</div>
+<div class=" col-lg-12 text-left" style="font-size:14px;font-weight: bold;font-family: arial;margin-bottom:25px;">
+<span data-ng-bind="para_3"></span>
+</div>
+<div class=" col-lg-12 text-left" style="font-size:14px;font-weight: bold;font-family: arial;margin-bottom:25px;">
+<span data-ng-bind="para_4"></span>
+</div>
+<div class=" col-lg-12 text-left" style="font-size:14px;font-weight: bold;font-family: arial;margin-bottom:25px;">
+<span data-ng-bind="para_5"></span>
+</div>
+<div class=" col-lg-12 text-left" style="font-size:14px;font-weight: bold;font-family: arial;margin-bottom:25px;">
+<span data-ng-bind="para_6"></span>
+</div>
+<div class="row" style="margin:0px 0px 15px 0px;">
+<div class="col-lg-12 text-left" >
+<div >Signature of Employee</div>
+<div data-ng-bind="systemDate"></div>
+<div data-ng-bind="lwpEmpName"></div>
+<div data-ng-bind="lwpEmpNo"></div>
+</div>
+
+</div>
+<div style="background-color:#efefef;height:60px;padding-top:15px;" >
+<div class="col-lg-12 text-right" >
+<button type="button" class="btn btn-primary btn-lg" data-ng-click="acceptLwp();" translate>Accept</button>
+<button type="button" class="btn btn-default btn-lg" data-ng-click="printLWPForm();" translate>Print</button>
+<button type="button" class="btn btn-default btn-lg" data-ng-click="changeLwpFlg();" translate>Back</button>
+</div>
+</div>
+
+</div>
+</div>
+</div>
+
+
+<div id="lwpModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px;background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:90px;">{{lwpAccptMsg}}</div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+								data-dismiss="modal" ng-click="acceptLwpCnfm();">OK</button>
+								<button class="leave-modal-button"
+								data-dismiss="modal">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+			
+			
+<div id="lwpAcptdModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;" /> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px;background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:90px;">{{lwpAccptdMsg}}</div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+								data-dismiss="modal" ng-click="acceptdLwpCnfm();">OK</button>
+								
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>				
+</div>	 -->			
+
+<!--Maternity Nomination form  -->
+<!-- <div  data-ng-show="isMaternity">
+
+
+<div class="row" style="margin:0px;">
+<div class="col-lg-12 text-left" style="font-size:16px;font-weight:bold;color:#224272">
+<span>Maternity Leave Nomination form</span>
+</div>
+</div>
+
+<div class="row" style="margin:15px 0px 20px 0px">
+<div class="col-lg-offset-2 col-lg-8 col-lg-offset-2">
+<div style="background-color:#f7f7f7;box-shadow:0px 1px 4px 1px #999999;margin:0px;">
+<div class="col-lg-12 text-center" style="padding-top:15px;padding-bottom:5px;">
+<img data-ng-src="appResources/img/TATA.png" />
+</div>
+<div class="col-lg-12 text-center">
+<span style="font-size: large;text-decoration:underline;font-weight: bolder;">Notice under Section 6 of the Maternity Benefit Act, 1961</span>
+</div>
+<div class="col-lg-12 text-center" style="margin-bottom:15px;">
+<span style="font-size:14px;font-weight: bold;font-family: Arial;color:#A94442;">( TO BE SUBMITTED ALONG WITH THE MATERNITY LEAVE APPICATION )</span>
+</div>
+<div class=" col-lg-10 text-left" style="font-size:14px;font-weight: bold;font-family: arial;margin-bottom:25px;">
+<div >Tata Consultancy Services Ltd.</div>
+<div >Depute Branch: <span data-ng-bind="branchName"></span></div>
+<div >Depute Location: <span data-ng-bind="branchName"></span></div>
+</div>
+<div class="col-lg-12 text-left" style="margin-bottom:20px;">
+<div style="margin-bottom:15px;font-size:14px;" ng-bind="dataObj1"></div>
+<div style="font-size:14px;" ng-bind="dataObj2"></div>
+</div>
+<div class="row" style="margin:0px 0px 15px 0px;">
+<div class="col-lg-1 text-left" >
+<div >Date: </div>
+</div>
+<div class="col-lg-offset-8 col-lg-3 text-left" style="margin-bottom:15px;">
+<div >Signature of Employee:</div>
+</div>
+</div>
+
+<div style="background-color:#efefef;height:60px;padding-top:15px;" >
+<div class="col-lg-12 text-right">
+<button type="button" class="btn btn-primary btn-lg" ng-click="acceptMaternity();" translate>Accept</button>
+<button type="button" class="btn btn-default btn-lg" data-ng-click="printMaternityForm();" translate>Print</button>
+<button type="button" class="btn btn-default btn-lg" ng-click="changeMaternityFlg();" translate>Back</button>
+
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="maternityModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px; background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:90px;">{{maternityAccptMsg}}</div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+								data-dismiss="modal" ng-click="acceptMtrntyCnfm();">OK</button>
+								<button class="leave-modal-button"
+								data-dismiss="modal">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+
+
+			
+			
+<div id="maternityAcptdModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;" /> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px;background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:90px;">{{maternityAccptdMsg}}</div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+								data-dismiss="modal" ng-click="acceptdMtrntyCnfm();">OK</button>
+								
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>				
+</div>	 -->		
+</div>
+</div>
+</div><!-- ApplyLevCtrl ends here -->
+<script type="text/javascript">
+ $(document).ready(function () {
+  var count=0;
+     var calid=$('div[id^="Cal_"]');
+     
+ 	 $('#calendarCollapse').on("click", function(element) 
+ 	{	if(typeof element !== 'undefined' && !(element.toElement.innerText===">" || element.toElement.innerText==="<" || element.toElement.innerText===">>" || element.toElement.innerText==="<<") ) {
+ 		 count=count+1; 
+		 var test_1 = $('div[id^="Cal_"]');
+	      if(count%2==0)  {
+			 for(var i=0;i<test_1.length;i++){
+				  if ($(test_1[i]).hasClass('_720kb-datepicker-open')){
+					  	$(test_1[i]).removeClass('_720kb-datepicker-open');
+					  } 
+			  }
+		}
+ 	}
+	    }); 
+	}); 
+</script>
+<script type="text/javascript">
+ $(document).ready(function () {
+	    $('.modal').on('hidden.bs.modal', function () {
+	     $('body').css("padding-right","0px");
+	       
+	    });
+	}); 
+
+function isNumeric(event){
+		 var specialKeys = new Array();
+	     specialKeys.push(8); //Backspace
+	     specialKeys.push(9); //Tab
+	     specialKeys.push(46); //Delete
+	     specialKeys.push(36); //Home
+	     specialKeys.push(35); //End
+	     specialKeys.push(37); //Left
+	     specialKeys.push(39); //Right
+	     
+	     var keyCode = event.keyCode == 0 ? event.charCode : event.keyCode;
+	     var ret = ((keyCode >= 48 && keyCode <= 57) || (specialKeys.indexOf(event.keyCode) != -1 && event.charCode != event.keyCode));
+	   //  document.getElementById("error").style.display = ret ? "none" : "inline";
+	     return ret;
+	 };
+
+</script>

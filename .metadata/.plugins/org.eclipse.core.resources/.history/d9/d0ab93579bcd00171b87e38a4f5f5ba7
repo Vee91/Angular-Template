@@ -1,0 +1,63 @@
+package com.plagiarism.common.aop;
+
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+
+import com.ultimatix.gess.leave.dto.UserDetailsDTO;
+import com.ultimatix.gess.leave.service.ApplyLevService;
+import com.ultimatix.gess.leave.sessionbean.UserDetailsSessionBean;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Aspect
+public class SessionAspect {
+	private static final LoggerInterface LOG = LoggerFactory
+			.getLogger(SessionAspect.class);
+
+	@Autowired
+	private UserDetailsSessionBean userBean;
+
+	@Autowired
+	private ApplyLevService applyLevService;
+
+	@Before("execution(* com.ultimatix.gess.leave.controller.*.*(..))")
+	public void populateUserBean(JoinPoint joinPoint) {
+
+		try {
+
+			
+			if (null == userBean || userBean.getPersonId() == 0) {
+
+				LOG.info("userBean is not populated, populating it now");
+				String empId = (String) SecurityContextHolder.getContext()
+						.getAuthentication().getPrincipal();
+
+				UserDetailsDTO dto = applyLevService.getUserDetails(empId);
+				if(dto !=null){
+				userBean.setPersonId(dto.getPersonId());
+				userBean.setEmployeeNo(empId);
+				userBean.setEmailAddress(dto.getEmailAddress());
+				userBean.setEmployeeGrade(dto.getEmployeeGrade());
+				userBean.setEmployeeName(dto.getEmployeeName());
+				userBean.setEmployeeRole(dto.getEmployeeRole());
+				userBean.setEmployeeServiceType(dto.getEmployeeServiceType());
+				userBean.setEmployeeType(dto.getEmployeeType());
+				userBean.setEmploymentStatus(dto.getEmploymentStatus());
+				userBean.setHomeCountry(dto.getHomeCountry());
+				userBean.setHomeCountryCode(dto.getHomeCountryCode());
+				userBean.setHomeCurrency(dto.getHostCurrency());
+				userBean.setHostCountry(dto.getHostCountry());
+				userBean.setHostCountryCode(dto.getHostCountryCode());
+				userBean.setHostCurrency(dto.getHostCurrency());
+				}
+
+			}
+		} catch (Exception e) {
+		    LOG.error("popuplateUserBEan",e);
+		}
+	}
+
+}

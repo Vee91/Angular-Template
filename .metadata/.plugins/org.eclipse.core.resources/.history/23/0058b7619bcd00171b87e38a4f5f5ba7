@@ -1,0 +1,186 @@
+package com.ultimatix.gess.leave.controller;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.plagiarism.leave.sessionbean.UserDetailsSessionBean;
+import com.ultimatix.gess.common.utility.LoggerFactory;
+import com.ultimatix.gess.leave.dto.ApplyLevOnBehalfDTO;
+import com.ultimatix.gess.leave.dto.EmpLevBalShortDTO;
+import com.ultimatix.gess.leave.dto.LeaveTypeDTO;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.ApplyLevOnBehalfService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.LeaveConstants;
+import com.ultimatix.gess.leave.util.LeaveSecurityUtility;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class ApplyLevOnBehalfController {
+	
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(ApplyLevOnBehalfController.class);
+	
+	@Autowired
+	private ApplyLevOnBehalfService applyLevOnBehalfService;
+		
+	@Autowired
+	private UserDetailsSessionBean userBean;
+	
+	@RequestMapping(value = "getSURestrictStatus", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody
+	Map<String, Boolean> getSURestrictStatus() {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("ApplyLevOnBehalfController | getSURestrictStatus | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		Map<String, Boolean> restrictStatus = new HashMap<String, Boolean>();
+		boolean allowed = false;
+		allowed = applyLevOnBehalfService
+				.getRestrictionForApply((String) SecurityContextHolder
+						.getContext().getAuthentication().getPrincipal());
+		LOG.info("ApplyLevOnBehalfController | getSURestrictStatus :: info : allowed : "
+				+ allowed);
+		restrictStatus.put("restrictStatus", allowed);
+		LOG.info("ApplyLevOnBehalfController | getSURestrictStatus | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return restrictStatus;
+	}
+	
+	@RequestMapping(value = "fetchEmployeeDataCorp", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody
+	List<ResponseResource> fetchEmployeeDataCorp(
+			@RequestParam(value = "employeeNo", required = false) String employeeNo,
+			HttpServletRequest request, HttpServletResponse response) {
+		String approverId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("ApplyLevOnBehalfController | fetchEmployeeDataCorp | loginId:"+approverId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		ApplyLevOnBehalfDTO applyLevOnBehalfDTO = new ApplyLevOnBehalfDTO();
+		applyLevOnBehalfDTO.setEmployeeNo(employeeNo);
+		applyLevOnBehalfDTO.setSuperUserNo(approverId);
+		  
+		List<ResponseResource> output = applyLevOnBehalfService.fetchEmployeeData(applyLevOnBehalfDTO);
+		
+		if (!"422".equals(output.get(0).getCode())) {
+			Map empMap = output.get(0).getSuccess();
+			Map leaveMap = (Map) empMap.get("employeeLevTypeDtlMap");
+			List<LeaveTypeDTO> leaveTypeDTOs = (List<LeaveTypeDTO>)leaveMap.get("listofLevTypeDetail");
+			List<Integer> levTypeId = LeaveSecurityUtility.fetchLeaveTypeId(leaveTypeDTOs);
+			List<EmpLevBalShortDTO> empLevBalanceList = (List<EmpLevBalShortDTO>)leaveMap.get("EmpLevBalanceList");
+			leaveMap.put("EmpLevBalanceList", LeaveSecurityUtility.fetchLevBalance(levTypeId, empLevBalanceList));
+			userBean.setLeaveList(leaveTypeDTOs);
+		}
+		LOG.info("ApplyLevOnBehalfController | fetchEmployeeDataCorp | loginId:"+approverId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return output;
+	}
+	
+	@RequestMapping(value = "fetchEmployeeDataRmg", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody
+	ResponseResource fetchEmployeeDataRmg(
+			@RequestParam(value = "employeeNo", required = false) String employeeNo,
+			HttpServletRequest request, HttpServletResponse response) {
+		String approverId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("ApplyLevOnBehalfController | fetchEmployeeDataRmg | loginId:"+approverId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		ResponseResource respResource = new ResponseResource("0");
+
+		ApplyLevOnBehalfDTO applyLevOnBehalfDTO = new ApplyLevOnBehalfDTO();
+		applyLevOnBehalfDTO.setEmployeeNo(employeeNo);
+		applyLevOnBehalfDTO.setSuperUserNo(approverId);
+		applyLevOnBehalfDTO.setCtrlSuRole(LeaveConstants.ROLE_RMG_APPROVER);
+		
+		//respResource = applyLevOnBehalfService.fetchEmployeeData(applyLevOnBehalfDTO);
+		LOG.info("ApplyLevOnBehalfController | fetchEmployeeDataRmg | loginId:"+approverId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return respResource;
+	}
+	
+	@RequestMapping(value = "fetchAmendData", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody
+	ResponseResource fetchAmendData(
+			@RequestParam(value = "employeeNo", required = false) String employeeNo, @RequestParam(value = "reqNo", required = false) String reqNo,
+			HttpServletRequest request, HttpServletResponse response) {
+
+
+		String approverId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("ApplyLevOnBehalfController | fetchAmendData | loginId:"+approverId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		
+		ApplyLevOnBehalfDTO applyLevOnBehalfDTO = new ApplyLevOnBehalfDTO();
+		applyLevOnBehalfDTO.setEmployeeNo(employeeNo);
+		applyLevOnBehalfDTO.setSuperUserNo(approverId);
+		applyLevOnBehalfDTO.setCtrlSuRole(LeaveConstants.ROLE_LEV_HR_CORP_SUPERUSER);
+		ResponseResource respResource = new ResponseResource("0");
+		respResource = applyLevOnBehalfService.fetchAmendEmployeeData(applyLevOnBehalfDTO, reqNo);
+		LOG.info("ApplyLevOnBehalfController | fetchAmendData | loginId:"+approverId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return respResource;
+	}
+	
+	@RequestMapping(value = "/behalfLeaveDropDownChanged", method = RequestMethod.POST, produces = "application/json" )
+	@ResponseBody
+	public Map behalfLeaveDropDownChanged(@RequestBody String json) {
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("ApplyLevOnBehalfController | behalfLeaveDropDownChanged | loginId:"+empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		boolean dependency = true;
+		if(userBean.getLeaveList().size()>1){
+			LeaveTypeDTO g = (LeaveTypeDTO) userBean.getLeaveList().get(1);
+			userBean.setOnBehalfEmpNo(g.getEmployeeId());			
+		}
+		Map returnMap = applyLevOnBehalfService.leaveDropDownChanged(userBean.getOnBehalfEmpNo(),json,dependency,userBean.getLeaveList(),empId);
+		Map tempMap = new HashMap();
+		tempMap.put("data", returnMap);
+	
+		LOG.info("ApplyLevOnBehalfController | behalfLeaveDropDownChanged | loginId:"+empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return tempMap;
+	}
+	
+	@RequestMapping(value = "/behalfGetNoOfdays", method = RequestMethod.POST, produces = "application/json" )
+	public @ResponseBody
+	float behalfGetNoOfdays(@RequestBody String details) throws JSONException  {
+		String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("ApplyLevOnBehalfController | behalfGetNoOfdays | loginId:"+empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		JSONObject jsonObj=new JSONObject(details);
+		String startDate = jsonObj.getString("startDate");
+		String endDate = jsonObj.getString("endDate");
+		int countryLeaveTypeId = jsonObj.getInt("countryLeaveTypeId");
+		String startDuration = jsonObj.getString("startDuration");
+		String endDuration = jsonObj.getString("endDuration");
+		String employeeNo = jsonObj.getString("employeeNo");
+		
+		int endDurationId = 3;
+		int startDurationId = 3;
+		if(endDuration==null || "Full Day".equals(endDuration)){
+			endDurationId = 3;
+		}
+		else if("First Half".equals(endDuration)){
+			endDurationId=(1);
+		}
+		else if("Second Half".equals(endDuration)){
+			endDurationId=(2);
+		}
+		if(startDuration==null || "Full Day".equals(startDuration)){
+			startDurationId=(3);
+		}
+		else if("First Half".equals(startDuration)){
+			startDurationId=(1);
+			}
+		else if("Second Half".equals(startDuration)){
+			startDurationId=(2);
+		}
+		float nosDays = applyLevOnBehalfService.getNoOfdays(startDate,endDate,countryLeaveTypeId,startDurationId,endDurationId,employeeNo);
+		LOG.info("ApplyLevOnBehalfController | behalfGetNoOfdays | loginId:"+empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return nosDays;
+
+	}
+	
+}

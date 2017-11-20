@@ -1,0 +1,5 @@
+<div ng-controller="myCtrl" class="pos_fixed-{{color}}">
+
+	<div id="abhi"  type="text" value="abhijeet" my-key-focus="keyFocusColor" class="pos-fixed" ng-click="onFocusClick('abhi')"></div>
+
+</div>

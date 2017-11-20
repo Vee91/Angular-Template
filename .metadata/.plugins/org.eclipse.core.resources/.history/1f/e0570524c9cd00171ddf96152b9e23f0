@@ -1,0 +1,58 @@
+define(['angular','app','moment','LeaveServices','displayMenu','jqueryui','utils','bootstrap'], function(angular,app,moment,jqueryui,bootstrap) {
+app.controller('bulkAppController', ['$scope','$http','$compile', '$location','$q','leaveApprovalService', 
+                                           function($scope, $http, $compile, $location, $q,leaveApprovalService){
+	
+	console.log("Inside bulkAppController !!");
+	
+	$scope.comments=undefined;
+	$scope.showErrMsg=false;
+	$scope.errorMsg=undefined;
+	$scope.redirectURL = "https://gess.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+	$scope.backupURL= "https://gess.ultimatix.net/gess/pages/commonWorkListHome.jsf?";
+	
+	$scope.setRedirectURL = function(value) {
+		if(angular.isArray(value)) {
+			if(angular.isObject(value[0].success) && angular.isDefined(value[0].success['WORKLIST_URL'])) {
+				$scope.redirectURL = value[0].success['WORKLIST_URL'];
+			}
+		} else {
+			$scope.redirectURL = $scope.backupURL;
+		}
+	};
+	
+	$scope.submit=function(){
+		
+		if(undefined===$scope.comments){
+			$scope.showErrMsg=true;
+			$scope.errorMsg="Please enter comments";
+		}else{
+		$http.post("/leaverest/rest/worklistAction/?comment="+$scope.comments).success(
+				function(data) {
+					$scope.setRedirectURL(data);
+					redirectToWorklist();
+					
+				}).error(function(data) { 
+					 
+					alert("Error!!");
+					 
+				});
+		}
+	};
+	
+	function redirectToWorklist() {
+
+		var postFormStr = "<form method='POST' action='"+$scope.redirectURL+"'>\n";
+		postFormStr += "<input type='hidden' name='c' value='bulk'</input>";
+		postFormStr += "</form>";
+
+		var formElement = $(postFormStr);
+
+		$('body').append(formElement);
+		$(formElement).submit();
+
+	}
+	
+	
+}]);
+return app;
+});

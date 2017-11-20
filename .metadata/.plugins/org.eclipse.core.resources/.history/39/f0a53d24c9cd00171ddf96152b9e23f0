@@ -1,0 +1,25 @@
+
+<div ng-controller="approveLerfCtrl">
+
+	<div class="row" style="margin-top:30px;">
+		<div class="col-md-2">Enter Leave Req No:</div>
+		<div class="col-md-2"><input id="parentReqNo" type="text" ng-model="var1"> </div>
+		<div class="col-md-2">Enter Approver's Emp Id:</div>
+		<div class="col-md-2"><input id="parentReqNo" type="text" ng-model="var2"> </div>
+		
+	</div>
+	
+	<div class="row">
+	
+	<div class="col-md-2">
+		<button class="btn btn-default"
+					style="margin-left: 10px; margin-top:5px;" ng-Click="reset();">Reset</button>
+	</div>
+	
+	
+	<div class="col-md-1">
+		<button class="btn btn-success"
+					style="margin-left: 10px; margin-top:5px;" ng-Click="submitReq();">Submit</button>
+		</div>
+	</div>
+</div>

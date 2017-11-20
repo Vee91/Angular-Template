@@ -1,0 +1,264 @@
+package com.plagiarism.controller;
+
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.plagiarism.sessionbean.UserDetailsSessionBean;
+
+
+@Controller
+public class PlagiarismController {
+
+	private static final LoggerInterface LOG = LoggerFactory
+			.getLogger(PlagiarismController.class);
+	
+
+	@Autowired
+	private ApplyLevService applyLevService;
+	
+	@Autowired
+	private UserDetailsSessionBean userBean;
+
+	
+	 @RequestMapping(value = "/getEmployeeLevDetails", method = RequestMethod.POST , produces = "application/json")
+	 public  @ResponseBody Map<String, List<EmpLevDetailsDTO>> getEmployeeLevDetails(@RequestParam(value="employeeId", required=false) String empId){
+		String emplyId=empId;
+		Map<String, List<EmpLevDetailsDTO>> employeeLevDtlMap;
+		emplyId = !ObjectUtility.isNullSafe(empId)?(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal():empId;
+		employeeLevDtlMap =	applyLevService.getEmployeeLevDtlList(emplyId,userBean.getPersonId());
+		LOG.info(employeeLevDtlMap);
+		return employeeLevDtlMap;
+	    }
+	 
+	
+	@RequestMapping(value = "/getEmployeeLevTypeDetails", method = RequestMethod.POST, produces = "application/json" )
+	public @ResponseBody
+	Map<String, Object> getEmployeeLevTypeDetails(){
+		Map<String, Object> employeeLevTypeDtlMap;
+		String empId = (String) SecurityContextHolder.getContext()
+					.getAuthentication().getPrincipal();
+		employeeLevTypeDtlMap = applyLevService
+					.getEmployeeLevTypeDetails(empId,"Y",userBean.getPersonId());	
+		LOG.info(employeeLevTypeDtlMap);
+		userBean.setLeaveList((List) employeeLevTypeDtlMap.get("listofLevTypeDetail"));
+		
+		
+		return employeeLevTypeDtlMap;
+
+	}
+	
+	
+	
+	@RequestMapping(value = "/leaveDropDownChanged", method = RequestMethod.POST, produces = "application/json" )
+	@ResponseBody
+	public Map leaveDropDownChanged(@RequestBody int countryleaveTypeId) {
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		
+		boolean dependency = true;
+		Map returnMap = applyLevService.leaveDropDownChanged(countryleaveTypeId,empId,dependency,userBean.getPersonId(), null, "N");
+		Map tempMap = (Map) returnMap.get("validationList");
+		if(tempMap!=null && !tempMap.isEmpty()){
+			userBean.setCategory((String) tempMap.get("category"));
+		}
+		
+		return returnMap;
+	}
+	
+	
+	@RequestMapping(value = "/getLeaveDropDown", method = RequestMethod.GET, produces = "application/json" )
+	@ResponseBody
+	public List getLeaveDropDown(String empNo)  {
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		return applyLevService.getLeaveDropDown(empId,userBean.getPersonId());
+
+	}	
+
+	@RequestMapping(value="/amendleave", method={RequestMethod.POST})
+	public @ResponseBody List<ResponseResource> ammendLeave(@RequestBody String applyLeaveDTO1) throws ParseException {
+		List<ResponseResource> resources = new ArrayList<ResponseResource>();
+		Gson gson = new Gson();
+		ApplyLeaveDTO applyLeaveDTO = gson.fromJson(applyLeaveDTO1, ApplyLeaveDTO.class);
+		
+		Map amendDetails =  applyLevService.getAmendmentDetails(userBean.getEmployeeNo(),userBean.getPersonId());
+		
+		
+		ApplyLeaveDTO	a =(ApplyLeaveDTO) amendDetails.get("amendDetails");
+		if(applyLeaveDTO.getEndDate()!=null ){
+		Date date=	DateUtils.getDateFromString(a.getEndDate(),LeaveConstants.DATE_FORMAT_MMM);
+		String amendDate=	DateUtils.getNextDay(date,LeaveConstants.DATE_FORMAT_MMM);
+		a.setAmendEndDate(amendDate);
+		a.setEndDate(applyLeaveDTO.getEndDate());
+		a.setAmendNosDay(applyLeaveDTO.getNoOfDays());
+		a.setAmendDate(date);
+		}
+		List leaveList = applyLevService.getLeaveDropDown(userBean.getEmployeeNo(), userBean.getPersonId());
+		a.setLeaveList(leaveList);
+		userBean.setCategory(applyLevService.getCategories(userBean.getEmployeeNo(), a.getCountryLeaveTypeId()));
+		
+		resources.add(applyLevService.amendLeave(a,userBean.getCategory()));
+		return resources;
+	}
+		
+	@RequestMapping(value = "/getNoOfdays", method = RequestMethod.POST, produces = "application/json" )
+	public @ResponseBody
+	float getNoOfdays(@RequestBody String details) throws JSONException  {
+		JSONObject jsonObj=new JSONObject(details);
+		String startDate = jsonObj.getString("startDate");
+		String endDate = jsonObj.getString("endDate");
+		int countryLeaveTypeId = jsonObj.getInt("countryLeaveTypeId");
+		String startDuration = jsonObj.getString("startDuration");
+		String endDuration = jsonObj.getString("endDuration");
+		int endDurationId = 3;
+		int startDurationId = 3;
+		if(endDuration==null || "Full Day".equals(endDuration)){
+			endDurationId = 3;
+		}
+		else if("First Half".equals(endDuration)){
+			endDurationId=(1);
+		}
+		else if("Second Half".equals(endDuration)){
+			endDurationId=(2);
+		}
+		if(startDuration==null || "Full Day".equals(startDuration)){
+			startDurationId=(3);
+		}
+		else if("First Half".equals(startDuration)){
+			startDurationId=(1);
+			}
+		else if("Second Half".equals(startDuration)){
+			startDurationId=(2);
+		}
+	
+		return applyLevService.getNoOfdays(startDate,endDate,countryLeaveTypeId,startDurationId,endDurationId,userBean.getPersonId());
+
+	}
+	
+
+	@RequestMapping(value = "/planLeave", method = RequestMethod.POST  )
+	public @ResponseBody
+	List<ResponseResource> submitPlanLeave(@RequestBody String planLev) {
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		Gson gson = new Gson();
+		PlanDTO applyLevList1 = gson.fromJson(planLev, PlanDTO.class);
+		List<PlanDTO> applyLevList = new ArrayList<PlanDTO>();
+		applyLevList.add(applyLevList1);
+
+		return applyLevService.planLeave(applyLevList, empId);
+
+	}
+
+	@RequestMapping(value = "/quickLev", method = RequestMethod.POST ,produces = "application/json")
+	public  @ResponseBody 
+	List<ResponseResource> quickLeave(@RequestBody String applyLev) {
+
+			Gson gson = new Gson();
+			ApplyLeaveDTO applyLevList1 = gson.fromJson(applyLev, ApplyLeaveDTO.class);
+			List leaveList = applyLevService.getLeaveDropDown(userBean.getEmployeeNo(), userBean.getPersonId());
+			applyLevList1.setLeaveList(leaveList);
+			userBean.setCategory(applyLevService.getCategories(userBean.getEmployeeNo(), applyLevList1.getCountryLeaveTypeId()));
+			List<ApplyLeaveDTO> applyLevList = new ArrayList<ApplyLeaveDTO>();
+			applyLevList.add(applyLevList1);
+				
+			return applyLevService.submitQuickLeave(applyLevList,leaveList,userBean.getPersonId());
+			
+			}
+			
+			
+	@RequestMapping(value = "/amendLev", method = RequestMethod.POST , produces = "application/json"  )
+	public  @ResponseBody 
+	String isAmend() {
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		
+		Map amendDetails =  applyLevService.getAmendmentDetails(empId,userBean.getPersonId());
+		Gson gson = new Gson();
+		String output = gson.toJson(amendDetails);
+		return output;
+	}
+	
+
+	@RequestMapping(value = "/quickLevDates", method = RequestMethod.POST )
+	public  @ResponseBody 
+	Map<String ,Object> quickLeaveDates(@RequestBody String startDate) {
+		
+        Date sysdate=DateUtils.getDate(new Date(), LeaveConstants.DATE_FORMAT_MMM);
+     Map dto = new HashMap();
+     LOG.info(dto);
+		if(startDate!=null){
+		Date levStartDate=	DateUtils.getDateFromString(startDate, LeaveConstants.DATE_FORMAT_MMM);
+			dto= applyLevService.getQuickApplydates( levStartDate,userBean.getPersonId());
+		}
+		else {
+			dto=applyLevService.getQuickApplydates( sysdate,userBean.getPersonId());
+		}
+		return dto;
+		}
+	
+	@RequestMapping(value = "/planLev", method = RequestMethod.POST  )
+	public  @ResponseBody 
+	List<PlanDTO> getPlanLev() {
+
+		String empId1 = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+
+		return applyLevService.planLevDetails(empId1);
+	}
+	
+	
+	
+	
+	@RequestMapping(value = "/saveAsDraft", method = RequestMethod.POST , produces = "application/json" )
+	public  @ResponseBody 
+	List<ResponseResource> saveAsDraft(@RequestBody String applyLev) {
+
+		LOG.info(applyLev);
+
+		Gson gson = new Gson();
+		TypeToken<List<ApplyLeaveDTO>> token = new TypeToken<List<ApplyLeaveDTO>>() {
+		};
+		List<ApplyLeaveDTO> applyLevList = gson.fromJson(applyLev,
+				token.getType());
+		LOG.info(applyLevList);
+		return applyLevService.saveAsDraft(applyLevList,userBean.getLeaveList(),userBean.getPersonId());
+	}
+	
+	@RequestMapping(value = "/deletePlanLeave", method = RequestMethod.POST  )
+	public @ResponseBody
+	List<ResponseResource> deletePlanLeave(@RequestBody String applyLev) {
+
+		Gson gson = new Gson();
+
+		PlanDTO applyLevList1 = gson.fromJson(applyLev, PlanDTO.class);
+
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+
+		List<PlanDTO> applyLevList = new ArrayList<PlanDTO>();
+		applyLevList.add(applyLevList1);
+
+		LOG.info(applyLevList);
+		return applyLevService.deletePlanLeave(applyLevList, empId,userBean.getPersonId());
+
+	}
+	
+}

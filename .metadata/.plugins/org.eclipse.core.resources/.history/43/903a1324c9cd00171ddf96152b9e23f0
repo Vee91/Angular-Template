@@ -1,0 +1,304 @@
+define(['angular','app','moment','jqueryui'], function(angular,app,moment,jqueryui) {
+	
+//Service 1 for darg drop and file operation ----------	
+	app.service('onBehalfRequestServices',['$rootScope','$http','$filter','$compile','$location','$routeParams', 
+	                                       function($rootScope,$http,$filter,$compile,$location,$routeParams){
+		var self=this;
+		var noOfReqPerPage = 10;
+		
+		this.checkSuperUserAccess=function(scope) {
+			var $response=$http.post("/leaverest/rest/checkBalSuperAccess");
+			$response.then(function(resp){
+				if(resp.data.accessFlag=="N"){
+					$location.path('/leaveAccessProblem'); 
+					scope.isValidSuperuser = false;
+				}else if(resp.data.accessFlag=="Y"){
+					scope.isValidSuperuser = true;
+					
+				}
+			});
+		};
+		
+		this.behalfSearchValidations=function(searchEmpId,searchRequestNo){
+			$rootScope.processing = true;
+			$('#searchErrorDiv').html("");
+			var flag=false;
+			var searchEmpId = $("#empNameNo").val();
+			var searchRequestNo = $("#requestNo").val();
+			var regexForOnlyNumbers = /^[0-9\b]+$/;
+			var reqexForRequestNo = /^(Lev|Lerf)_[0-9\b]+$/;
+			if(searchEmpId === undefined && searchEmpId === "" && 
+					searchRequestNo === undefined && searchRequestNo === ""){
+				$('#searchErrorDiv').append("Please enter employee number or Request Number");
+				searchData = undefined;
+				$rootScope.processing = false;
+			}else if (searchEmpId !=undefined  && searchEmpId != "" && !regexForOnlyNumbers.test(searchEmpId)){
+				$('#searchErrorDiv').append("Please enter correct Employee Number");
+				searchData = undefined;
+				$rootScope.processing = false;
+				
+			}else if(searchRequestNo !=undefined  && searchRequestNo != "" &&
+				(regexForOnlyNumbers.test(searchRequestNo) || !reqexForRequestNo.test(searchRequestNo))){
+				$('#searchErrorDiv').append("Please enter correct Request Number");
+				searchRequestNo = undefined;
+				$rootScope.processing = false;
+			}else{
+				flag=true;
+			}
+			return flag;
+		};
+		
+		this.searchValidations=function(searchEmpId){
+			$rootScope.processing = true;
+			$('#searchErrorDiv').html("");
+			var flag=false;
+			var searchData = $("#empNameNo").val();
+			var regexForOnlyNumbers = /^[0-9\b]+$/;
+			if(searchData === undefined || searchData === ""){
+				$('#searchErrorDiv').append("Please enter employee number");
+				searchData = undefined;
+				$rootScope.processing = false;
+			}else if (!regexForOnlyNumbers.test(searchData)){
+				$('#searchErrorDiv').append("Please enter correct Employee Number");
+				searchData = undefined;
+				$rootScope.processing = false;
+				
+			}else{
+				flag=true;
+			}
+			return flag;
+		};
+		
+		this.fetchEmployeeDetails=function(empId, scope,listURL){
+			$http.post("/leaverest/rest/fetchEmployeeDetails",{
+				"empId" : empId
+			}).success(function(data){
+				if (data !== null
+						&& data !== undefined
+						&& !$.isEmptyObject(data)
+						&& data.EmployeeDetails.length > 0) {
+					$rootScope.employeeDetails = data.EmployeeDetails[0];
+					$rootScope.showbalReportStatus = true;
+					scope.empSearchDataStatus = 'Complete';
+					self.callOnPageLoad(empId,listURL,scope);
+					$routeParams.employeeNo=data.EmployeeDetails[0].employeeNo;
+					//$scope.isEmpPresent = true;
+					return true;
+				} else {
+					$('#searchErrorDiv').append("Please enter correct employee number");
+					searchData = undefined;
+					scope.empSearchDataStatus = 'Complete';
+					$rootScope.processing = false;
+					return false;
+				}
+
+			});
+		};
+		
+		this.fetchDetailsByRequestNo=function(searchData1, scope,listURLData){
+			
+			var empURL = "/leaverest/rest/fetchEmpDetailsByRequestNo?requestId=";
+			$http.post(empURL+searchData1).success(function(data){
+				if (data !== null
+						&& data !== undefined
+						&& !$.isEmptyObject(data)
+						&& data.EmployeeDetails.length > 0) {
+					$rootScope.employeeDetails = data.EmployeeDetails[0];
+					$rootScope.showbalReportStatus = true;
+					scope.empSearchDataStatus = 'Complete';
+					self.callOnPageLoad(searchData1,listURLData,scope);
+					$routeParams.employeeNo=data.EmployeeDetails[0].employeeNo;
+				}else{
+					$('#searchErrorDiv').append("No Records Found");
+					searchData = undefined;
+					scope.empSearchDataStatus = 'Complete';
+					$rootScope.processing = false;
+					return false;
+				}
+			});
+		};
+		
+		this.callOnPageLoad=function(empId,listURL,scope){
+			var obj=[];
+			$http
+			.post(listURL+empId)
+			.success(
+					function(data) {
+						if(!$
+								.isEmptyObject(data)
+								&& data.detailsList.length > 0
+								&& data.masterList.length > 0){
+	
+							scope.masterList = data.masterList;
+							scope.detailsList = data.detailsList;
+
+							
+
+							scope.filteredList = data.detailsList;
+
+							scope.masterList = $filter(
+									'orderBy')
+									(
+											scope.masterList,
+											'submitDate',
+											true);
+							applyPagination(scope.masterList);
+
+							scope.distinctTypes = getDistinctTypes(scope.detailsList);
+							scope.leaveTypes = scope.distinctTypes.leaveTypes;
+							scope.subReqStatusList = scope.distinctTypes.subReqTypes;
+							
+							
+							
+							$rootScope.processing = false;
+						} else {
+							//$scope.isEmpReqListPresent = false;
+							$rootScope.processing = false;
+						}
+					})
+			.error(
+					function(data) {
+						//$scope.isEmpReqListPresent = false;
+						$rootScope.processing = false;
+						alert("Error in getting my request list");
+					});
+
+		};
+		
+		this.chkFilterCollapse = function(scope) {
+			scope.isCollapsed = !scope.isCollapsed;
+			scope.notPristine = false;
+		};
+		
+		this.closeFilterSection = function(scope) {
+			scope.isCollapsed = false;
+			scope.notPristine = false;
+		};
+		
+		this.sortList=function(predicate,scope){
+			if (predicate === 'DEFAULT') {
+
+				scope.predicateSelected = null;
+				scope.masterList = $filter(
+						'orderBy')(
+								scope.masterList,
+						'submitDate', true);
+				applyPagination(scope.masterList);
+				$compile(
+						angular
+								.element($('defaultSorting')))
+						(scope);
+				scope.isSorted = false;
+			} else {
+
+				scope.reverse = (scope.predicateSelected === predicate) ? !scope.reverse
+						: false;
+				scope.predicateSelected = predicate;
+				scope.detailsList = $filter(
+						'orderBy')
+						(
+								scope.detailsList,
+								scope.predicateSelected,
+								scope.reverse);
+				applyPagination(scope.detailsList);
+				$compile(
+						angular
+								.element($('afterSorting')))
+						(scope);
+				scope.isSorted = true;
+			}
+		
+			clearSelects(scope);
+		};
+		
+		
+		function applyPagination(list) {
+			$rootScope.pagination(list,
+					noOfReqPerPage,
+					'paginationSelect', 0);
+		}
+		
+		function getDistinctTypes(list) {
+			this.distinctTypes = {};
+			this.leaveTypes = [];
+			this.subReqTypes = [];
+			for (val in list) {
+				if (this.leaveTypes
+						.indexOf(list[val].leaveType) < 0) {
+					this.leaveTypes
+							.push(list[val].leaveType);
+				}
+				if (this.subReqTypes
+						.indexOf(list[val].status) < 0) {
+					this.subReqTypes
+							.push(list[val].status);
+				}
+			}
+
+			this.distinctTypes = {
+				leaveTypes : this.leaveTypes,
+				subReqTypes : this.subReqTypes
+			};
+
+			return this.distinctTypes;
+
+		};
+		
+		function clearSelects(scope) {
+			scope.masterChk = 'NO';
+			scope.wsReqSelected = [];
+			scope.reassignOnBehalfTrack=[];
+			for (j in scope.pagedItems) {
+				for (k in scope.pagedItems[j]) {
+					scope.pagedItems[j][k].childChk = 'NO';
+				}
+			}
+		}
+		
+		this.empData={};
+		this.isApplyOnBehalf=false;
+		
+		this.setApplyOnBehalf=function(value){
+			this.isApplyOnBehalf=value;
+		};
+		
+		this.getApplyOnBehalf=function(){
+			return this.isApplyOnBehalf;
+		};
+		
+		this.setEmployeeDetails=function(data){
+			this.empData=data;			
+		};
+		
+		this.getEmployeeDetails=function(){
+			return this.empData;
+		};
+		
+		this.isOnBehalfReassignLerf=false;
+		this.isOnBehalfDeleteLerf=false;
+		
+		this.setReassignLERF=function(){
+			this.isOnBehalfReassignLerf=true;
+		};
+		
+		this.getReassignLERF=function(){
+			return this.isOnBehalfReassignLerf;
+		};
+		
+		this.setDeleteLERF=function(){
+			this.isOnBehalfDeleteLerf=true;
+		};
+		
+		this.getDeleteLERF=function(){
+			return this.isOnBehalfDeleteLerf;
+		};
+		
+		this.resetOnBehalfLERFData=function(){
+			this.isOnBehalfReassignLerf=false;
+			this.isOnBehalfDeleteLerf=false;
+		};
+		
+		
+	}]);
+	
+});

@@ -1,0 +1,632 @@
+define(
+		[ 'angular', 'app', 'moment',  'displayMenu','reassignServices', 
+				'jqueryui', 'utils', 'bootstrap','LeaveServices', 'LeaveFilters','LeaveCommonDirectives','onBehalfRequestServices' ],
+		function(angular, app, moment, jqueryui, bootstrap) {
+			app
+					.controller(
+							'DeleteLeaveCtrl',
+							[
+									'$scope',
+									'$rootScope',
+									'$http',
+									'$compile',
+									'$routeParams',
+									'$location',
+									'$filter',
+									'$q',
+									'levReqList',
+									'reqListValidations',
+									'onBehalfRequestServices',
+									function($scope, $rootScope, $http,
+											$compile, $routeParams, $location,
+			$filter, $q, levReqList,reqListValidations,onBehalfRequestService ) {
+		$scope.subReqStatusList = [];
+		$scope.filter = {};
+		$scope.detailsList = [];
+		$scope.masterList = {};
+		$scope.filteredList = [];
+		$scope.leaveTypes = [];
+		$scope.distinctTypes = {};
+		$scope.filter.subReqStatus = null;
+		$scope.filter.leaveType = null;
+		$scope.isCollapsed = false;
+		$scope.isSorted = false;
+		$scope.isFiltered = false;
+		$scope.predicateSelected = null;
+		$scope.reverse = false;
+		$scope.filter.leaveStartDate = null;
+		$scope.filter.leaveEndDate = null;
+		$scope.filter.submissionStartDate = null;
+		$scope.filter.submissionEndDate = null;
+		$scope.masterStatusColor = null;
+		$scope.data = null;
+		$scope.notPristine = false;
+		$scope.errMessage = null;
+		$scope.recentFlag = true;
+		$scope.outputMesg = null;
+		$scope.myReqListAppURL = "/leaverest/rest/fetchSingleRequestStatus";
+		var serviceArray = [];
+		$scope.masterChk = null;
+		$scope.childChk = null;
+		var listURL = "/leaverest/rest/fetchDeleteOnBehalf?employeeId=";
+		var listURL1 = "/leaverest/rest/fetchDeleteOnBehalf?requestId=";
+		$scope.searchData=null;
+		$scope.empNoForReqList = null;
+
+		/* cmn part starts */
+		$scope.pageName = 'Leave - Delete Leave';
+
+		$scope.isdeleteLeave = true;
+		/* cmn part ends */
+
+		$rootScope.showbalReportStatus = false;
+		 $scope.archievedFlag = 'Y'; 
+		
+
+		
+		var noOfReqPerPage = 10;
+		var prefix = "/leaverest/rest/";
+		
+		onBehalfRequestService.checkSuperUserAccess($scope);
+		onBehalfRequestService.resetOnBehalfLERFData(); 
+		
+		function clearLists(){
+			$scope.archList = [];
+			$scope.masterList = [];
+			$scope.detailsList = [];
+			$scope.sysArchList = [];
+			applyPagination($scope.masterList);
+		}
+		
+		
+		if($rootScope.backFromDetails){	
+			$rootScope.processing = true;
+			$rootScope.backFromDetails = false;
+			if($rootScope.searchByEmp){
+				$scope.searchData=levReqList.searchData;
+				onBehalfRequestService.fetchEmployeeDetails(levReqList.searchData, $scope,listURL);
+			}else if($rootScope.searchByRequest){
+				$scope.searchData1=levReqList.subRequest;
+				onBehalfRequestService.fetchDetailsByRequestNo(levReqList.subRequest, $scope,listURL1);
+			}
+		}
+		
+		
+		 /*Search emplyoee by no */
+		$scope.searchByEmpNo = function() {
+			clearLists();
+			var searchData = $("#empNameNo").val();
+			var searchData1 = $("#requestNo").val();
+			$scope.searchData=searchData;
+			if(onBehalfRequestService.behalfSearchValidations(searchData,searchData1)){
+				if($rootScope.searchByEmp){
+					$scope.disableSearchButton = "True";
+					$scope.empSearchDataStatus = 'Pending';
+					$scope.empNoForReqList = searchData;
+					$scope.empDetailsFetch(searchData,listURL);
+				}else if($rootScope.searchByRequest){
+					$scope.requestNoReqList=searchData1;
+					$scope.disableSearchButton = "True";
+					$scope.empSearchDataStatus = 'Pending';
+					$scope.empNoForReqList = searchData1;
+					onBehalfRequestService.fetchDetailsByRequestNo(searchData1, $scope,listURL1);
+				}
+			}
+		};
+
+		
+		$scope.resetSearch = function(){
+			$rootScope.showbalReportStatus = false;
+			$("#empNameNo").val("");
+			$("#empNameNo").removeAttr("disabled");
+			$("#requestNo").val("");
+			$("#requestNo").removeAttr("disabled");
+			$scope.isEmpPresent = true;
+			clearLists();
+			$("#searchErrorDiv").html("");
+		};
+		
+		$scope.empDetailsFetch = function(searchData) { 
+			$rootScope.processing = true;
+			
+			onBehalfRequestService.fetchEmployeeDetails(searchData, $scope,listURL);
+		};
+		
+		$scope.chkFilterCollapse = function() {
+			onBehalfRequestService.chkFilterCollapse($scope);
+		};
+		
+		$scope.closeFilterSection = function() {
+			onBehalfRequestService.closeFilterSection($scope);
+		};
+		
+		
+
+		$scope.getFilteredMasterStatus = function(
+				masterRequest, index) {
+			return $filter(
+					'masterRequestStatus')(
+					masterRequest,
+					$scope.masterList, index);
+		};
+
+		function clearSelects() {
+			$scope.masterChk = 'NO';
+			$scope.wsReqSelected = [];
+			for (j in $scope.pagedItems) {
+				for (k in $scope.pagedItems[j]) {
+					$scope.pagedItems[j][k].childChk = 'NO';
+				}
+			}
+		}
+		;
+
+		$scope.setStatusColor = function(status) {
+			return levReqList
+					.setStatusColor(status);
+		};
+
+		$scope.setMasterStatusColor = function(
+				leaveStatus) {
+			return levReqList
+					.setMasterStatusColor(leaveStatus);
+		};
+
+		$scope.removeBorderBottom = function(
+				parent, index, count) {
+			for ( var i = 0; i < count - 1; i++) {
+				$(
+						'#subReqDiv_' + parent
+								+ '_' + i)
+						.addClass('subReqLine');
+			}
+
+		};
+
+		$scope.reqDetailsRedirect = function(
+				key) {
+			var tmpDetailsList = $filter(
+					'myRequestFilter')(
+					$scope.detailsList, key);
+			var tmpMasterList = $filter(
+					'myRequestMasterFilter')(
+					$scope.masterList, key);
+			for ( var i = 0; i < tmpDetailsList.length; i++) {
+				serviceArray
+						.push($http
+								.post($scope.myReqListAppURL
+										+ "?levRequestNo="
+										+ tmpDetailsList[i].subRequest));
+
+			}
+			var workFlowList = [];
+			$q
+					.all(serviceArray)
+					.then(
+							function(result) {
+
+								angular
+										.forEach(
+												result,
+												function(
+														response) {
+													workFlowList
+															.push(response.data);
+												});
+								levReqList
+										.setReqListData(
+												tmpMasterList,
+												tmpDetailsList,
+												workFlowList);
+												if (tmpDetailsList[0].subRequest
+										.toLowerCase()
+										.indexOf(
+												"lerf") > -1) {
+									onBehalfRequestService.setDeleteLERF();
+									$routeParams.requestNo = tmpDetailsList[0].subRequest;
+									$routeParams.employeeNo = $scope.empNoForReqList;
+									$location
+											.path("/empLerfReqDetails/"
+													+ $routeParams.requestNo
+													+ "/"
+													+ $routeParams.employeeNo);
+
+								}else{
+									levReqList.setSubRequest(tmpDetailsList[0].subRequest);
+									$routeParams.parentReqNo = key;
+									$location
+											.path("/delReqDetails/"
+													+ $routeParams.parentReqNo+"/"+$routeParams.employeeNo);
+								}
+							});
+		};
+
+		$scope.sortList = function(predicate) {
+
+			if (predicate === 'DEFAULT') {
+
+				$scope.predicateSelected = null;
+				$scope.masterList = $filter(
+						'orderBy')(
+						$scope.masterList,
+						'submitDate', true);
+				applyPagination($scope.masterList);
+				$compile(
+						angular
+								.element($('defaultSorting')))
+						($scope);
+				$scope.isSorted = false;
+			} else {
+
+				$scope.reverse = ($scope.predicateSelected === predicate) ? !$scope.reverse
+						: false;
+				$scope.predicateSelected = predicate;
+				$scope.detailsList = $filter(
+						'orderBy')
+						(
+								$scope.detailsList,
+								$scope.predicateSelected,
+								$scope.reverse);
+				applyPagination($scope.detailsList);
+				$compile(
+						angular
+								.element($('afterSorting')))
+						($scope);
+				$scope.isSorted = true;
+			}
+			
+			clearSelects();
+
+		};
+
+		$scope.applyFilter = function() {
+			if (($scope.filter.subReqStatus === undefined || $scope.filter.subReqStatus === null)
+					&& ($scope.filter.submissionStartDate === undefined || $scope.filter.submissionStartDate === null)
+					&& ($scope.filter.submissionEndDate === undefined || $scope.filter.submissionEndDate === null)
+					&& ($scope.filter.leaveType === undefined || $scope.filter.leaveType === null)
+					&& ($scope.filter.leaveStartDate === undefined || $scope.filter.leaveStartDate === null)
+					&& ($scope.filter.leaveEndDate === undefined || $scope.filter.leaveEndDate === null)) {
+				$scope.errMessage = 'Please select at least one filter type';
+				handleErrSettings();
+			} else if (reqListValidations
+					.dateSelect(
+							$scope.filter.submissionStartDate,
+							$scope.filter.submissionEndDate)) {
+				$scope.errMessage = 'Please select both the submission start and end date';
+				handleErrSettings();
+			} else if (reqListValidations
+					.checkDateRange(
+							$scope.filter.submissionStartDate,
+							$scope.filter.submissionEndDate)) {
+				$scope.errMessage = 'Submission start date cannot be greater than end date';
+				handleErrSettings();
+			} else if (reqListValidations
+					.dateSelect(
+							$scope.filter.leaveStartDate,
+							$scope.filter.leaveEndDate)) {
+				$scope.errMessage = 'Please select both the leave duration start and end date';
+				handleErrSettings();
+			} else if (reqListValidations
+					.checkDateRange(
+							$scope.filter.leaveStartDate,
+							$scope.filter.leaveEndDate)) {
+				$scope.errMessage = 'Leave duration start date cannot be greater than end date';
+				handleErrSettings();
+			} else {
+				$scope.notPristine = false;
+				$scope.isFiltered = true;
+				if (!$scope.isSorted) {
+					$scope.detailsList = angular
+							.copy($scope.filteredList);
+				}
+
+				$scope.detailsList = $filter(
+						'myReqListFilterAll')
+						(
+								$scope.detailsList,
+								$scope.filter.subReqStatus,
+								$scope.filter.submissionStartDate,
+								$scope.filter.submissionEndDate,
+								$scope.filter.leaveType,
+								$scope.filter.leaveStartDate,
+								$scope.filter.leaveEndDate);
+				
+				$scope.detailsList = $filter(
+						'orderBy')
+						(
+								$scope.detailsList,
+								$scope.predicateSelected,
+								$scope.reverse);
+				applyPagination($scope.detailsList);
+				
+				clearSelects();
+			}
+
+		};
+
+		$scope.resetFilter = function() {
+			
+			$scope.filter.leaveStartDate = null;
+			$scope.filter.leaveEndDate = null;
+			$scope.filter.submissionStartDate = null;
+			$scope.filter.submissionEndDate = null;
+			$scope.isFiltered = false;
+			$scope.isSorted = false;
+			$scope.notPristine = false;
+			$scope.detailsList = $scope.filteredList
+					.slice();
+		
+			$scope.masterList = $filter(
+					'orderBy')(
+					$scope.masterList,
+					'submitDate', true);
+			applyPagination($scope.masterList);
+		};
+
+		$scope
+				.$on(
+						'reqList.setDivHoverStyle',
+						function(event, index,
+								div, action) {
+							levReqList
+									.handleMouseEventForBackColor(
+											div
+													+ index,
+											action);
+						});
+
+		function handleErrSettings() {
+			$scope.notPristine = true;
+			$scope.isFiltered = false;
+			$scope.isSorted = false;
+			$scope.detailsList = $scope.filteredList
+					.slice();
+			
+			$scope.masterList = $filter(
+					'orderBy')(
+					$scope.masterList,
+					'submitDate', true);
+			applyPagination($scope.masterList);
+		}
+		;
+
+		function handleFlags() {
+			$scope.isFiltered = false;
+			$scope.isSorted = false;
+			$scope.notPristine = false;
+			$scope.predicateSelected = false;
+		}
+		;
+
+		function applyPagination(list) {
+			$rootScope.pagination(list,
+					noOfReqPerPage,
+					'paginationSelect', 0);
+		}
+		;
+
+		$scope.deleteLeave = function() {
+			
+		
+			 
+			if (validateRequestStatus(
+					$scope.wsReqSelected,
+					'cancel')) {
+				$scope.operation = 'cancel';
+				$scope.requestOperation();
+			}
+		};
+
+		$scope.requestOperation = function() {
+			if ($scope.operation === 'cancel')
+				$scope.requestCancel();
+		};
+
+		$scope.requestCancel = function() {
+
+			var deleteLeave = prefix
+					+ "deleteLeaveOnBehalf";
+			$http
+					.post(
+							deleteLeave,
+							$scope.wsReqSelected)
+					.success(
+							function(data) {
+								callOnPageLoad();
+								$scope.outputMesg = data[0].fieldErrors[0].message;
+								$(
+										"#messageModal")
+										.modal(
+												'show');
+							
+								$scope.wsReqSelected = [];
+								clearSelects();
+							});
+
+		};
+
+		$scope.deleteData = [];
+		$scope.deleteOnBehalfTrack=[];
+		$scope.selectMasterRequest = function(
+				request, value) {
+
+			var searchData = $("#empNameNo").val();
+			
+			if (value === "YES") {
+				
+				for (i in $scope.detailsList) {
+					var reqDetails = $scope.detailsList[i];
+					if (request.masterRequest === reqDetails.masterRequest) {
+						$scope.deleteData
+								.push({
+									childReqNo : reqDetails.subRequest,
+									parentReqNo : reqDetails.masterRequest,
+									
+									
+								});
+					}
+					$scope.deleteOnBehalfTrack.push(request.masterRequest);
+				}
+				
+			}
+			else if (value === "NO"){
+				var deleteOperation = 1; // Delete from Array of javascript
+				var index = $scope.deleteOnBehalfTrack.indexOf(request.masterRequest);
+				$scope.deleteOnBehalfTrack.splice(index, deleteOperation);
+				$scope.deleteData.splice(index, deleteOperation);
+				
+			}
+	};
+
+		$scope.selectAllMasterRequest = function(
+				value) {
+			
+			$scope.deleteData = [];
+			$scope.deleteOnBehalfTrack=[];
+			if (value === "YES") {
+				
+				for (i in $scope.detailsList) {
+					var reqDetails = $scope.detailsList[i];
+					reqDetails.childChk = 'YES';
+					$scope.deleteData
+							.push({
+								childReqNo : reqDetails.subRequest,
+								parentReqNo : reqDetails.masterRequest,
+								
+							});
+					$scope.deleteOnBehalfTrack.push(reqDetails.masterRequest);
+				}
+				for (j in $scope.pagedItems) {
+					for (k in $scope.pagedItems[j]) {
+						$scope.pagedItems[j][k].childChk = 'YES';
+					}
+				}
+			} else {
+				clearSelects();
+			};
+		};
+
+		$scope.remove = function(index) {
+			var countIndex = 0;
+			while ($scope.wsReqSelected[countIndex].childReqNo !== index) {
+				countIndex++;
+			}
+			$scope.wsReqSelected.splice(
+					countIndex, 1);
+		};
+
+		function validateRequestStatus(
+				selectedArray, calledFrom) {
+			if (validateListSize(selectedArray)) {
+				notAllowedMessage = "Please select atleast one request";
+				$scope.outputMesg = notAllowedMessage;
+				$("#messageModal")
+						.modal('show');
+				return false;
+			}
+			return true;
+		}
+
+		function validateListSize(list) {
+			return list.length === 0 ? true
+					: false;
+		}
+
+		$scope.applyDivBorder = function(
+				parent, subRequest) {
+
+			var length = ($filter('myRequestFilter')
+					($scope.detailsList,
+							subRequest)).length;
+
+			if (length > 1) {
+				$(
+						"#"
+								+ parent
+								+ " .dynLeftBorder")
+						.css("border-left",
+								"1px solid #dadada");
+				$(
+						"#"
+								+ parent
+								+ " .dynRightBorder")
+						.css("border-right",
+								"none");
+			} else {
+				$(
+						"#"
+								+ parent
+								+ " .dynRightBorder")
+						.css("border-right",
+								"1px solid #dadada");
+				$(
+						"#"
+								+ parent
+								+ " .dynLeftBorder")
+						.css("border-left",
+								"none");
+			}
+		};
+
+		$scope.setPredicateIcon = function() {
+			return $scope.reverse ? 'glyphicon glyphicon glyphicon-sort-by-alphabet-alt'
+					: 'glyphicon glyphicon glyphicon-sort-by-alphabet';
+		};
+		$scope.closeAlert = function(index) {
+			$scope.showErrorMsg = false;
+			$scope.alerts.splice(index, 1);
+		};
+
+		
+		$scope.deleteRequest=function(){
+			$scope.reassignEmpSearchFlag=false;
+			$scope.reassignEmpData={};
+			$('#reassignEmpIdBox').val("");
+			if (validateRequestStatus(
+					$scope.deleteData,
+					'reassign')) {
+				
+				
+				$http.post("/leaverest/rest/deleteLeaveOnBehalf",$scope.deleteData)
+				.success(function(data){
+					if(null!=data && undefined!=data && ""!=data){
+						if(data[0].fieldErrors[0].code==200){
+							notAllowedMessage =data[0].fieldErrors[0].message;
+							$scope.outputMesg
+									.push(notAllowedMessage);
+							$("#messageModal")
+									.modal('show');
+							flag = false;
+							onBehalfRequestService.callOnPageLoad($scope.searchData,listURL,$scope);
+						}
+					}
+					
+					
+					
+					//
+					
+				});
+			}
+		};
+		
+		function validateRequestStatus(
+				selectedArray, calledFrom) {
+			var flag = true;
+			$scope.outputMesg = [];
+			if (validateListSize(selectedArray)) {
+				notAllowedMessage = "Please select atleast one request";
+				$scope.outputMesg
+						.push(notAllowedMessage);
+				$("#messageModal")
+						.modal('show');
+				flag = false;
+			}
+			return flag;
+		}
+			
+		
+	} ]);
+			return app;
+		});
+
+

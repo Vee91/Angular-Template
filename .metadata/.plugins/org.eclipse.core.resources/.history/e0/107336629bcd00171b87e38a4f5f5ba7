@@ -1,0 +1,459 @@
+package com.ultimatix.gess.leave.controller;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.plagiarism.leave.sessionbean.UserDetailsSessionBean;
+import com.ultimatix.gess.leave.dto.ApplyLeaveDTO;
+import com.ultimatix.gess.leave.dto.ApplyLevOnBehalfDTO;
+import com.ultimatix.gess.leave.dto.FileDTO;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.ApplyLevOnBehalfService;
+import com.ultimatix.gess.leave.service.ApplyLevService;
+import com.ultimatix.gess.leave.service.FileService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.LeaveFileUtil;
+import com.ultimatix.gess.leave.util.ReportUtils;
+import com.ultimatix.pfile.util.FileUtils;
+import com.ultimatix.pfile.util.HttpResponseUtils;
+import com.ultimatix.pfile.util.StreamUtils;
+import com.ultimatix.pfile.util.StringUtils;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class FileController {
+
+	private static final LoggerInterface LOG = LoggerFactory
+			.getLogger(FileController.class);
+
+	@Autowired(required = false)
+	private FileService fileService;
+
+	@Autowired
+	private UserDetailsSessionBean userBean;
+
+	@Autowired
+	private ApplyLevService applyLevService;
+
+	@Autowired
+	private ApplyLevOnBehalfService applyLevOnBehalfService;
+
+	@RequestMapping(value = "/uploadLevRequestDoc", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> uploadLevRequestDoc(
+			@RequestParam(value = "file", required = false) MultipartFile[] files,
+			MultipartHttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		int personId = 0;
+		int parentReqId = 0;
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("FileController | uploadLevRequestDoc  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		try {
+			Map<String, Object> fileMap = new HashMap<String, Object>();
+			String requestId = null;
+			if (null != request.getParameter("LevRequestId")) {
+				requestId = request.getParameter("LevRequestId");
+			}
+			int docId = 0;
+			if (null != request.getParameter("docId")) {
+				docId = Integer.parseInt(request.getParameter("docId"));
+			}
+			String onBehalfFlag = null;
+			if (null != request.getParameter("onBehalfFlag")) {
+				onBehalfFlag = request.getParameter("onBehalfFlag");
+			}
+			String searchEmpId = null;
+			if (null != request.getParameter("searchEmpId")) {
+				searchEmpId = request.getParameter("searchEmpId");
+			}
+			String calledFrom = null;
+			if (null != request.getParameter("calledFrom")) {
+				calledFrom = request.getParameter("calledFrom");
+			}
+			boolean mailerFlag = false;
+			if (null != request.getParameter("parentReqId")) {
+				parentReqId = Integer.parseInt(request
+						.getParameter("parentReqId"));
+			}
+			if ("Y".equalsIgnoreCase(onBehalfFlag)) {
+				personId = applyLevService.getPersonId(searchEmpId);
+				LOG.info("FileController | uploadLevRequestDoc  |   invoked by Superuser");
+			} else {
+				personId = applyLevService.getPersonId(empId);
+			}
+			List<FileDTO> fileList = new ArrayList<FileDTO>();
+			for (int i = 0; i < files.length; i++) {
+				MultipartFile mpFile = files[i];
+				LOG.info("FileController | uploadLeaveFiles  | File= " + i);
+				FileDTO fileObj = fileService.uploadLeaveDoc(mpFile, requestId,
+						docId, personId, parentReqId);
+				fileList.add(fileObj);
+				LOG.info("FileController | uploadLevRequestDoc  | list  "
+						+ fileList.toString());
+				if (fileObj.getMsgId() == 1) {
+					mailerFlag = true;
+				}
+			}
+			fileMap.put("FileList", fileList);
+			LOG.info("FileController | uploadLevRequestDoc  | create action terminated  ");
+			if (mailerFlag && "isLevReqDetails".equalsIgnoreCase(calledFrom)) {
+				applyLevService.uploadMailer(requestId);
+			}
+			return fileMap;
+		} catch (SQLException e) {
+			throw new IllegalArgumentException("exception ", e);
+
+		}
+	}
+
+	@RequestMapping(value = "/fetchAllLeaveDocs", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> fetchAllLeaveDocs(
+			@RequestBody Map<String, String> dataMap) {
+
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("FileController | fetchAllLeaveDocs  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		String requestId = dataMap.get("requestId");
+		Map<String, Object> fileMap = fileService.fetchAllLeaveDocs(requestId);
+		LOG.info("FileController | fetchAllLeaveDocs  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return fileMap;
+	}
+
+	@RequestMapping(value = "/generateLeaveDoc*", method = RequestMethod.GET)
+	public void generateLeaveDoc(HttpServletResponse response,
+			HttpServletRequest request) throws SQLException {
+
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("FileController | generateLeaveDoc  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		String fileName = request.getParameter("fileName");
+		String requestId = request.getParameter("requestId");
+		int docId = Integer.parseInt(request.getParameter("docId"));
+		int personId = applyLevService.getPersonId(empId);
+		FileDTO fileObj = fileService.generateLeaveDoc(fileName, personId,
+				docId, requestId, response);
+
+		LOG.info("FileController | generateLeaveDoc  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+	}
+
+	@RequestMapping(value = "/downloadFile", method = RequestMethod.POST)
+	@ResponseBody
+	public Map<String, String> downloadFile(
+			MultipartHttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FileController | downloadFile  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		Map<String, String> fileMap = new HashMap<String, String>();
+		Iterator<String> itr = request.getFileNames();
+		MultipartFile file;
+		file = request.getFile(itr.next()); // Get the file.
+		InputStream is = null;
+		OutputStream os = null;
+		try {
+			String workingDir = request.getServletContext().getRealPath(
+					File.separator)
+					+ "WEB-INF"
+					+ File.separator
+					+ "generatedfile"
+					+ File.separator;
+			boolean result = LeaveFileUtil.mkdir(workingDir);
+			if (result) {
+				LOG.info("FileController|downloadFile CREATE FOLDER:"
+						+ workingDir);
+			}
+			is = file.getInputStream();
+			String fileName = StringUtils.replaceWhiteSpaceWith(file.getOriginalFilename(), "_");
+			fileMap.put("fileName", fileName);
+			fileMap.put("contentType", file.getContentType());
+			os = FileUtils.getFileOutputStream(workingDir + fileName);
+			LOG.debug("--------------Start Writing of downloadFile---------------");
+			byte buffer[] = new byte[8192];
+			StreamUtils.writeOutputStream(is, os, 0, buffer);
+			LOG.debug("--------------End Writing of  downloadFile---------------");
+			LOG.info("FileController | downloadFile  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+			return fileMap;
+		} finally {
+			if (os != null) {
+				os.close();
+			}
+		}
+	}
+
+	@RequestMapping(value = "/downloadDoc", method = RequestMethod.GET)
+	@ResponseBody
+	public void downloadDoc(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FileController | downloadDoc  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		String fileName = request.getParameter("fileName");
+		String contentType = request.getParameter("contentType");
+		InputStream input = null;
+		DataOutputStream out = null;
+		String pathName = request.getServletContext().getRealPath(
+				File.separator)
+				+ "WEB-INF" + File.separator + "generatedfile";
+		File tempFile = ReportUtils.getCustomFilePath(pathName, fileName);
+		input = FileUtils.getFileInputStream(tempFile);
+		try {
+			HttpResponseUtils.exportToFile(fileName, contentType,response);
+
+			out = new DataOutputStream(response.getOutputStream());
+			StreamUtils.writeOutputStream(input, out);
+		} catch (Exception e) {
+			LOG.error(
+					"FileController | downloadDoc |Exception error in writeToFile ",
+					e);
+		} finally {
+			try {
+				if (null != input) {
+					input.close();
+				}
+				if (null != response) {
+					response.getOutputStream().close();
+				}
+				if (null != out) {
+					out.flush();
+					out.close();
+				}
+			} catch (Exception e) {
+				LOG.error(
+						"FileController | downloadFile |Exception error in writeToFile ",
+						e);
+			}
+		}
+		LOG.info("FileController | downloadDoc  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+	}
+
+	@RequestMapping(value = "/deleteUploadedFile", method = RequestMethod.POST)
+	public @ResponseBody Map<String, String> deleteUploadedFile(
+			@RequestBody Map<String, String> dataMap) {
+
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("FileController | deleteUploadedFile  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		int personId = applyLevService.getPersonId(empId);
+		String requestId = dataMap.get("requestId");
+		String fileName = dataMap.get("fileName");
+		int docId = 0;
+		if (!dataMap.isEmpty() && null != dataMap.get("docId")) {
+			docId = Integer.parseInt(dataMap.get("docId"));
+		}
+		Map<String, String> fileMap = fileService.deleteUploadedFile(requestId,
+				docId, fileName, personId);
+		LOG.info("FileController | deleteUploadedFile  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return fileMap;
+	}
+
+	@RequestMapping(value = "/uploadLeaveFiles", method = RequestMethod.POST)
+	@ResponseBody
+	public List<ResponseResource> uploadLeaveFiles(
+			@RequestParam(value = "file0", required = false) List<MultipartFile> file0,
+			@RequestParam(value = "file1", required = false) List<MultipartFile> file1,
+			@RequestParam(value = "file2", required = false) List<MultipartFile> file2,
+			@RequestParam(value = "file3", required = false) List<MultipartFile> file3,
+			MultipartHttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FileController | uploadLeaveFiles  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		List<ResponseResource> applyLevResponse = null;
+		String leaveDetailString = null;
+		List<ApplyLeaveDTO> applyLevList;
+		if (null != request.getParameter("FileData")) {
+			leaveDetailString = (String) request.getParameter("FileData");
+		}
+		Gson gson = new Gson();
+		TypeToken<List<ApplyLeaveDTO>> token = new TypeToken<List<ApplyLeaveDTO>>() {};
+		applyLevList = gson.fromJson(leaveDetailString, token.getType());
+		applyLevList=applyLevService.validateDays(applyLevList);
+	// leave Objects,emp id and person id are the inputs
+
+		applyLevResponse = applyLevService.submitLeaveRequests(applyLevList,userBean.getEmployeeNo(), userBean.getPersonId());
+
+		// after request no is generated
+
+		if (!applyLevResponse.isEmpty()) {
+			applyLevService.pushToRedis(applyLevList); // insert
+																			// leave
+																			// in
+																			// redis
+		}
+
+		Map<String, List<MultipartFile>> fileMap = new HashMap<String, List<MultipartFile>>();
+		fileMap.put("0", file0);
+		fileMap.put("1", file1);
+		fileMap.put("2", file2);
+		fileMap.put("3", file3);
+
+		for (ApplyLeaveDTO obj : applyLevList) {
+			int fileIndex = applyLevList.indexOf(obj);
+			if (null != fileMap) {
+				List<MultipartFile> fileList = fileMap.get(String
+						.valueOf(fileIndex));
+				// List<MultipartFile> fileList=fileMap.get(fileIndex);
+				if (null != fileList) {
+					if (fileList.size() > 0 && !fileList.isEmpty()) {
+						for (int i = 0; i < fileList.size(); i++) {
+							MultipartFile mpFile = fileList.get(i);
+							LOG.info("FileController | uploadLeaveFiles  | File= "
+									+ i
+									+ " and FileName="
+									+ mpFile.getOriginalFilename());
+							try {
+								FileDTO fileObj = fileService
+										.uploadLeaveDoc(mpFile,
+												obj.getLeaveReqNo(), i,
+												obj.getPersonId(),
+												obj.getParentReqNo());
+								LOG.info("FileController | uploadLeaveFiles  | uploaded file object is :"
+										+ fileObj.toString());
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								LOG.error(
+										"FileController | uploadLeaveFiles | exception while document upload: ",
+										e);
+							}
+						}
+					}
+				}
+			}
+		}
+		LOG.info("FileController | uploadLeaveFiles  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return applyLevResponse;
+	}
+
+	@RequestMapping(value = "/uploadLeaveFilesBehalf", method = RequestMethod.POST)
+	@ResponseBody
+	public List<ResponseResource> uploadLeaveFilesBehalf(
+			@RequestParam(value = "file0", required = false) List<MultipartFile> file0,
+			@RequestParam(value = "file1", required = false) List<MultipartFile> file1,
+			@RequestParam(value = "file2", required = false) List<MultipartFile> file2,
+			@RequestParam(value = "file3", required = false) List<MultipartFile> file3,
+			MultipartHttpServletRequest request, HttpServletResponse response)
+			throws IOException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FileController | uploadLeaveFilesBehalf  | loginId"+ loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		List<ResponseResource> applyResponse = null;
+
+		String leaveDetailString = null;
+		String searchedEmpID = null;
+
+		if (null != request.getParameter("FileData")) {
+			leaveDetailString = (String) request.getParameter("FileData");
+		}
+
+		if (null != request.getParameter("searchEmpId")) {
+			searchedEmpID = request.getParameter("searchEmpId");
+		}
+		String loggedInEmpId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+
+		List<ApplyLevOnBehalfDTO> applyLevList = new ArrayList();
+		TypeToken<List<ApplyLevOnBehalfDTO>> token = new TypeToken<List<ApplyLevOnBehalfDTO>>() {
+		};
+		Gson gson = new Gson();
+		int applicantPersonId = applyLevService.getPersonId(searchedEmpID);
+		Map<String, Object> employeeLevTypeDtlMap = applyLevOnBehalfService
+				.setEmployeeLeaveTypes(userBean.getPersonId(),
+						applicantPersonId, searchedEmpID,
+						applyLevOnBehalfService.getSuperUserRole(loggedInEmpId), false);
+		List leaveTypeList = (List) employeeLevTypeDtlMap
+				.get("listofLevTypeDetail");
+		applyLevList = gson.fromJson(leaveDetailString, token.getType());
+		
+		
+		applyLevList=applyLevOnBehalfService.validateDays(applyLevList);
+		applyResponse = applyLevOnBehalfService.submitLeaveRequests(
+				applyLevList, loggedInEmpId, userBean.getPersonId(),
+				searchedEmpID, leaveTypeList);
+
+		
+		if (!applyResponse.isEmpty()) {
+
+			applyLevOnBehalfService.pushToRedis(applyLevList); // insert leave in redis
+		}
+
+		Map<String, List<MultipartFile>> fileMap = new HashMap<String, List<MultipartFile>>();
+		fileMap.put("0", file0);
+		fileMap.put("1", file1);
+		fileMap.put("2", file2);
+		fileMap.put("3", file3);
+
+		for (ApplyLevOnBehalfDTO obj : applyLevList) {
+			int fileIndex = applyLevList.indexOf(obj);
+			if (null != fileMap) {
+				List<MultipartFile> fileList = fileMap.get(String
+						.valueOf(fileIndex));
+				// List<MultipartFile> fileList=fileMap.get(fileIndex);
+				if (null != fileList) {
+					if (fileList.size() > 0 && !fileList.isEmpty()) {
+						for (int i = 0; i < fileList.size(); i++) {
+							MultipartFile mpFile = fileList.get(i);
+							LOG.info("FileController | uploadLeaveFiles  | File= "
+									+ i
+									+ " and FileName="
+									+ mpFile.getOriginalFilename());
+							try {
+								FileDTO fileObj = fileService
+										.uploadLeaveDoc(mpFile,
+												obj.getLeaveReqNo(), i,
+												obj.getPersonId(),
+												obj.getParentReqNo());
+								LOG.info("FileController | uploadLeaveFiles  | uploaded file object is :"
+										+ fileObj.toString());
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								LOG.error(
+										"FileController | uploadLeaveFiles | exception while document upload: ",
+										e);
+							}
+						}
+					}
+				}
+			}
+		}
+		LOG.info("FileController | uploadLeaveFilesBehalf  | loginId"+ loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+	return applyResponse;
+	}
+
+	@RequestMapping(value = "/fetchUploadedDocCount", method = RequestMethod.POST)
+	public @ResponseBody Map<String, Object> fetchUploadedDocCount(
+			@RequestBody Map<String, String> dataMap) {
+
+		String empId = (String) SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal();
+		LOG.info("FileController | fetchUploadedDocCount  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		String requestId = dataMap.get("requestId");
+		Map<String, Object> fileMap = fileService
+				.fetchUploadedDocCount(requestId);
+
+		LOG.info("FileController | fetchUploadedDocCount  | loginId"+ empId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return fileMap;
+	}
+
+}

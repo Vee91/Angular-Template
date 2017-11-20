@@ -1,0 +1,16 @@
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+	<deployment>
+		<dependencies>
+			<module name="com.ultimatix.gess.jars"  export="true">
+				<imports>
+					<include path="META-INF**" />
+					<include path="org/springframework**" />
+					<exclude path="com/utxfrmwk**"/>
+					<exclude path="com/ultimatix**"/>
+				</imports>
+			</module>
+			<module name="com.oracle.jdbc" export="true" />
+		</dependencies>
+		<local-last value="true"/>
+	</deployment>
+</jboss-deployment-structure>

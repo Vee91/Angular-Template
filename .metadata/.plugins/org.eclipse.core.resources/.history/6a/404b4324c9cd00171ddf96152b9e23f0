@@ -1,0 +1,118 @@
+<script type="text/javascript">
+	var firstAttempt = true;
+
+	function initCap(str) {
+	    var result="";
+	    str=str.replace(/\s+/g,' ')
+	    if(str.indexOf(" ")!=0)
+	    {
+	        var words=str.split(" ");
+	        for(var i=0;i<words.length;i++)
+	        {
+	            var str= words[i];
+	            words[i]=str.substring(0,1).toUpperCase() + str.substring(1,str.length).toLowerCase();
+	        }
+	    } 
+	    return words.toString().replace(/,/g," ");
+	} 
+
+	$('.onlyLetters').keypress(function (event) 
+			{
+            if (event.which > 32 && (event.which < 65 || event.which > 90) && (event.which < 97 || event.which > 122))
+            	event.preventDefault();
+        	
+	});
+	
+	$('.onlyLetters').bind('cut copy paste', function(e) {
+		e.preventDefault();
+	});
+
+	 
+	$('.numsOrLetters').keypress(function (event) {
+	    if ($(this).val() == "") {
+	        firstAttempt = true; //reset
+	    }
+	    if (firstAttempt) {
+	        firstAttempt = false;
+	        if (!((event.which >= 48 && event.which <= 57) ||(event.which >= 65 && event.which <= 90) ||(event.which >= 97 && event.which <= 122)))
+	            event.preventDefault();
+	       
+	        
+	    } else {
+	        var enteredValue=$(this).val();
+	        if(isNaN(enteredValue))
+	        {
+	            $(this).val(initCap($(this).val()));
+	            if (event.which > 32 && (event.which < 65 || event.which > 90) && (event.which < 97 || event.which > 122))
+	            event.preventDefault();
+	   			 
+	        }
+	        else
+	        {
+	            if (event.which < 48 || event.which > 57) {
+	            	if(event.which!=8)
+	                event.preventDefault();
+	            }
+	        }
+	    }
+	}); 
+	
+	//Preventing !"$%*+:;<=>?^_{}|~
+	var spChars = [ 33, 34, 36, 37, 42, 43, 58, 59, 60, 61, 62, 63, 94, 95,
+			123, 124, 125, 126 ];
+
+	function search(val) {
+		var x = $.grep(spChars, function(n, i) {
+			return n == val;
+		});
+		if (x.length == 1)
+			return true;
+		else
+			return false;
+	}
+
+	$('.xssSec').keypress(function(event) {
+		event.preventDefault();
+	});
+	$('.xssSecure').keypress(function(event) {
+		
+		if (search(event.which)) {
+		
+			event.preventDefault();
+		}
+	});
+
+	 $('.xssSecureNoCopyPaste').bind('cut copy paste', function(e) {
+		e.preventDefault();
+	}); 
+	 
+	 $('.onlyNums').keypress(function (event) {
+	 	if ((event.which < 48 || event.which > 57)&& event.which != 8) {
+	         event.preventDefault();
+	     }
+	 });
+	 
+	 $('.onlyNums').bind('cut copy paste', function(e) {
+	 	e.preventDefault();
+	 });
+	
+
+	/*  $('.datepicker').keydown(function (event) {
+		 if( event.which != 9 && event.which != 13 && event.which != 16 
+			&& event.which != 17 && event.which != 18 
+			&& event.which !=27 && event.which !=91 
+			&& event.which != 116 && event.which != 112 
+			&& event.which !=123 )
+	         event.preventDefault();
+	 }); */
+	 $('.datepicker').keydown(function (event) {
+		 if( event.which == 8 || event.which == 46 ||event.which == 32)
+			 event.preventDefault();
+		 if(this.value.length>=11)
+		 event.preventDefault(); 
+	 }); 
+	 $('.datepicker').bind('cut copy paste', function(e) {
+	 	e.preventDefault();
+	 });
+
+</script>

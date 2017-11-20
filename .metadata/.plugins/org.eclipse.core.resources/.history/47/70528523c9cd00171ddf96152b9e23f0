@@ -1,0 +1,324 @@
+
+html {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+}
+
+body {
+	height: 100%;
+    max-height: 100%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    overflow-x: hidden !important;
+    font-family: "Segoe UI";
+    font-size: 14px;
+    line-height: 1.42857143;
+    color:#454545;
+   background-color: #fff;
+    font-style:normal;
+   
+     
+}
+
+.content-main-row{
+	margin:0px;
+}
+
+
+.padding-zero{
+	padding:0px;
+}
+
+.header-main-row{
+	margin:0px;
+	min-height:45px;
+}
+
+.header-main-column{
+	padding:0px 10px 0px 10px;
+	
+}
+.header-childrow{
+	/* padding-top:5px; commented to reduce size*/
+	 margin-bottom:10px; /*commented to reduce size*/
+	margin-left:-10px;
+	margin-right:-10px;
+}
+
+
+.header-breadcrumb{
+	font-size: 11px;
+	color:#505050 ;
+}
+
+.header-pagetitle{
+	font-size: 22px ;/* changed from 22px to reduce size 16px*/
+	color:#454545;/* color:#08997b; #da532c*/
+	font-weight:normal;
+	padding-bottom:5px;
+	
+}
+
+.applylev-form-header{
+	font-size:11px;/*12px  */
+	font-weight: bold;
+	color:#6e6e6e;
+	margin-bottom:5px;
+}
+
+.form-group{
+	margin-bottom:5px;
+}
+
+.form-control{
+	display: block;
+    width: 100%;
+    height: 25px;
+    padding: 0px 2px;
+    font-size: 13px;/* 12px */
+    line-height: 1.42857143;
+    color: #454545;/* #555555 */
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 0px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+    -webkit-transition: border-color ease-in-out .10s, -webkit-box-shadow ease-in-out .10s;
+    -o-transition: border-color ease-in-out .10s, box-shadow ease-in-out .10s;
+    transition: border-color ease-in-out .10s, box-shadow ease-in-out .10s;
+}
+
+.asterisk{
+	font-size:12px;
+	font-weight: bold;
+	color:#f7425e;
+}
+
+input.date-property{
+	background-image: url(../../appResources/img/CalendarPicker.png);
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-position-y: 3px;
+}
+
+.btn-primary {
+  color: #fff !important;
+  background-color: #2084c9;/* Changes by Kunal */
+  border-color: #2084c9;/* Changes by Kunal */
+}
+
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary.focus,
+.open > .dropdown-toggle.btn-primary {
+  color: #fff !important;
+  background-color: #2084c9 !important;/* Changes by Kunal */
+  border-color: #59b7f8 !important;/* Changes by Kunal */
+}
+
+.nav > li > a {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+  background-color:#d9d9d9;/*added by kunal for address   */
+  font-size:11px;
+  color:#3d3c3c;
+  font-weight:bold;
+   padding:6px 10px 6px 10px;
+}
+
+.nav > li > a:hover,
+.nav > li > a:focus {
+  text-decoration: none;
+ /*  background-color: #eee; */ /* Edited by Kunal for address */
+}
+
+.nav-pills > li > a {
+  border-radius: 0px;  /*Edited by Kunal  for address*/
+}
+
+.nav-pills > li + li {
+  margin-left: 4px;     /*Edited by Kunal  for address*/
+}
+
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus {
+ /*  color: #fff; */
+  background-color: #da532c;/* #08997b Edited by Kunal  for address #0449b0*/
+  font-size: 11px;/*Edited by Kunal  for address*/
+  color: #ffffff;/*Edited by Kunal  for address*/
+  font-weight:bold;/*Edited by Kunal  for address*/
+  padding:6px 10px 6px 10px;
+}
+
+
+.doc-upload-header{
+	font-size:16px;
+	color:#6e6e6e;
+	
+}
+
+.doc-upload-body{
+	height:70px;
+	border:1px dashed #da532c;
+	background-color:#f7f7f7;
+	padding:22px 10px 22px 10px;
+	font-size:14px;
+	color:#818181;
+	font-style:italic;
+	
+}
+
+
+.doc-upload-conatainer{
+	height:60px;
+	background-color:#f7f7f7;
+	padding:2px 5px 2px 5px;
+	font-size:14px;
+	color:#818181;
+	font-style:standard;
+	
+}
+
+.btn {
+	min-width: 90px;
+    display: inline-block;
+    padding: 0px 16px;
+    height:32px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    /* border: 1px solid transparent; */
+    border-radius: 0px;
+    border-width:2px;
+}
+
+.btn-default {
+    color: #2084c9 !important;
+    background-color: transparent !important;
+    border: 2px solid #2084c9 !important;
+}
+
+.btn-default:hover,
+.btn-default.hover,
+.btn-default:focus,
+.btn-default.focus,
+.btn-default:active,
+.btn-default.active,
+.open > .dropdown-toggle.btn-default {
+   color: #2084c9 !important;
+   background-color: transparent !important;
+    border: 2px solid #2084c9 !important;
+}
+
+.btn-default:hover{
+  color: #2084c9;
+  background-color: #6ec7ff !important;/* background-color: #08997b; */
+  border:2px solid #6ec7ff !important;
+}
+/* For IE browser */
+input:-ms-input-placeholder {
+   /* Your style here e.g. font size, color etc */
+   font-size:12px;
+ 
+}
+
+/*For Webkit browsers (Chrome, Safari) */
+input::-webkit-input-placeholder {
+   /* Your style here e.g. font size, color etc */
+   font-size:12px;
+   
+}
+
+/* For Mozilla Firefox */
+input:-moz-placeholder {
+    /* Your style here e.g. font size, color etc */
+    font-size:12px;
+   
+}
+
+
+.lev-field-error{
+	color:red;
+	font-size:11px;
+	font-weight:bold;
+	
+}
+
+
+
+
+
+
+
+
+
+
+@media (min-width: 992px) {
+	/* For IE browser */
+input:-ms-input-placeholder {
+   /* Your style here e.g. font size, color etc */
+   font-size:11px;
+ 
+}
+
+/*For Webkit browsers (Chrome, Safari) */
+input::-webkit-input-placeholder {
+   /* Your style here e.g. font size, color etc */
+   font-size:11px;
+  
+}
+
+/* For Mozilla Firefox */
+input:-moz-placeholder {
+    /* Your style here e.g. font size, color etc */
+    font-size:11px;
+   
+}
+	
+}
+
+@media (min-width: 1200px) {
+	/* For IE browser */
+input:-ms-input-placeholder {
+   /* Your style here e.g. font size, color etc */
+   font-size:12px;
+  
+}
+
+/*For Webkit browsers (Chrome, Safari) */
+input::-webkit-input-placeholder {
+   /* Your style here e.g. font size, color etc */
+   font-size:12px;
+   
+}
+
+/* For Mozilla Firefox */
+input:-moz-placeholder {
+    /* Your style here e.g. font size, color etc */
+    font-size:12px;
+   
+}
+	
+}
+

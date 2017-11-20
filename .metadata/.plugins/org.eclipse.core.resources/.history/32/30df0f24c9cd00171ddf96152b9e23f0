@@ -1,0 +1,560 @@
+define(['angular', 'utils', 'd3', 'jqueryui', 'uibootstrap'], function(angular, utils, d3) { 
+
+gessCmnModule.directive('basicTracker', function(/* $window */$log) {
+    console.log("in basicTracker");
+    return {
+      restrict: 'A',
+      /* replace : 'true', */
+      /* template: '<div></div>', */
+      templateUrl: 'appResources/html/basicTracker.html',
+      /* templateNameSpace:'svg', */          
+      scope: {
+        tracker: '=basicTracker',
+        escFlag: '=?escFlag',
+        trackerStatusColor: '=?trackerStatusColor'
+      },
+      link: function(scope, element, attributes) {
+        // data of the tracker
+
+        /* console.log("angular.element($window)[0].innerWidth:"+angular.element($window)[0].innerWidth); */
+
+        /*
+         * // Watch for resize event scope.$watch(function() { console.log("IN
+         * WATCH FUNCTION"+angular.element($window)[0].innerWidth);
+         * console.log("angular.element($window)[0].innerWidth"+element.width);
+         * return angular.element($window)[0].innerWidth; }, function() {
+         * element[0].innerHtml=""; actualTracker(scope, element,
+         * attributes,scope.tracker); });
+         */
+
+        // css for the tracker
+        /* cssBasicTracker(element); */
+
+        if (scope.escFlag == null) {
+          scope.escFlag = 'N';
+        }
+        if (scope.trackerStatusColor == null) {
+          scope.trackerStatusColor = setColours();
+        }
+
+        console.log("escFlagescFlag:" + scope.escFlag);
+
+        scope.$watch("scope.tracker", function() {
+          console.log("scope.tracker:", scope.tracker);
+
+          return actualTracker(scope, element, attributes, scope.tracker, scope.trackerStatusColor);
+
+        }, true);
+
+        function setColours() {
+
+          var statusColours = [];
+
+          // node name for PENDING NODE (orange)
+          var PENDING = "PENDING";
+          // node name for NOT ACTED (grey)
+          var NOT_ACTED = "NOT ACTED";
+          // node name for ACTED (green)
+          var ACTED = "ACTED";
+          // node name for CANCELLED (red)
+          var CANCELLED = "CANCELLED";
+          // node name for REJECTED (red)
+          var REJECTED = "REJECTED";
+
+          // color codes
+          var ACTED_COLOR = '#12a056';
+          var NOT_ACTED_COLOR = '#999999';
+          var PENDING_COLOR = '#fea851';
+          var CANCELLED_COLOR = '#DA0E33';
+          var REJECTED_COLOR = '#DA0E33';
+
+          var status = {};
+
+          status.PENDING = PENDING;
+          status.NOT_ACTED = NOT_ACTED;
+          status.ACTED = ACTED;
+          status.CANCELLED = CANCELLED;
+          status.REJECTED = REJECTED;
+
+          var colours = {};
+
+          colours.ACTED_COLOR = ACTED_COLOR;
+          colours.NOT_ACTED_COLOR = NOT_ACTED_COLOR;
+          colours.PENDING_COLOR = PENDING_COLOR;
+          colours.CANCELLED_COLOR = CANCELLED_COLOR;
+          colours.REJECTED_COLOR = REJECTED_COLOR;
+
+          console.log("status:", status);
+          console.log("colours:", colours);
+
+          statusColours.status = status;
+          statusColours.colours = colours;
+
+          console.log("statusColours:", JSON.stringify(status), "colourscolours:", JSON.stringify(colours));
+
+          return statusColours;
+
+        }
+        ;
+
+        function populateData(data, trackerStatusColor, escalationFlag) {
+
+          // constants used
+          console.log("trackerStatusColor:", trackerStatusColor);
+          // node name for PENDING NODE (orange)
+          var PENDING = trackerStatusColor.status.PENDING;
+          // node name for NOT ACTED (grey)
+          var NOT_ACTED = trackerStatusColor.status.NOT_ACTED;
+          // node name for ACTED (green)
+          var ACTED = trackerStatusColor.status.ACTED;
+          // node name for CANCELLED (red)
+          var CANCELLED = trackerStatusColor.status.CANCELLED;
+          // node name for REJECTED (red)
+          var REJECTED = trackerStatusColor.status.REJECTED;
+
+          // color codes
+          var ACTED_COLOR = trackerStatusColor.colours.ACTED_COLOR;
+          var NOT_ACTED_COLOR = trackerStatusColor.colours.NOT_ACTED_COLOR;
+          var PENDING_COLOR = trackerStatusColor.colours.PENDING_COLOR;
+          var CANCELLED_COLOR = trackerStatusColor.colours.CANCELLED_COLOR;
+          var REJECTED_COLOR = trackerStatusColor.colours.REJECTED_COLOR;
+
+          // Escalation tracker flag (RED & GREY)
+          var escFlag = escalationFlag;
+          if (escFlag == 'Y') {
+
+            ACTED_COLOR = '#DA0E33';
+            NOT_ACTED_COLOR = '#999999';
+            PENDING_COLOR = '#DA0E33';
+
+          }
+
+          // new list to be passed to the tracker
+          var newData = [];
+
+          // no of nodes in the tracker
+          var noOfNodes = data.length;
+
+          // data of the circle + tracker data
+          var circleRadii = [];
+
+          // points of the line, for drawing the horizontal lines
+          var lineData = [];
+
+          // radius of the normal circle
+          var oriRadius = 8;
+          // radius of the pending circle (adding 6 to the normal radius)
+          var extraRadius = oriRadius + 6;
+
+          // centre of the first circle with respect to the svg container
+          var startX = 50;
+          var startY = 50;
+
+          // new centre of the circle after horizontal length is added
+          var circleCenterX = startX;
+          var circleCenterY = startY;
+
+          // distance between the two circles
+          var horizontalDist = 180;
+
+          /*
+           * size of the div below the node(ideally keep at the same length as
+           * line length) In case 2 line of text is shown instead single line of
+           * text, then increase 'divWidth' & 'horizontalDist' (in pixel).
+           */
+          var divWidth = 180;
+
+          // pending node co-ordinates
+          var pendingX = null;
+          var pendingY = null;
+
+          // populating the circle data
+          for (var i = 1; i <= noOfNodes; i++) {
+            var circleNormal = null;
+
+            console.log("data[i - 1]", data[i - 1]);
+            if (data[i - 1].status == (PENDING)) {
+              circleNormal = {
+                'x': circleCenterX,
+                'y': circleCenterY,
+                'er': extraRadius,
+                'r': oriRadius,
+                'nodeData': data[i - 1].htmlTextBox,
+                'color': PENDING_COLOR,
+                'strokeWidth': 2,
+                'status': PENDING,
+                'strokeColour': PENDING_COLOR,
+                'number': i - 1,
+                'size': '11px'
+              };
+
+              pendingX = circleCenterX;
+              pendingY = circleCenterY;
+            } else if (data[i - 1].status == (ACTED)) {
+              circleNormal = {
+                'x': circleCenterX,
+                'y': circleCenterY,
+                'r': oriRadius,
+                'er': oriRadius,
+                'nodeData': data[i - 1].htmlTextBox,
+                'color': ACTED_COLOR,
+                'strokeWidth': 0,
+                'status': ACTED,
+                'strokeColour': ACTED_COLOR,
+                'number': i - 1,
+                'size': '10px'
+              };
+
+            } else if (data[i - 1].status == (NOT_ACTED)) {
+              circleNormal = {
+                'x': circleCenterX,
+                'y': circleCenterY,
+                'r': oriRadius,
+                'er': oriRadius,
+                'nodeData': data[i - 1].htmlTextBox,
+                'color': NOT_ACTED_COLOR,
+                'strokeWidth': 0,
+                'status': NOT_ACTED,
+                'strokeColour': NOT_ACTED_COLOR,
+                'number': i - 1,
+                'size': '10px'
+              };
+
+            } else if (data[i - 1].status == (CANCELLED)) {
+              circleNormal = {
+                'x': circleCenterX,
+                'y': circleCenterY,
+                'r': oriRadius,
+                'er': oriRadius,
+                'nodeData': data[i - 1].htmlTextBox,
+                'color': CANCELLED_COLOR,
+                'strokeWidth': 0,
+                'status': CANCELLED,
+                'strokeColour': CANCELLED_COLOR,
+                'number': i - 1,
+                'size': '10px'
+              };
+
+            } else if (data[i - 1].status == (REJECTED)) {
+              circleNormal = {
+                'x': circleCenterX,
+                'y': circleCenterY,
+                'r': oriRadius,
+                'er': oriRadius,
+                'nodeData': data[i - 1].htmlTextBox,
+                'color': REJECTED_COLOR,
+                'strokeWidth': 0,
+                'status': REJECTED,
+                'strokeColour': REJECTED_COLOR,
+                'number': i - 1,
+                'size': '10px'
+              };
+
+            }
+
+            /* console.log("circle",circleNormal); */
+            circleRadii.push(circleNormal);
+
+            // changing the x-coordinate of the circle by horizontalDist
+            circleCenterX = circleCenterX + horizontalDist;
+
+          }
+
+          console.log("EACH NODE", JSON.stringify(circleRadii));
+
+          // populating the line data
+          for (var i = 1; i <= noOfNodes - 1; i++) {
+
+            var circle1 = circleRadii[i - 1];
+            var circle2 = circleRadii[i];
+
+            var x1 = circle1.x + circle1.er;
+            var y1 = circle1.y;
+            var x2 = circle2.x - circle2.er;
+            var y2 = circle2.y;
+            var lineObject = null;
+
+            // lines are for approved and not-acted i.e green or grey
+
+            if (data[i - 1].status == (ACTED)) {
+
+              lineObject = {
+                'x1': x1,
+                'y1': y1,
+                'x2': x2,
+                'y2': y2,
+                'status': data[i - 1].status,
+                'color': ACTED_COLOR,
+                'strokeWidth': 3
+
+              };
+            } else if (data[i - 1].status == (NOT_ACTED) || data[i - 1].status == (PENDING) || data[i - 1].status == (CANCELLED) || data[i - 1].status == (REJECTED)) {
+              lineObject = {
+                'x1': x1,
+                'y1': y1,
+                'x2': x2,
+                'y2': y2,
+                'status': data[i].status,
+                'color': NOT_ACTED_COLOR,
+                'strokeWidth': 3
+              };
+            }
+
+            console.log("lineObject" + i + "", lineObject);
+            lineData.push(lineObject);
+          }
+
+          console.log("lineData:", lineData);
+          console.log("circleRadii:", circleRadii);
+
+          if (escFlag == 'Y') {
+            pendingX = null;
+            pendingY = null;
+          }
+
+          newData.push(circleRadii);
+          newData.push(lineData);
+          newData.push(pendingX);
+          newData.push(pendingY);
+
+          newData.push(oriRadius);
+          newData.push(extraRadius);
+          newData.push(horizontalDist);
+          newData.push(divWidth);
+
+          newData.push(escFlag);
+
+          return newData;
+
+        }
+        ;
+
+        function actualTracker(scope, element, attributes, data, trackerStatusColor) {
+
+          // modifying the data for generalization
+          console.log("attributesattributes:", attributes);
+
+          var newData = populateData(data, trackerStatusColor, attributes.escFlag);
+
+          console.log("NEW DATA:", JSON.stringify(newData));
+
+          // initialization of the tracker parameters
+          element.parent().css({
+
+            textAlign: 'center'
+          });
+
+          element.css({
+          /* margin:'auto', */
+          /* width:'80%' */
+          });
+
+          var circleRadii = newData[0];
+          var lineData = newData[1];
+
+          console.log("circleRadiicircleRadiicircleRadii", circleRadii);
+          console.log("lineDatalineDatalineData", lineData);
+
+          // generating random ID
+          var random = Math.round((Math.random() * 10000000000000));
+          var ngIdSet = 'T' + random;
+
+          attributes.$set('id', ngIdSet);
+          element.css("position", "relative");
+          /*
+           * var oriRadius = 8; var extraRadius = oriRadius + 6;
+           * 
+           * console.log(attributes); // generating random ID var random =
+           * Math.round((Math.random() * 10000000000000)); var ngIdSet = 'T' +
+           * random;
+           * 
+           * attributes.$set('id', ngIdSet); element.css("position",
+           * "relative");
+           * 
+           * 
+           * console.log("After setting", attributes); console.log("After
+           * setting element", element);
+           * 
+           * 
+           * console.log("Basic Tracker Data:", data); var noOfNodes =
+           * data.length; // centre of the first circle var startX = 50; var
+           * startY = 50; // new centre of the circle after horizontal length is
+           * added var circleCenterX = startX; var circleCenterY = startY; //
+           * data of the circle + tracker data var circleRadii = []; // points
+           * of the line var lineData = []; // data with points as the centre of
+           * the circle var dataXY = []; // distance between the two circles var
+           * horizontalDist = 180; var divWidth = 180; // pending node
+           * co-ordinates var pendingX = null; var pendingY = null;
+           */
+
+          // SVG container
+          var svgContainer = d3.select(element[0]).append("svg").style('width', '100%').style('height', '120px');
+
+          // remove all previous items before render
+          svgContainer.selectAll('*').remove();
+
+          var pendingX = newData[2];
+          var pendingY = newData[3];
+
+          // radius of the normal circle
+          var oriRadius = newData[4];
+
+          // radius of the pending circle (adding 6 to the normal radius)
+          var extraRadius = newData[5];
+
+          // distance between the two circles
+          var horizontalDist = newData[6];
+
+          /*
+           * size of the div below the node(ideally keep at the same length as
+           * line length) In case 2 line of text is shown instead single line of
+           * text, then increase 'divWidth' & 'horizontalDist' (in pixel).
+           */
+          var divWidth = newData[7];
+
+          // escalation flag
+          var escFlag = newData[8];
+
+          var circles = svgContainer.selectAll("circle").data(circleRadii).enter().append("circle");
+          // console.log('d3.select("#"+ngIdSet)', d3.select("#" + ngIdSet));
+          var divs = d3.select(element[0]).selectAll("div").data(circleRadii).enter().append("div");
+
+          // text displacement x-coordinate
+
+          var xText = (divWidth / 2);
+          var yText = extraRadius + 8;
+
+          var divsAttr = divs.style("left", function(d) {
+            console.log("left", xValue(d) + "px");
+            return (xValue(d) - xText) + "px";
+          }).style("top", function(d) {
+            return (yValue(d) + yText) + "px";
+          }).style("position", "absolute").html(function(d) {
+            return d.nodeData;
+          }).style("width", function(d) {
+            return divWidth + "px";
+          }).style("text-align", function(d) {
+            return "center";
+          });
+
+          var circleAttributes = circles.attr("cx", function(d) {
+            return xValue(d);
+          }).attr("cy", function(d) {
+            return yValue(d);
+          }).attr("r", function(d) {
+            return d.r;
+          }).style("fill", function(d) {
+            return d.color;
+          })/*
+             * .attr("stroke", function(d) { return d.strokeColor;
+             * }).attr("stroke-width", function(d) { return d.strokeWidth; });
+             */
+
+          console.log("pendingX:" + pendingX);
+          // stroke for the pending circle
+          if (pendingX != null) {
+            svgContainer.append("circle").attr("cx", pendingX).attr("cy", pendingY).attr("r", extraRadius).attr("stroke", "#fea851").attr("stroke-width", 2).style("fill", "none");
+            /* .attr("transform", "scale(20,0)") */
+          }
+          /*
+           * // text displacement x-coordinate var xText = (horizontalDist / 20) +
+           * 25; var yText = extraRadius + 8;
+           */
+
+          if (escFlag == 'Y') {
+
+            var circleAttributes = circles.attr("cx", function(d) {
+              return xValue(d);
+            }).attr("cy", function(d) {
+              return yValue(d);
+            }).attr("r", function(d) {
+              return d.er;
+            }).style("fill", function(d) {
+              return d.color;
+            });
+
+            // code for text inside circle
+            var textBlockEscalate = svgContainer.selectAll("text").data(circleRadii).enter().append("text");
+
+            textBlockEscalate.attr("x", function(d) {
+              console.log("x:" + d);
+              return xValue(d);
+            }).attr("y", function(d) {
+              console.log("y:" + d);
+              return yValue(d);
+            })/* .attr("width", horizontalDist).attr("height", "50%") */
+            /* .append("xhtml:body") */
+            /* .style("line-height", "0.8") */.attr("fill", "#ffffff").attr('text-anchor', 'middle').attr("dy", ".35em").text(function(d) {
+              return textCircle(d);
+            }).attr('font-size', function(d) {
+              return d.size;
+            })/* .attr('font-weight','bold') */
+            .attr('font-family', 'Segoe UI');
+
+          }
+
+          /*
+           * var textBlock =
+           * svgContainer.selectAll("foreignObject").data(circleRadii).enter().append("div");
+           * 
+           * textBlock.attr("x", function(d) { return xValue(d) - xText;
+           * }).attr("y", function(d) { return yValue(d) + yText;
+           * }).attr("width", horizontalDist).attr("height", "50%")
+           * .append("xhtml:body") .style("line-height", "1.0").html(function(d) {
+           * return textStyle(d) });
+           */
+          console.log("lineDatalineData", lineData);
+          svgContainer.selectAll("line").data(lineData).enter().append("line").attr({
+            'x1': function(d) {
+              return d.x1;
+            },
+            'y1': function(d) {
+              return d.y1;
+            },
+            'x2': function(d) {
+              return d.x2;
+            },
+            'y2': function(d) {
+              return d.y2;
+            },
+            'stroke': function(d) {
+              return d.color;
+            },
+            'stroke-width': function(d) {
+              return d.strokeWidth;
+            }
+
+          });
+
+        }
+        ;
+        function rValue(d) {
+          return d.r;
+        }
+        function erValue(d) {
+          return d.er;
+        }
+        function xValue(d) {
+          return d.x;
+        }
+
+        function yValue(d) {
+          return d.y;
+        }
+
+        function textCircle(data) {
+          console.log("data.number" + data.number);
+          if (data.number === 0) {
+            return '';
+          } else
+            return data.number;
+        }
+
+      }
+
+    };
+  });
+ 
+ return gessCmnModule;
+
+});

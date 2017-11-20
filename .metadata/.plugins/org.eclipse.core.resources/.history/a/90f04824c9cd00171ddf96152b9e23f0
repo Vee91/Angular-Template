@@ -1,0 +1,32 @@
+<div><br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<div ></div>
+
+<table>
+	<thead>
+		<tr>
+			<th>&nbsp;</th>
+			<th>Role</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr ng-repeat="role in roleList">
+			<td><input type="checkbox" ng-model="role.selected"
+				ng-change="switchRoleHandler(roleList)" /></td>
+
+			<td>{{role.title}}</td>
+		</tr>
+	</tbody>
+</table>
+<input class="btn-primary" type="button" value="switchRole"
+	ng-click='switchrole()'> <br>
+
+<br>
+<br>
+</div>

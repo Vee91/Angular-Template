@@ -1,0 +1,95 @@
+define(
+		[ 'angular', 'app', 'moment', 'LeaveServices'],
+		function(angular, app, moment) {
+
+			app
+					.service('TeamCalendarDateSplit',['teamCalendar', function(teamCalendar){
+						this.startDate = 0;
+						this.endDate = 0;
+						
+						this.teamBkpData = [];
+						this.uniqueData = [];
+						this.eventTrack = [];
+						this.initialize = function() {
+							this.teamBkpData = [];
+							this.uniqueData = [];
+							var noOfDays = Math.round(Math.abs((this.endDate - this.startDate)/(24*60*60*1000)));
+							var next = new Date(this.startDate);
+							var data = {
+									"dateTime": undefined,
+				                    "leaveDate": undefined,
+				                    "date": undefined,
+				                    "event": "D",
+				                    "eventId": 0,
+				                    "eventDescription": "Working Day",
+				                    "reasonForLeave": undefined,
+				                    "status": undefined
+							};
+							
+							if(angular.isNumber(noOfDays)) {
+								for(var i=0; i<noOfDays; i++) {
+									var test = angular.copy(data);
+									next.setHours(0,0,0,0);
+									test['dateTime'] = next.getTime();
+									//test['__proto__'] = Object.create(null);
+									this.teamBkpData.push(test);
+									this.uniqueData.push(next.getTime());
+									next.setDate(next.getDate()+1);
+								};
+							};
+						};
+						
+						
+						this.setData = function(calendarDetail) {
+							var data = {
+									"dateTime": undefined,
+				                    "leaveDate": undefined,
+				                    "date": undefined,
+				                    "event": "D",
+				                    "eventId": 0,
+				                    "eventDescription": undefined,
+				                    "reasonForLeave": undefined,
+				                    "status": undefined,
+				                    "appliedDate": undefined,
+				                    "approvalComments": undefined,
+				                    "approvalDate": undefined,
+				                    "date": undefined
+							};
+							var testfinal = angular.copy(this.teamBkpData);
+							var length = calendarDetail.length;
+							for(var i=0;i<length; i++) {
+								var test1 = calendarDetail[i];
+								var startDate = teamCalendar.convertMilliToISTMilli(test1['startDate']);
+								var endDate = teamCalendar.convertMilliToISTMilli(test1['endDate']);
+								var nosDays = this.calNoDays(startDate, endDate);
+								for(var j=0;j<=nosDays; j++) {
+									//datatmp['__proto__'] = Object.create(null);
+									var index = this.uniqueData.indexOf(startDate);  //startDate.getTime()
+									//((testfinal[index]['event'] === 'D') || (testfinal[index]['event']==='W'))
+									if(index>-1 && (testfinal[index]['event'] === 'D' || testfinal[index]['event'] === 'L' || testfinal[index]['event'] === 'P' || testfinal[index]['event'] === 'AL')) {
+										testfinal[index]['dateTime']=startDate; //.getTime()
+										testfinal[index]['event']=test1['event'];
+										testfinal[index]['reasonForLeave']=test1['reasonForLeave'];
+										testfinal[index]['eventDescription']=test1['eventDescription'];
+										testfinal[index]['status']=test1['status'];
+										testfinal[index]['appliedDate']=test1['appliedDate'];
+										testfinal[index]['employeeComment']=test1['employeeComment'];
+										testfinal[index]['approvalComments']=test1['approvalComments'];
+										testfinal[index]['approvalDate']=test1['approvalDate'];
+									}
+									startDate = moment(startDate).add(1,"d")._d.getTime();
+									
+								}
+							}
+							return testfinal;
+						};
+						
+						this.calNoDays = function(start, end) {
+							var noOfDays = Math.round(Math.abs((end - start)/(24*60*60*1000)));
+							return noOfDays;
+						};
+						
+					}]);
+
+			return app;
+		});

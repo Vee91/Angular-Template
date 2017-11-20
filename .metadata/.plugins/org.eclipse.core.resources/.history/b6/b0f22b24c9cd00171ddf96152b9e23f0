@@ -1,0 +1,34 @@
+<!-- Leave Heads -->
+
+<!-- Leave Heads, END -->
+
+<!-- Page Links -->
+<translate>applyleave</translate>
+<translate>approveleave/:parentReqNo/:isBackup</translate>
+<translate>empSearch</translate>
+<translate>balreport</translate>
+<translate>levReqList</translate>
+<translate>levReqDetails/:parentReqNo</translate>
+<translate>myTeamCal</translate>
+<translate>onBehalfBalReport</translate>
+<translate>balReportHome</translate>
+<translate>lerfHistory</translate>
+<translate>rtt</translate>
+<translate>empReqList</translate>
+<translate>empReqDetails/:parentReqNo/:employeeNo</translate>
+<translate>lerfReqDetails</translate>
+<translate>applyLERF</translate>
+<translate>seekClarify</translate>
+<translate>trackReqWorkFlow/:parentReqNo/:employeeNo</translate>
+<translate>empPostponeMentDetails/:requestNo/:employeeNo</translate>
+<translate>postponementDetails/:requestNo</translate>
+<translate>empLerfReqDetails/:requestNo/:employeeNo</translate>
+<translate>reqLerfReqDetails/:requestNo</translate>
+<translate>searchMore</translate>
+<translate>cmnError</translate>
+<translate>levTypeErr</translate>
+<translate>levCalErr</translate>
+<translate>amendLevErr</translate>
+<translate>colEncash</translate>
+<!-- Page Links, END -->
+

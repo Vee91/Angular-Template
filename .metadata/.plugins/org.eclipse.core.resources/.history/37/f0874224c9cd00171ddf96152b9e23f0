@@ -1,0 +1,18 @@
+<div class="row-fluid">
+	<div class="span3"></div>
+	<div class="well border span6" style="text-align: center;">
+		<h4>
+			<span key="unauthorisedAccessMessage">You are not Authorized
+				to access this Page.</span>
+		</h4>
+	</div>
+</div><!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+
+</body>
+</html>

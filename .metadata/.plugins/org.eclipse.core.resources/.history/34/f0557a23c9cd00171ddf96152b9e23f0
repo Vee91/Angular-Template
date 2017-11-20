@@ -1,0 +1,250 @@
+@
+border-colour
+
+
+:
+
+
+#CCC
+
+ 
+
+;
+@
+secondary-colour
+
+
+:
+
+
+#2875C7
+
+ 
+
+;
+@
+spacing
+
+
+:
+
+ 
+
+10
+px
+
+
+;
+@
+icon-width
+
+
+:
+
+ 
+
+40
+px
+
+
+;
+@
+header-height
+
+
+:
+
+ 
+
+40
+px
+
+
+;
+.vertical-centre
+
+  
+
+(@
+height
+
+ 
+
+)
+{
+height
+
+
+:
+
+ 
+
+@
+height
+
+
+;
+line-height
+
+
+:
+
+ 
+
+@
+height
+
+ 
+
+!
+important
+
+
+;
+display
+
+
+:
+
+ 
+
+inline-block
+
+
+;
+vertical-align
+
+
+:
+
+ 
+
+middle
+
+
+;
+}
+div.header {
+	float: left;
+	width: 100%;
+	background: wheat;
+	height: 40px;
+	color: darkgoldenrod;
+	>*
+	{
+	.
+	vertical-centre
+	(40px);
+}
+
+}
+div.header i {
+	height: 40px;
+	float: left;
+	width: 40px;
+	font-size: 1.125em;
+	font-weight: bold;
+	position: relative; . border-box;
+	padding: 0 10px;
+	cursor: pointer;
+}
+
+div.header i.fa-angle-left {
+	text-align: left;
+}
+
+div.header i.fa-angle-right {
+	text-align: right;
+	margin-left: -40px;
+}
+
+div.header span {
+	float: left;
+	width: 70%;
+	font-weight: bold;
+	text-transform: uppercase; . border-box;
+	padding-left: 40px +10px;
+	margin-left: 40px*-1;
+	text-align: center;
+	padding-right: 40px;
+	color: inherit;
+}
+
+div.week {
+	float: left;
+	width: 100%;
+	border-top: solid 1px #CCC;
+	&:
+	first-child
+	{
+	border-top
+	:
+	none;
+}
+
+&
+.names>span {
+	color: #2875C7;
+	font-weight: bold;
+}
+
+}
+div.week span.day {
+	float: left;
+	width: 14%; . border-box;
+	/* border-left: solid 1px #CCC; */
+	font-size: 0.99em;
+	text-align: left; . vertical-centre (30px);
+	color: darkgoldenrod;
+	padding-left: 20px;
+	&:
+	first-child
+	{
+	border-left
+	:
+	none;
+}
+
+&
+.today {
+	background: #E3F2FF;
+}
+
+&
+.different-month {
+	color: #C0C0C0;
+}
+
+&
+.selected {
+	background: #2875C7;
+	color: white;
+}
+
+}
+.hoverDiv {
+	z-index: 100;
+	/*  position: absolute;
+   height: 16px;
+  width: 43px; */
+	background-color: grey !important;
+	opacity: .7;
+}
+
+.day-leave {
+	background-color: red !important;
+}
+
+
+
+.day-flexi {
+	background-color: green !important;
+}
+
+.day-holiday {
+	background-color: orange !important;
+}
+
+.prevMonth {
+	visibility: hidden
+}

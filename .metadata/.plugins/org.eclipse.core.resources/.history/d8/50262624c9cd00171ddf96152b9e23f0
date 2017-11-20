@@ -1,0 +1,18 @@
+
+ <div id="autoSuggest">
+<br><br>
+    <h2>Sample Auto Suggest Page</h2>
+        <br>
+        <br>  
+        <div class="formField">
+            <label>Search Todo</label>
+            <center><table><tr><td><input type="text" ng-model="searchField" typeahead="suggestion for suggestion in autoSuggestions($viewValue) | filter:$viewValue" typeahead-min-length = "length"  typeahead-on-select="selectedName()">
+   
+            <br><div ng-show="searchField.length >= length && searchField != '' "> {{error}} </div>
+   
+                </td>
+            	<td><h5 style="color:red;">*</h5></td><td><h5 style="text-align:right;">Enter minimum {{ length }} characters to search</h5></td></tr></table></center></div>
+            <br>
+           <br><br> 
+        <hr/>
+</div>

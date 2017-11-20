@@ -1,0 +1,92 @@
+define(['angular','app','dragDropServices'], function(angular,app) {
+	app.controller('dataFixCtrl', ['$scope','$http', '$q', '$location', '$window', 'dragDropServices', 
+	                      function($scope, $http, $q, $location, $window, dragDropServices) {
+		$scope.prefix = "/leaverest/rest/";
+		$scope.fileProcessing=false;
+		$scope.isFileLoaded = false;
+		$scope.moduleSelected = undefined;
+		$scope.moduleDfSelected = undefined;
+		$scope.outputMesg = [];
+		$scope.modulesList = [];
+		$scope.moduleDfList = [];
+		
+		$scope.dfList = [];
+		$scope.module="Leave_1_df";
+		
+		$scope.fetchExcel = function(){
+			$scope.isFileLoaded = false;
+			if(angular.isDefined($scope.moduleDfSelected) && angular.isDefined($scope.moduleDfSelected)) {
+				$window.open($scope.prefix+"fetchDataFixExcel?module="+$scope.moduleSelected+"&dfType="+$scope.moduleDfSelected, '_blank');
+			}
+		};
+		
+		$scope.enableUpload=function(){
+			$('#add_delete_tab').css({
+				"display" : "block"
+			});
+			$scope.isFileLoaded = true;
+			//$rootScope.processing = false;
+		};
+		
+		$scope.setDFType = function() {
+			//if(angular.is)
+			console.log("df type : "+$scope.moduleDfSelected);
+		};
+		
+		
+		$scope.fetchModule = function() {
+			$http(
+					{
+						method : 'GET',
+						url : $scope.prefix+'fetchModuleList'
+					}).success(function(data) {
+						$scope.modulesList = [];
+						$scope.outputMesg = [];
+						if(angular.isUndefined(data)) {
+							$scope.outputMesg.push("No module defined for Data Fix");
+							$("#messageModal").modal('show');
+						} else {
+							$scope.modulesList = data;
+						}
+					}).error(
+							function(data) {
+								alert("Error");
+							});
+		};
+		
+		$scope.fetchModuleDFList = function() {
+			$http({
+				method:'GET',
+				url:$scope.prefix+'fetchModuleDFList',
+				params:{'module':$scope.moduleSelected}
+			}).success(function(data) {
+				$scope.moduleDfList = [];
+				$scope.outputMesg = [];
+				$scope.moduleDfSelected = undefined;
+				if(angular.isDefined(data)) {
+					angular.forEach(data, function(value, key) { 
+						if(key<0) {
+							$scope.outputMesg.push("Module "+$scope.moduleSelected+" doesn't have any data fix");
+							$("#messageModal").modal('show');
+						} else {
+							$scope.moduleDfList.push(value);
+						}
+					});
+				}
+			}).error(function(data){
+				alert("Error");
+			});
+		};
+		
+		
+		$scope.fetchModule();
+		
+		$scope.UploadDF=function(){
+			$scope.fileProcessing=true;
+			dragDropServices.uploadDfFile($scope);
+		};
+		
+	}
+]);
+	return app;
+});

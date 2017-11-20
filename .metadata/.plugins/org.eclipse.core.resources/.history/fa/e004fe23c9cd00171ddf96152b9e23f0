@@ -1,0 +1,454 @@
+define(
+		[ 'angular', 'app', 'moment', 'timeZone', 'LeaveServices' ],
+		function(angular, app, moment) {
+			app
+					.filter(
+							'dateRange',
+							function() {
+
+								return function(input, startDate, endDate) {
+									var returnList = [];
+									angular
+											.forEach(
+													input,
+													function(value, key) {
+														console
+																.log("leave filter : submit date : "
+																		+ value.submitDate
+																		+ " start date : "
+																		+ startDate
+																				.getTime()
+																		+ " end date : "
+																		+ endDate
+																				.getTime());
+
+														if (value.submitDate >= startDate
+																.getTime()
+																&& value.submitDate <= endDate
+																		.getTime()) {
+															console
+																	.log("found true : ");
+															returnList
+																	.push(value);
+														}
+													});
+									return returnList;
+								};
+							})
+					.filter(
+							"myRequestFilter",
+							function() {
+								return function(list, flag) {
+									var returnList = [];
+									if (flag !== undefined && flag !== ""
+											&& list !== undefined) {
+										for ( var temp = 0; temp < list.length; temp++) {
+											if (list[temp] !== null) {
+												if (list[temp].masterRequest === flag)
+													returnList.push(list[temp]);
+											}
+										}
+										return returnList;
+									} else
+										return list;
+								};
+							})
+					.filter(
+							"myRequestMasterFilter",
+							function() {
+								return function(list, masterRequestNo) {
+									var returnList = [];
+									if (masterRequestNo !== undefined
+											&& masterRequestNo !== ""
+											&& list !== undefined) {
+										for ( var temp = 0; temp < list.length; temp++) {
+											if (list[temp] !== null) {
+												if (list[temp].masterRequest === masterRequestNo)
+													returnList.push(list[temp]);
+											}
+										}
+										return returnList;
+									}
+								};
+							})
+					.filter(
+							"masterRequestStatus",
+							[
+									'levReqList',
+									function(levReqList) {
+										return function(masterRequest, list,
+												index) {
+											if (masterRequest !== undefined
+													&& masterRequest !== ""
+													&& list !== undefined) {
+												for ( var temp = 0; temp < list.length; temp++) {
+													if (list[temp] !== null) {
+														if (list[temp].masterRequest === masterRequest) {
+															angular
+																	.element(
+																			"masterStatusFilter"
+																					+ index)
+																	.css(
+																			levReqList
+																					.setMasterStatusColor(list[temp].status));
+															return list[temp].status;
+														}
+													}
+												}
+											}
+										};
+									} ])
+					.filter(
+							'myReqListFilterAll',
+							[
+									'levCommonServices',
+									function(levCommonServices) {
+
+										return function(input, subReqStatus,
+												subStartDate, subEndDate,
+												leaveType, leaveStartDate,
+												leaveEndDate) {
+											var returnList = [];
+											var countSubReqStatus = 0, countSubmitDate = 0, countLeaveType = 0, countLeaveDuration = 0;
+
+											if (subReqStatus !== undefined
+													&& subReqStatus !== null) {
+												returnList = [];
+												++countSubReqStatus;
+												angular
+														.forEach(
+																input,
+																function(value,
+																		key) {
+																	if (value.status === subReqStatus) {
+																		returnList
+																				.push(value);
+																	}
+																});
+												input = returnList.slice();
+											}
+
+											if (subStartDate !== undefined
+													&& subStartDate !== null
+													&& subEndDate !== undefined
+													&& subEndDate !== null) {
+												returnList = [];
+												++countSubmitDate;
+												angular
+														.forEach(
+																input,
+																function(value,
+																		key) {
+																	if (moment(
+																			moment
+																					.tz(
+																							value.submitDate,
+																							moment.tz
+																									.guess())
+																					.format(
+																							"DD-MMM-YYYY"),
+																			"DD-MMM-YYYY")._d
+																			.getTime() >= Date
+																			.parse(levCommonServices
+																					.dateStandardFormat(subStartDate))
+																			&& moment(
+																					moment
+																							.tz(
+																									value.submitDate,
+																									moment.tz
+																											.guess())
+																							.format(
+																									"DD-MMM-YYYY"),
+																					"DD-MMM-YYYY")._d
+																					.getTime() <= Date
+																					.parse(levCommonServices
+																							.dateStandardFormat(subEndDate))) {
+																		returnList
+																				.push(value);
+																	}
+																});
+												input = returnList.slice();
+											}
+
+											if (leaveType !== undefined
+													&& leaveType !== null) {
+												returnList = [];
+												++countLeaveType;
+												angular
+														.forEach(
+																input,
+																function(value,
+																		key) {
+																	if (value.leaveType === leaveType) {
+																		returnList
+																				.push(value);
+																	}
+																});
+												input = returnList.slice();
+											}
+
+											if (leaveStartDate !== undefined
+													&& leaveStartDate !== null
+													&& leaveEndDate !== undefined
+													&& leaveEndDate !== null) {
+												returnList = [];
+												++countLeaveDuration;
+												angular
+														.forEach(
+																input,
+																function(value,
+																		key) {
+																	if (moment(
+																			moment
+																					.tz(
+																							value.startDate,
+																							moment.tz
+																									.guess())
+																					.format(
+																							"DD-MMM-YYYY"),
+																			"DD-MMM-YYYY")._d
+																			.getTime() >= Date
+																			.parse(levCommonServices
+																					.dateStandardFormat(leaveStartDate))
+																			&& moment(
+																					moment
+																							.tz(
+																									value.endDate,
+																									moment.tz
+																											.guess())
+																							.format(
+																									"DD-MMM-YYYY"),
+																					"DD-MMM-YYYY")._d
+																					.getTime() <= Date
+																					.parse(levCommonServices
+																							.dateStandardFormat(leaveEndDate))) {
+																		returnList
+																				.push(value);
+																	}
+																});
+												input = returnList.slice();
+											}
+
+											return countSubReqStatus > 0
+													|| countSubmitDate > 0
+													|| countLeaveType > 0
+													|| countLeaveDuration > 0 ? returnList
+													: input;
+										};
+									} ])
+					.filter(
+							'archieveFilter',
+							function() {
+								return function(list, archieveFlag) {
+									var returnList = {};
+									var filterList = [];
+									var count = 0;
+									for ( var temp = 0; temp < list.length; temp++) {
+										if (list[temp] !== null) {
+											if (list[temp].archiveFlag === archieveFlag) {
+												++count;
+												filterList.push(list[temp]);
+											}
+										}
+									}
+									returnList = {
+										'returnList' : filterList,
+										'count' : count
+									};
+									return returnList;
+								};
+							})
+
+					.filter(
+							'searchEmpNameNo',
+							[
+									'teamCalendar',
+									function(teamCalendar) {
+										return function(arr, empName, empNo,
+												pageScope) {
+											if (!empName && !empNo && arr) {
+												teamCalendar
+														.calculateRowAndTotal(arr);
+												pageScope.totalNoOfLeaves = teamCalendar.totalNoOfLeaves;
+												pageScope.colCountArr = teamCalendar.colCountArr;
+												pageScope.resultToExport = result;
+												return arr;
+											}
+
+											var result = [];
+											angular
+													.forEach(
+															arr,
+															function(item) {
+
+																if (!empName
+																		&& empNo) {
+																	if (item.employeeNo
+																			.toLowerCase()
+																			.indexOf(
+																					empNo) !== -1) {
+																		result
+																				.push(item);
+																	}
+																} else if (!empNo
+																		&& empName) {
+																	if (item.fullName
+																			.toLowerCase()
+																			.indexOf(
+																					empName
+																							.toLowerCase()) !== -1) {
+																		result
+																				.push(item);
+																	}
+																} else if (item.fullName
+																		.toLowerCase()
+																		.indexOf(
+																				empName
+																						.toLowerCase()) !== -1
+																		&& item.employeeNo
+																				.toLowerCase()
+																				.indexOf(
+																						empNo) !== -1) {
+																	result
+																			.push(item);
+																}
+															});
+											if (result.length !== 0) {
+												teamCalendar
+														.calculateRowAndTotal(result);
+												pageScope.totalNoOfLeaves = teamCalendar.totalNoOfLeaves;
+												pageScope.colCountArr = teamCalendar.colCountArr;
+												pageScope.resultToExport = result;
+											}
+											return result;
+										};
+									} ])
+
+					.filter(
+							'workflowDetailsFilter',
+							function() {
+								return function(list, flag) {
+									var returnList = [];
+									if (flag !== undefined && flag !== ""
+											&& list !== undefined
+											&& list !== [] && list !== null) {
+										for ( var i = 0; i < list.length; i++) {
+											angular.forEach(list[i], function(
+													value, key) {
+												if (flag === key) {
+													returnList.push(value);
+												}
+											});
+										}
+										return returnList[0];
+									} else
+										return list[0];
+								};
+							})
+					.filter(
+							'capitalize',
+							function() {
+								return function(input, all) {
+									return (!!input) ? input.replace(
+											/([^\W_]+[^\s-]*) */g,
+											function(txt) {
+												return txt.charAt(0)
+														.toUpperCase()
+														+ txt.substr(1)
+																.toLowerCase();
+											}) : '';
+								};
+							})
+
+					.filter('getFirstLetter', function() {
+						return function(input) {
+							return input.match(/\b\w/g).join('').toUpperCase();
+						};
+					})
+
+					.filter(
+							'workflowPhaseFilter',
+							function() {
+								return function(list, flag) {
+									var returnList = [];
+									if (flag !== undefined && flag !== ""
+											&& list !== undefined
+											&& list !== [] && list !== null) {
+
+										for ( var i = 0; i < list[0].length; i++) {
+
+											angular
+													.forEach(
+															list[i],
+															function(value, key) {
+																if (flag === key) {
+																	var tracker = {};
+																	tracker.htmlTextBox = "<p class='nodeNameText leftAlign'>"
+																			+ list[key][i].levWorkflow[0].employeeRole
+																			+ "</p>"
+																			+ "<p class='nodeNameText leftAlign'>"
+																			+ list[key][i].levWorkflow[0].appliedDate
+																			+ "</p><br/>"
+																			+ "<p class='nodeNameTextDetails leftAlign'>"
+																			+ list[key][i].levWorkflow[0].fullName
+																			+ " | "
+																			+ list[key][i].levWorkflow[0].employeeNo
+																			+ "</p>"
+																			+ "<p class='nodeNameTextEmail leftAlign'>"
+																			+ list[key][i].levWorkflow[0].contactDTO.emailId
+																			+ "</p>"
+																			+ "<p class='nodeNameTextDetails leftAlign'>"
+																			+ list[key][i].levWorkflow[0].contactDTO.contactNumberCell
+																			+ "</p>"
+																			+ "<p class='nodeNameTextDetails leftAlign'> Status: "
+																			+ list[key][i].levWorkflow[0].leaveStatus.name
+																			+ "</p>";
+
+																	if (list[key][i].levWorkflow[0].leaveStatus.id == 2) {
+																		tracker.status = "PENDING";
+																	} else if (list[key][i].levWorkflow[0].leaveStatus.id == 1
+																			|| list[key][i].levWorkflow[0].leaveStatus.id == 13
+																			|| list[key][i].levWorkflow[0].leaveStatus.id == 3) {
+																		tracker.status = "ACTED";
+																	} else if (list[key][i].levWorkflow[0].leaveStatus.id == 4
+																			|| list[key][i].levWorkflow[0].leaveStatus.id == 12) {
+																		tracker.status = "REJECTED";
+																	}
+
+																	returnList
+																			.push(tracker);
+
+																}
+															});
+
+										}
+										return returnList;
+									} else
+										return list[0];
+								};
+							})
+
+					.filter(
+							'separateCamelCase',
+							function() {
+								return function(word) {
+									return word.replace(/([A-Z])/g, ' $1')
+											.replace(/^./, function(str) {
+												return str.toUpperCase();
+											});
+								};
+							})
+
+					.filter(
+							'istDateFormat',
+							function() {
+								return function(word) {
+									var retVal = word !== null
+											&& word !== undefined ? moment.tz(
+											word, "Asia/Kolkata").format(
+											"DD-MMM-YYYY") : null;
+									return retVal;
+								};
+							});
+			return app;
+		});

@@ -1,0 +1,17 @@
+define(['app'], function (app) {
+    app.factory('HomeService', function ($http) {
+        var factory = {
+        		welcome: welcome,
+        };
+
+        function welcome() {
+        	$http.post( '/plagiarismrest/rest/leaveDropDownChanged/?cd=' + (new Date()).getTime(), $scope.leave.leaveList1[index].newLeave.countryLeaveTypeId).
+        	then(function(response)
+       	         {
+        		
+       	         }
+        }
+
+        return factory;
+    });
+});

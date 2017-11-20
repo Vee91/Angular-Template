@@ -1,0 +1,11 @@
+define([ 'angular', 'app' ], function(angular, app) {
+
+	app.controller("empLerfReqDtlsCtrl", [ '$scope', '$compile',
+			function($scope, $compile) {
+				$scope.isEmpLerfReqDetails = true;
+				
+				$scope.pageName="Leave - Request Details";
+				$scope.isErrorMsg=false;
+			} ]);
+	return app;
+});        

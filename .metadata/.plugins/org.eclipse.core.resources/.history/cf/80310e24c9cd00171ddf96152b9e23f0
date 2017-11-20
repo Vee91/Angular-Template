@@ -1,0 +1,278 @@
+define(
+		[ 'angular', 'app', 'moment' ],
+		function(angular, app, moment) {
+
+			app.service(
+							'leaveApprovalService',
+							function() {
+								console.log("APPROVAL SERVICE ");
+								this.leaveRequestDetails = [];
+								this.leaveDetails = {};
+								this.requestDetails = [];
+
+								this.approvalId = [ 3, 13 ];
+								this.rejectId = [ 4 ];
+								this.sampleData = {
+									'levRequestNo' : undefined,
+									'leaveAppStatus' : undefined,
+									'approvalComment' : undefined,
+									'leaveRequestStatus' : {
+										'id' : undefined
+									}
+								};
+								this.modifiedData = [];
+								this.workflowData = [];
+								this.submitData = [];
+
+								this.reassignData = [];
+								this.successDataFYA = [];
+
+								this.empSearchDataFromFYA = [];
+
+								this.parentRequestNo = undefined;
+								
+								this.selEmployeeNo=undefined;
+								
+								this.showSubmitBtn=false;
+								
+								this.approverComment=undefined;
+								
+								this.backupFlag=undefined;
+								
+								//LERF 
+								
+								this.lerfReqNo=undefined;
+								this.lerfComment=undefined;
+								
+								this.method=undefined;
+								
+								this.errorMsg=undefined;
+								
+
+								this.setRequestDetails = function(
+										leaveRequestDetails) {
+									if (angular.isArray(leaveRequestDetails)) {
+										this.leaveRequestDetails = leaveRequestDetails;
+										this.leaveDetails = this.leaveRequestDetails[0].leaveDetails;
+										this.requestDetails = this.leaveDetails[0].leaveRequests;
+										console
+												.log("VALUES "
+														+ JSON
+																.stringify(this.requestDetails));
+									}
+								};
+
+								this.workflowDetails = function(workFlowDtls) {
+									var index = this.requestDetails.length;
+									var levNo = [];
+
+									for ( var i = 0; i < index; i++) {
+										levNo
+												.push(this.requestDetails[i].levRequestNo);
+									}
+									console.log("Index: ");
+									if (angular.isArray(workFlowDtls)) {
+										var workflowIndex = workFlowDtls.length;
+										for ( var i = 0; i < workflowIndex; i++) {
+											var workDetails = workFlowDtls[i];
+											var levIndex = levNo
+													.indexOf(workDetails[0].levWorkflow[0].levRequestNo);
+											this.workflowData[levIndex] = workDetails;
+										}
+									}
+									return this.workflowData;
+								};
+
+								this.setApprove = function(index, appStatus,
+										approvalComment) {
+									var sample = {};
+									sample = angular.copy(this.sampleData);
+									if (angular.isDefined(approvalComment)) {
+										sample['approvalComment'] = approvalComment;
+										sample.leaveAppStatus = appStatus;
+										sample['levRequestNo'] = this.requestDetails[index]['levRequestNo'];
+										var levRequestNo = sample['levRequestNo'];
+										var index = this.submitData
+												.indexOf(levRequestNo);
+										if (index < 0) {
+											this.modifiedData.push(sample);
+											this.submitData.push(levRequestNo);
+										}
+									}
+
+									console
+											.log("setApprove ID "
+													+ JSON
+															.stringify(this.modifiedData));
+								};
+
+								this.getModifiedData = function() {
+									return this.modifiedData;
+								};
+
+								this.getStyleSheet = function(statusId) {
+									var styleSheet = {
+										'pointer-events' : 'none',
+										'cursor' : 'default'
+									};
+									switch (statusId) {
+									case 1:
+										styleSheet = {
+											'color' : '#95C501',
+											'pointer-events' : 'none',
+											'cursor' : 'default'
+										};
+										break;
+									case 2:
+										styleSheet = {
+											'color' : '#F84663',
+											'pointer-events' : 'none',
+											'cursor' : 'default'
+										};
+										break;
+
+									case 3:
+										styleSheet = {
+											'color' : '#F84663',
+											'pointer-events' : 'none',
+											'cursor' : 'default'
+										};
+										break;
+									default:
+										styleSheet = {
+											'pointer-events' : 'none',
+											'cursor' : 'default'
+										};
+										break;
+									}
+									;
+									return styleSheet;
+								};
+								
+								
+								this.setReassignReqNo = function(reqNo,
+										statusID,appCmnts,backupFlag) {
+									var data = {
+										'levRequestNo' : undefined,
+										'leaveRequestStatus' : {
+											'id' : undefined
+										},
+										'approvalComment':undefined,
+										'backupEmpId':undefined
+									};
+									data['levRequestNo'] = reqNo;
+									data.leaveRequestStatus['id'] = statusID;
+									data['approvalComment']=appCmnts;
+									data['backupEmpId']=backupFlag;
+									this.reassignData.push(data);
+
+								};
+
+								this.getReassignReqNo = function() {
+									return this.reassignData;
+								};
+
+								this.setSuccessMsg = function(successMsg) {
+
+									var successData = {
+										'successMsg' : undefined,
+										'msgFlag' : undefined
+									};
+									if (!angular.isDefined(successMsg)) {
+										successData['successMsg'] = successMsg;
+										successData['msgFlag'] = false;
+									} else {
+										successData['successMsg'] = successMsg;
+										successData['msgFlag'] = true;
+									}
+
+									this.successDataFYA = successData;
+
+								};
+
+								this.getSuccessMsg = function() {
+									return this.successDataFYA;
+								};
+
+								this.setEmpSearchData = function(empSearchData) {
+									this.empSearchDataFromFYA = empSearchData;
+									console.log(" In Leave Service : "
+											+ JSON.stringify(empSearchData));
+								};
+
+								this.getEmpSearchData = function() {
+
+									return this.empSearchDataFromFYA;
+								};
+
+								this.setParentReqNo = function(reqNo) {
+
+									this.parentRequestNo = reqNo;
+								};
+
+								this.getParentReqNo = function() {
+
+									return this.parentRequestNo;
+								};
+								
+								this.setSelectedEmpNo=function(selEmpNo){
+									
+									this.selEmployeeNo=selEmpNo;
+								};
+								
+								this.getEmpNo=function(){
+									return this.selEmployeeNo;
+								};
+								
+								this.setSubmitShow=function(val){
+									this.showSubmitBtn=val;
+								};
+								
+								this.getSubmitShow=function(){
+									return this.showSubmitBtn;
+								};
+								
+								this.setApproverComment=function(appCmnt){
+									this.approverComment=appCmnt;
+								};
+								
+								this.setBackupFlag=function(flag){
+									this.backupFlag=flag;
+								};
+								
+								this.setLerfReqNo=function(lerfNo){
+									this.lerfReqNo=lerfNo;
+								};
+								
+								this.getLerfReqNo=function(){
+									return this.lerfReqNo;
+								};
+								
+								this.setLerfComment=function(cmnt){
+									this.lerfComment=cmnt;
+								};
+								
+								this.getLerfComment=function(){
+									return this.lerfComment;
+								};
+								
+								this.setMethod=function(mthd){
+									this.method=mthd;
+								};
+								
+								this.getMethod=function(){
+									return this.method;
+								};
+								
+								this.setErrorMsg=function(msg){
+									this.errorMsg=msg;
+								};
+								
+								this.getErrorMsg=function(){
+									return this.errorMsg;
+								};
+								
+							});
+
+			return app;
+		});

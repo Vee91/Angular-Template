@@ -1,0 +1,78 @@
+
+<style type="text/css">
+.red {
+	color: red;
+}
+.nodeNameTextEmail{
+	font-size: 12px; /* before 11px*/
+	font-family: Segoe UI;
+	color:#2084A5;
+	font-weight: 700;
+}
+
+.nodeNameTextDetails{
+	font-size: 12px; /* before 11px*/
+	font-family: Segoe UI;
+}
+
+.nodeNameText {
+	font-size: 11px; /* before 11px*/
+	font-weight: bolder;
+	font-family: Segoe UI;
+}
+
+.actionTakenDateText {
+	font-size: 10px; /* before 11px*/
+	font-family: Segoe UI;}
+
+.pendingDaysText {
+	font-size: 10px; /* before 11px*/
+	/*color: #fbcc5c;*/
+	color: #E97805;
+	font-weight: bolder;
+	font-family: Segoe UI;
+}
+
+
+
+.documentDateText {
+	font-size: 10px; /* before 11px*/
+	font-family: Segoe UI;
+}
+
+.leftAlign {
+	text-align: center;
+	margin-bottom: 2px;
+}
+
+.documentMsgText {
+	font-size: 10px; /* before 11px*/
+	font-family: Segoe UI;
+}
+
+.tempTestDiv{
+	display: none;
+	/* margin-bottom: 25%; */
+    width: 225%;
+    background-color: #fff;
+    border: 1px dashed #2084c9;
+  	z-index: 999;
+  	position: absolute;
+}
+
+/*.testNidhi:hover + .tempTestDiv{
+	display: block;
+}*/
+
+#showDetails11:target {
+  display: block;
+}
+
+.testP{
+	margin-left: 10px;
+    text-align: left;
+    font-size: 12px; /* before 11px*/
+	font-family: Segoe UI;
+}
+</style>
+

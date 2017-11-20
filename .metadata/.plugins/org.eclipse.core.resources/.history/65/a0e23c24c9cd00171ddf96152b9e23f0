@@ -1,0 +1,79 @@
+
+
+<link href="appResources/css/clm-icons.css" rel="stylesheet" />
+<link href="appResources/css/angular-datepicker.css" rel="stylesheet"
+	type="text/css" />
+
+<link href="appResources/css/lerfHome.css" rel="stylesheet" />
+>
+
+
+<div class="row topPanel"
+	style="padding-bottom: 110px; margin-top: 0.1px;">
+	<div ng-controller="lerfBehalfController">
+		<div class="row" style="padding-left: 8px;">
+			<div>
+
+				<div class="col-lg-12 col-md-12 col-xs-12"
+					style="padding-top: 10px; padding-left: 0px;">
+					
+					<div class="pageTitle">Apply LERF on behalf</div>
+				</div>
+			</div>
+		</div>
+		<div data-ng-include=""
+			data-src="'pages/leave/searchEmployeeHome.html'"></div>
+		
+		<div class="row-fluid" style="margin-top: 15px;" >
+		
+		<div class="row" ng-if="lerfObj.showErrMsg">
+				<div class="col-md-12 error">{{lerfObj.errorMsg}}</div>
+		</div>
+		<div ng-if="lerfObj.showPage">
+				<div data-ng-include="'pages/leave/applyLERFCmn.html'"></div>
+
+		</div>
+		<div class="row" ng-if="lerfObj.guideLineFlag">
+				<div class="col-md-12" style="padding-left: 0;margin-top: 50px;">
+					<div class="row">
+						<a class="pull-left guideLineA" ng-click="showGuideLines = !showGuideLines" style="cursor: pointer;font-weight: bold;">LERF Guidelines</a>
+					</div>
+					<div class="row" ng-show="showGuideLines" style="margin-top: 10px;">
+						
+							<div class="tip">
+								<span style="float: left;">Guidelines for applying LERF</span>
+								<span class="pull-right glyphicon glyphicon-remove closeLevHistory" ng-click="showGuideLines = !showGuideLines"></span>
+							</div>
+							<div class="guideLineDetSec">
+							<div class="guideLineSec">
+							<ul>
+										<li>This screen display requests for which LERF need to
+											be filled. As single reporting is applicable for all back to
+											back requests, such requests are grouped and displayed under
+											section "Group(s) of consecutive leave requests".</li>
+										<li>Click on radio buttons in "Group(s) of consecutive
+											leave requests" to fill reporting for that group.</li>
+										<li>For late reporting of creditable leave type associate
+											has an option of getting LOPs created for remaining days or
+											else getting LERF cancelled and apply the leave instead.</li>
+										<li>LOPs created, if any, will be visible under "My Leave
+											Balance Report".</li>
+										<li>For late reporting of non-creditable leave types
+											(LWP, ML etc) extended reporting is allowed as per the
+											eligibility of the leave request.</li>
+										<li>All LERF approved requests can be tracked through
+											"LERF History" screen.</li>
+									</ul>
+							</div>
+								
+							</div>
+							
+						
+
+					</div>
+
+				</div>
+			</div>
+		</div>
+		</div>
+</div>

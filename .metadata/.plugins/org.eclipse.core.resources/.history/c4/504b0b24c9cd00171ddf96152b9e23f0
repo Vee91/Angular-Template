@@ -1,0 +1,19 @@
+define([ 'angular', 'app' ], function(angular, app) {
+
+	app.controller('EmployeeReqDetailsController', [ '$scope', '$compile',
+			function($scope, $compile) {
+				$scope.isEmpReqDetails = true;
+			} ]);
+	
+	app.controller('ReassignReqDetailsController', [ '$scope', '$compile',
+			function($scope, $compile) {
+				$scope.isReassignReqDetails = true;
+			} ]);
+	
+	app.controller('DeleteReqDetailsController', [ '$scope', '$compile',
+ 			function($scope, $compile) {
+ 				$scope.isDelReqDetails = true;
+ 			} ]);
+	
+	return app;
+});

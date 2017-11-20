@@ -1,0 +1,1460 @@
+define(['angular','app','displayMenu','jqueryui','utils','jquery'], function(angular,app,displayMenu,jqueryui,utils) {
+  bundleRaw = new Array();
+  bundle = new Array();
+  bundleKey = new Array();  
+  var newMenuList = [];
+  
+
+  app.controller('IndexController', ['$scope', '$http', '$compile', '$location', '$q', '$rootScope', '$filter', function($scope, $http, $compile, $location, $q, $rootScope, $filter) {
+
+    $.widget("custom.menucomplete", $.ui.autocomplete, {});
+
+    $.extend($.custom.menucomplete, {
+      escapeRegex: function(value) {
+        return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+      },
+      filter: function(array, term) {
+        var matcher = new RegExp($.custom.menucomplete.escapeRegex(term), "i");
+        return $.grep(array, function(value) {
+          return matcher.test(value.label || value.value || value) || matcher.test(value.other);
+        });
+      }
+    });
+
+    $scope.check = 0;
+
+    $scope.data = null;
+
+    $rootScope.isHomePage = false;
+
+    SMLogoutController($scope);
+    $scope.location = $location;
+
+    $scope.mainObj = {
+      'indexPageLoaded': "N",
+      'feedBackFormDetails': "Thank you for your valuable feedback. We value every piece of feedback we receive. We cannot respond individually to everyone, but we will use your comments as we strive to improve your GESS experience.",
+      'searchMenuPageInput': "",
+      "searchedMenuList": [],
+      "searchedMenuListDb": [],
+      "annoucementList": [],
+      "alertList": [],
+      "customizableMenuListDefaultLength": "",
+      "searchMoreMenusFromStatus": "",
+      "announcementListAndAlertListStatus": false,
+      "saveCustomizeMenuSuccessMsg": false,
+      "errorMsg": "",
+      "notificationLandingPageCloseStatus": "",
+      "searchResultsFound": 'init',
+      "announcementRowDisplayCounter": 0,
+      "adminMenuAccess": false,
+      "isHomePageLoaded": true,
+      "takeATourButtonSelected": false
+    };
+
+    $scope.redirectToMenuEar = function() {
+      window.location = "https://gess.ultimatix.net/home";
+    };
+    
+    $scope.redirectToSiteMap = function(){
+    	window.location = "https://gess.ultimatix.net/home/index.html?cd="+new Date().getTime()+"#/siteMap";
+    };
+
+
+    $scope.$watch(function() {
+      return $location.path();
+    }, function(location) {
+      if (location == "/" || location == "") {
+        $rootScope.isHomePage = true;
+        $scope.mainObj.searchMenuPageInput = '';
+        if (!utils.isNull($rootScope.fav) && !utils.isNull($rootScope.fav.favMenuidList)) {
+          setTimeout(function() {
+            $rootScope.customizableMenuList = $rootScope.fav.favMenuidList.split(",");
+
+            // increasing
+            // size
+            // of
+            // customizableMenuList
+            // to 8
+            // incase
+            // its small
+            if ($rootScope.customizableMenuList.length < 9) {
+
+              var reqListMenuId = parseInt($rootScope.customizableMenuList[$rootScope.customizableMenuList.length - 1]);
+              if (reqListMenuId >= 6000 && reqListMenuId <= 7000) {
+                for (var i = $rootScope.customizableMenuList.length - 1; i < 8; i++) {
+                  $rootScope.customizableMenuList.splice(i, 0, "");
+                }
+              } else {
+                for (var i = $rootScope.customizableMenuList.length - 1; i < 8; i++) {
+                  $rootScope.customizableMenuList.splice(i + 1, 0, "");
+                }
+              }
+            }
+            $rootScope.$apply();
+
+            $scope.renderCustoFavMenus();
+
+          }, 200);
+
+        }
+      } else {
+        $rootScope.isHomePage = false;
+        $(".shortcutMenu").css("left", "0px");
+        showing = -1; // variable
+        // usedin
+        // displayMenu.js
+        $('#menuPage').hide("slide", {
+          direction: "left"
+        }, 300, function() {
+          showing = -1;
+        });
+
+        $(".announcementLandingPageHover").css({
+          "display": "none",
+          "height": "0px",
+          "width": "0px"
+        });
+
+      }
+    });
+
+    $scope.mapTitle = function(input, reuiredFor) {
+
+      var title = "";
+      switch (input) {
+      case "1":
+        title = "Travel";
+        break;
+      case "2":
+        title = "Leave";
+        break;
+      case "3":
+        title = "Benefits and Taxes";
+        break;
+      case "4":
+        title = "Claims and Advances";
+        break;
+      case "5":
+        title = "Employee Perks";
+        break;
+      case "6":
+        title = "My Request Lists";
+        break;
+      case "7":
+        title = "Responsibilities";
+        break;
+      case "8":
+        title = "Reports";
+        break;
+      case "9":
+        title = "My Profile";
+        break;
+      case "1O":
+        title = "Others";
+        break;
+      case "11":
+        title = "Global ESS";
+        break;
+	default:
+		 title = "invalid";
+      }
+      if (reuiredFor == 'image')
+        return title.replace(/ /g, "_");
+      else
+        return title;
+    };
+
+    // to find the menu with provided menuId
+    $scope.findMenu = function(menuId, list) {
+      if (null != menuId && "" != menuId && undefined != menuId) {
+        if (null != list && "" != list && undefined != list) {
+          for (var i = 0; i < list.length; i++) {
+            if (parseInt(list[i].menuId) == menuId) {
+              return list[i];
+              break;
+            }
+          }
+        }
+      }
+    };
+
+    // view notifications
+    $scope.alerts = [];
+    $scope.announcements = [];
+    $scope.viewNotifications = function() {
+      var showAlert = false;
+      $http.post('/leaverest/rest/admin/viewNotification').success(function(data) {
+        $scope.notifications = data;
+        $scope.mainObj.announcementListAndAlertListStatus = true;
+        angular.forEach($scope.notifications, function(value) {
+
+          if (value.notificationType == "A") {
+            $scope.alerts.push(value);
+            $scope.mainObj.alertList.push(value);
+          }
+
+          if (value.notificationType == "N") {
+
+            $scope.announcements.push(value);
+            $scope.mainObj.annoucementList.push(value);
+
+          }
+
+          // to
+          // show
+          // alert
+          // modal
+          // by
+          // default
+
+          if (value.showNotification && value.notificationType == "A") {
+            showAlert = true;
+          }
+        });
+
+        if (showAlert) {
+          if ($scope.mainObj.alertList.length > 0) {
+            setTimeout(function() {
+              $('#gessAlertModal').modal('show');
+            }, 1000);
+          }
+
+        }
+        if ($scope.announcements.length > 0) {
+
+          $(".announcement").delay(1000).queue(function(next) {
+
+            if ($(".announcement .announcementRow").length > 0) {
+              $scope.announcementsDuplicated = $filter('orderBy')($scope.announcements, '-startDate');
+
+              // changing
+              // announcement-close
+              // icon
+              // on
+              // hover
+
+              $('.announcementClose img').attr('src', 'appResources/img/announcement/new-announcement-close.png');
+
+              angular.element('.announcementClose').scope().announcementCloseImageName = 'new-announcement-close';
+              angular.element('.announcementClose').scope().$apply();
+              var announcementShownFlag = false;
+              $('.announcementClose').each(function(index) {
+
+                if ($scope.announcementsDuplicated[index].showNotification) {
+                  announcementShownFlag = true;
+                  $('#expandCollapseContent' + index + ' .announcementClose').hover(function() {
+                    angular.element('#expandCollapseContent' + index + ' .announcementClose').scope().announcementCloseImageName = 'new-announcement-close-hover';
+                    angular.element('#expandCollapseContent' + index + ' .announcementClose').scope().$apply();
+                  }, function() {
+                    angular.element('#expandCollapseContent' + index + ' .announcementClose').scope().announcementCloseImageName = 'new-announcement-close';
+                    angular.element('#expandCollapseContent' + index + ' .announcementClose').scope().$apply();
+                  });
+                }
+              });
+
+              next();
+              if (announcementShownFlag) {
+                if ($location.path() == '/') {
+                  $('.announcementLandingPageHover').css({
+                    'display': 'block',
+                    'height': '529px',
+                    'width': "1003px"
+                  });
+                }
+
+                $(".announcement").slideDown(500);
+              }
+
+            }
+
+          });
+
+        }
+
+      });
+
+    };
+
+    var menuLink = $http.get('/leaverest/rest/menus/?cd=' + (new Date()).getTime());
+
+    $q.all([menuLink]).then(function(result) {
+      var tmp = [];
+      angular.forEach(result, function(response) {
+        tmp.push(response.data);
+      });
+
+      $scope.menuList = tmp[0].menuList;
+      $scope.data = tmp[0].userdetails;
+      $scope.appAvail = tmp[0].appAvail;
+      $rootScope.fav = tmp[0].favList;
+
+      $scope.mainObj.gessMenuLinks = tmp[0].gessMenuLinks;
+
+      $scope.mainObj.isTourShown = tmp[0].isTourShown;
+      $scope.mainObj.gessMenuLinks.homeUrl = tmp[0].gessMenuLinks.HOME_MENU_URL;
+
+      if (navigator.userAgent.match(/MSIE\s(?!9.0)/)) {
+      } else {
+        if ($location.path() == '/') if (!$scope.mainObj.isTourShown) introFunc('called', $scope.mainObj.gessMenuLinks.homeUrl);
+      }
+
+      $rootScope.customizableMenuList = $rootScope.fav.favMenuidList.split(",");
+
+      var customizableMenuListFinalLength = 0;
+
+      for (var i = 0; i < $rootScope.customizableMenuList.length; i++) {
+        if (!utils.isNull($rootScope.customizableMenuList[i]) && !isNaN(parseInt($rootScope.customizableMenuList[i]))) {
+        } else
+          $rootScope.customizableMenuList[i] = "";
+
+        customizableMenuListFinalLength++;
+      }
+      $scope.mainObj.customizableMenuListDefaultLength = customizableMenuListFinalLength;
+      // increasing size of
+      // customizableMenuList to 8
+      // incase
+      // its small
+      if ($scope.mainObj.customizableMenuListDefaultLength < 9) {
+
+        var reqListMenuId = parseInt($rootScope.customizableMenuList[$rootScope.customizableMenuList.length - 1]);
+        if (reqListMenuId >= 6000 && reqListMenuId <= 7000) {
+          for (var i = $rootScope.customizableMenuList.length - 1; i < 8; i++) {
+            $rootScope.customizableMenuList.splice(i, 0, "");
+          }
+        } else {
+          for (var i = $rootScope.customizableMenuList.length - 1; i < 8; i++) {
+            $rootScope.customizableMenuList.splice(i + 1, 0, "");
+          }
+        }
+      }
+
+      // setlanguage(data.userProfileMap['LOCALE']);
+      BrandingController($scope, $scope.data);
+      // builddata(data.menuList);
+
+    });
+
+    $scope.logout = function() {
+      $http({
+        method: 'GET',
+        url: '/leaverest/rest/logout/?cd=' + (new Date()).getTime()
+      }).success(function(data) {
+        window.location = data.LOGOUT_URL;
+      });
+    };
+
+    // LANDING PAGE
+
+    // function to render customize favourite menus
+    $scope.renderCustoFavMenus = function() {
+
+      // to shift all the blank tiles to the end
+      for (var i = 0; i < 8; i++) {
+        if (($rootScope.customizableMenuList[i] == "") && i < 7) {
+          $rootScope.customizableMenuList[i] = $rootScope.customizableMenuList[i + 1];
+          $rootScope.customizableMenuList[i + 1] = "";
+        }
+      }
+
+      var len = 0;
+      if ($location.path() == "/customisedHome")
+        len = 10;
+      else
+        len = 9;
+
+      for (var i = 1; i < len; i++) {
+        var currentFavMenu = $scope.findMenu(parseInt($rootScope.customizableMenuList[i - 1]), $scope.menuList);
+
+        if (undefined != currentFavMenu) {
+          if ($location.path() == "/customisedHome") {
+            $('#pos' + i + ">span").attr('class', '');
+            $('#pos' + i + " a").show();
+            $('#pos' + i + ">div>span").hide();
+            $('#pos' + i).removeClass('custome-tiles-unfilled');
+            $('#pos' + i).addClass('tile-color-' + i);
+            $('#pos' + i + " .pin-tile-here").addClass('pin-tile-pinned-img');
+            $('#pos' + i + " .pin-tile-here").attr('id', 'pinTileHere' + currentFavMenu.menuId);
+            $('#pos' + i + ">span").show();
+          } else {
+            $('#pos' + i).show();
+            $('#pos' + i).click(function() {
+              window.location = $(this).find(" a").attr("href");
+            });
+
+            $('#pos' + i + " a").attr({
+              "href": currentFavMenu.action,
+              "id": "a" + currentFavMenu.menuId
+            });
+          }
+
+          if (utils.isNull(currentFavMenu.displayTitleName))
+            $('#pos' + i + " a").text(currentFavMenu.title);
+          else
+            $('#pos' + i + " a").text(currentFavMenu.displayTitleName);
+          $('#pos' + i + ">span").addClass(displayMenu.getImageFromTitle(currentFavMenu.moduleName) + "_tile");
+
+        } else {
+          $('#pos' + i + ">span").attr('class', '');
+
+          if ($location.path() == "/customisedHome") {
+            $('#pos' + i).removeClass('tile-color-' + i);
+            $('#pos' + i).addClass('custome-tiles-unfilled');
+            $('#pos' + i + " .pin-tile-pinned-img").removeClass('pin-tile-pinned-img');
+
+            $('#pos' + i + " >span").hide();
+            $('#pos' + i + " a").hide();
+            $('#pos' + i + " >div>span").show();
+          } else
+            $('#pos' + i).hide();
+
+        }
+      }
+
+      var currentFavMenu = $scope.findMenu(parseInt($rootScope.customizableMenuList[8]), $scope.menuList);
+
+      if (null != currentFavMenu && undefined != currentFavMenu) {
+
+        if (utils.isNull(currentFavMenu.displayTitleName))
+          $('#pos9 a').text(currentFavMenu.title);
+        else
+          $('#pos9 a').text(currentFavMenu.displayTitleName);
+
+        $("#pos9 a").attr({
+          "href": currentFavMenu.action,
+          "id": "a" + currentFavMenu.menuId
+        });
+      }
+
+      if ($location.path() != "/customisedHome") {
+
+        if (utils.isNull($('#pos9 .favourites-text a').text().trim()))
+          $('#pos9').css('visibility', 'hidden');
+        else
+          $('#pos9').css('visibility', 'visible');
+
+        $('#pos9').click(function() {
+          window.location = $(this).find(" a").attr("href");
+        });
+
+        $('#pos10').click(function() {
+          window.location = $scope.mainObj.gessMenuLinks.GESS_TRACK_REQ_WORKFLOW;
+        });
+        $('#pos11').click(function() {
+          window.location = $scope.mainObj.gessMenuLinks.GESS_MY_WORKLIST;
+        });
+        $('#pos12').click(function() {
+          window.location = "#/helpcenter";
+        });
+      }
+
+    };
+
+    // fired when tmp[0].userdetails is loaded
+    
+    $scope.$watch('data', function() {
+      if ('' != $scope.data && null != $scope.data && undefined != $scope.data) {
+        $scope.mainObj.isHomePageLoaded = true;
+        displayMenu.buildMenu($scope.menuList, $scope.appAvail);
+
+        $scope.$broadcast("dataLoaded", "");
+        // for SEARCH-MENU
+        // functionality
+        // (showing only
+        // 'M'-types)
+
+        var i = 0;
+        angular.forEach($scope.menuList, function(obj) {
+
+          if (obj.type.toUpperCase().indexOf('M') != -1) {
+            if (!utils.isNull(obj.action) && obj.action.length > 0) {
+              var newMenuObj = {};
+
+              if (!utils.isNull(obj.displayTitleName)) {
+                newMenuObj["other"] = obj.localeTitle;
+                newMenuObj["label"] = obj.displayTitleName;
+              } else {
+                newMenuObj["label"] = obj.localeTitle;
+                newMenuObj["other"] = obj.displayTitleName;
+              }
+
+              newMenuObj["data"] = obj;
+              newMenuList[i] = newMenuObj;
+              i++;
+            }
+          }
+
+        });
+
+        $scope.newMenuList = newMenuList;
+
+        $scope.newMenuList = $filter('orderBy')($scope.newMenuList, 'data.menuId');
+        setTimeout(function() {
+
+          $("#autocompleteInputDiv").menucomplete({
+            source: function(request, response) {
+              var results = $.custom.menucomplete.filter(newMenuList, request.term);
+              $scope.mainObj.searchedMenuList = results;
+              $scope.mainObj.searchMoreMenusFromStatus = 'searchMoreMenusPage';
+              $scope.$apply();
+              response(results.slice(0, 4));// initial
+              // search
+              // result
+              // before
+              // splitting
+              // 1st-4
+              if (results.length > 0) {
+
+                if (results.length > 4) {
+                  $(".ui-autocomplete").append("<li class='ui-menu-more'><a href='#searchMore' onclick='$(\".ui-autocomplete\").css({\"display\":\"none\"});'>More Details</a></li>");
+
+                  $('.ui-autocomplete .ui-menu-more').hover(function() {
+                    $('.ui-autocomplete li').removeClass('ui-state-focus');
+                  });
+                }
+
+              } else {
+
+                results.push({
+                  'label': 'No results found',
+                  'data': {}
+                });
+
+                response(results);
+                $('.ui-autocomplete li').click(function(e) {
+                  e.preventDefault();
+                });
+                $('.ui-autocomplete li').removeClass('ui-menu-item ui-state-focus');
+                $('.ui-autocomplete li').css({
+                  'margin': '0',
+                  'padding': '8px 10px',
+                  'zoom': '1',
+                  'float': 'left',
+                  'clear': 'left',
+                  'width': '100%',
+                  'cursor': 'default'
+                });
+
+              }
+            },
+            select: function(event, ui) {
+              $scope.mainObj.searchMenuPageInput = ui.item.data.localeTitle;
+              $scope.$apply();
+              window.location = ui.item.data.action;
+            },
+            minLength: 3
+          });
+        }, 500);
+
+        // to load 9-favourites
+        // menus in
+        // tiles
+        $scope.$watch('customizableMenuList', function() {
+          if ('' != $rootScope.customizableMenuList && null != $rootScope.customizableMenuList && undefined != $rootScope.customizableMenuList) {
+            // increasing
+            // size
+            // of
+            // customizableMenuList
+            // to 8
+            // incase
+            // its
+            // small
+            if ($rootScope.customizableMenuList.length < 9) {
+
+              var reqListMenuId = parseInt($rootScope.customizableMenuList[$rootScope.customizableMenuList.length - 1]);
+              if (reqListMenuId >= 6000 && reqListMenuId <= 7000) {
+                for (var i = $rootScope.customizableMenuList.length - 1; i < 8; i++) {
+                  $rootScope.customizableMenuList.splice(i, 0, "");
+                }
+              } else {
+                for (var i = $rootScope.customizableMenuList.length - 1; i < 8; i++) {
+                  $rootScope.customizableMenuList.splice(i + 1, 0, "");
+                }
+              }
+            }
+
+            $scope.renderCustoFavMenus();
+          }
+        }, true);
+
+        var el = angular.element("#menuLeft");
+        var compiled = $compile(el);
+
+        compiled($scope);
+        $scope.mainObj.indexPageLoaded = "Y";
+
+      }
+    });
+
+    // to fetch menu-list from db based on
+    // search-criteria
+    $scope.searchMoreMenus = function(from) {
+
+      $scope.mainObj.searchedMenuListDb = [];
+      $scope.mainObj.searchResultsFound = 'init';
+      if (!utils.isNull($scope.mainObj.searchMenuPageInput)) {
+        $scope.mainObj.searchMoreMenusFromStatus = from;
+        var searchedMenuList = "";
+
+        if ($scope.mainObj.searchMenuPageInput.length >= 3) {
+          if (!utils.isNull($scope.mainObj.searchedMenuList) && ($scope.mainObj.searchedMenuList.length >= 1 && $scope.mainObj.searchedMenuList[0].label != 'No results found')) {
+            for (var i = 0; i < $scope.mainObj.searchedMenuList.length; i++) {
+              if (i != 0) searchedMenuList = searchedMenuList + ",";
+
+              searchedMenuList = searchedMenuList + $scope.mainObj.searchedMenuList[i].data.menuId;
+            }
+
+          } else {
+            $location.path('/searchMore');
+            $scope.mainObj.searchResultsFound = false;
+            $scope.mainObj.searchedMenuPageInput = $scope.mainObj.searchMenuPageInput;
+          }
+        } else {
+          if ($scope.mainObj.searchMenuPageInput.length < 3 && $scope.mainObj.searchMenuPageInput.length >= 1) {
+            var results = $.ui.autocomplete.filter($scope.newMenuList, $scope.mainObj.searchMenuPageInput);
+
+            for (var i = 0; i < results.length; i++) {
+
+              if (i != 0) searchedMenuList = searchedMenuList + ",";
+
+              searchedMenuList = searchedMenuList + results[i].data.menuId;
+
+            }
+          }
+        }
+
+        if (!utils.isNull(searchedMenuList) && searchedMenuList.split(",").length > 0) {
+
+          $http.post("/leaverest/rest/common/searchMore", {
+            'searchedMenuList': searchedMenuList
+          }).success(function(data) {
+            $scope.mainObj.searchedMenuPageInput = $scope.mainObj.searchMenuPageInput;
+            $scope.mainObj.searchedMenuListDb = data;
+            if ('/searchMore' != $location.path()) $location.path('/searchMore');
+          });
+
+        }
+
+        else {
+          $scope.mainObj.searchedMenuListDb = [];
+          $scope.mainObj.searchedMenuList = [];
+          $scope.mainObj.searchResultsFound = false;
+          $scope.mainObj.searchedMenuPageInput = $scope.mainObj.searchMenuPageInput;
+        }
+
+      } else {
+        $scope.mainObj.searchedMenuList = [];
+        $scope.mainObj.searchResultsFound = false;
+        $scope.mainObj.searchedMenuPageInput = $scope.mainObj.searchMenuPageInput;
+
+      }
+    };
+
+    $scope.expandContent = function(index, from) {
+      var expandCollapseTimer = 0;
+
+      if (from == 'AnnouncementList')
+        expandCollapseTimer = 500;
+      else {
+        expandCollapseTimer = 0;
+      }
+
+      if ("Close" != $('#expandCollapseContent' + index + " a").text()) {
+
+        $('#expandCollapseContent' + index + " .expandCollapseContent").clearQueue().stop().animateAuto("height", expandCollapseTimer);
+        $('#expandCollapseContent' + index + " a").text("Close");
+      } else {
+        $('#expandCollapseContent' + index + " a").text("Read More");
+        $('#expandCollapseContent' + index + " .expandCollapseContent").clearQueue().stop().animate({
+          "height": "23px"
+
+        }, expandCollapseTimer);
+      }
+
+    };
+
+    $scope.gotoCustomizedPage = function() {
+      $location.path("/customisedHome");
+    };
+
+    $scope.showReadMoreButton = function(index) {
+      // if text-details exceeds 1 line ,then show
+      // Read More
+      // button
+      if ($('#expandCollapseContent' + index).length != 0) {
+        if ($('#expandCollapseContent' + index + ' .expandCollapseContent').text().length <= 146)
+          return false;
+        else
+          return true;
+      }
+    };
+    
+    
+    
+     // Code for pagination start-------
+    $rootScope.pagination = function(list, itemsPerPage,
+			paginationSelectIdDefault, currentPage) {
+		$scope.groupedItems = [];
+		if (undefined != itemsPerPage && "" != itemsPerPage && itemsPerPage > 0)
+			$scope.itemsPerPage = parseInt(itemsPerPage);
+		else
+			$scope.itemsPerPage = parseInt(50);
+		$scope.pagedItems = [];
+		$scope.currentPage = currentPage;
+		$scope.items = list;
+
+
+		// calculate page in place
+		$scope.groupToPages = function() {
+			$scope.pagedItems = [];
+
+
+			for ( var i = 0; i < $scope.items.length; i++) {
+				if (i % $scope.itemsPerPage === 0) {
+					$scope.pagedItems[Math.floor(i / $scope.itemsPerPage)] = [ $scope.items[i] ];
+				} else {
+					$scope.pagedItems[Math.floor(i / $scope.itemsPerPage)]
+							.push($scope.items[i]);
+				}
+			}
+		};
+		$rootScope.ret = [];
+		$scope.pageSize = [];
+		$scope.labelText = "";
+		$scope.optionForSelect = function(start, end) {
+			if (!end) {
+				firstEnd = start;
+				firstStart = 0;
+				for ( var i = firstStart; i <= firstEnd; i++) {
+					labelText = ((i * $scope.itemsPerPage) + 1)
+							+ '-'
+							+ (((i * $scope.itemsPerPage) + $scope.itemsPerPage) > $scope.items.length ? $scope.items.length
+									: ((i * $scope.itemsPerPage) + $scope.itemsPerPage))
+							+ ' of ' + $scope.items.length;
+					$rootScope.ret.push({
+						'id' : i,
+						'label' : labelText
+					});
+				}
+			}
+			$scope.pageSize = $rootScope.ret;
+			return;
+
+		};
+
+		$scope.prevPage = function(paginationSelectId) {
+			if ($scope.currentPage > 0) {
+				$scope.currentPage--;
+				for ( var i = 0; i < $scope.pageSize.length; i++) {
+					if ($scope.pageSize[i].id == $scope.currentPage) {
+						angular.element('#' + paginationSelectId).scope().selectedPage = $scope.pageSize[i];
+					}
+				}
+			}
+
+		};
+
+		$scope.nextPage = function(paginationSelectId) {
+
+			if ($scope.currentPage < $scope.pagedItems.length - 1) {
+				$scope.currentPage++;
+				for ( var i = 0; i < $scope.pageSize.length; i++) {
+					if ($scope.pageSize[i].id == $scope.currentPage) {
+						angular.element('#' + paginationSelectId).scope().selectedPage = $scope.pageSize[i];
+					}
+				}
+			}
+
+		};
+
+		$scope.setPage = function(pageNo, paginationSelectId) {
+
+			$scope.currentPage = pageNo;
+			for ( var i = 0; i < $scope.pageSize.length; i++) {
+				if ($scope.pageSize[i].id == $scope.currentPage) {
+					angular.element('#' + paginationSelectId).scope().selectedPage = $scope.pageSize[i];
+				}
+
+			}
+
+		};
+
+		$scope.filterDataList = function(paginationSelectId, predicate, reverse) {
+			$rootScope.pagination(($filter('orderBy')($scope.items, predicate,
+					reverse)), 10, paginationSelectId);
+
+		};
+		// functions have been describe process the data for display
+
+		$scope.groupToPages();
+		$scope.optionForSelect($scope.pagedItems.length - 1);
+		if (undefined != angular.element('#' + paginationSelectIdDefault)
+				.scope())
+			angular.element('#' + paginationSelectIdDefault).scope().selectedPage = $scope.pageSize[0];
+		else
+			$scope.selectedPage = $scope.pageSize[0];
+
+	};
+	// Code for pagination ends------------
+	$scope.mobileView = function() {
+
+	     if (navigator.userAgent && (navigator.userAgent.match(/Android/i)
+	        || navigator.userAgent.match(/webOS/i)
+	        || navigator.userAgent.match(/iPhone/i)
+	        || navigator.userAgent.match(/iPad/i)
+	        || navigator.userAgent.match(/iPod/i)
+	        || navigator.userAgent.match(/BlackBerry/i)
+	        || navigator.userAgent.match(/Windows Phone/i))){
+
+	         return true;
+	     }else
+	    	 return false;
+	   };
+	
+	
+  }])
+
+  app.controller('lmcServerStatusController', ['$scope', '$http', '$compile', '$location', '$q', '$rootScope', '$filter', function($scope, $http, $compile, $location, $q, $rootScope, $filter) {
+	  
+	  
+
+			$scope.checkedCount = 0;
+			$scope.selectedServers = [];
+
+			$scope.refreshServerStatus = function() {
+
+				$scope.checkedCount = 0;
+				$scope.selectedServers = [];
+
+				var fetchAllManagedServer = prefixLMC + "fetchAllManagedServer";
+
+				$http
+						.post(fetchAllManagedServer)
+						.success(
+								function(data) {
+									$scope.servers = data;
+									var getServerStatus = prefixLMC + "getServerStatus";
+
+									var cnt = 0;
+									angular
+											.forEach(
+													$scope.servers,
+													function(value, key) {
+
+														var serverInstanceId = value.serverInstance.serverIp
+																+ ":"
+																+ value.serverInstance.serverPort;
+
+														$http
+																.post(getServerStatus,
+																		serverInstanceId)
+																.success(
+																		function(data) {
+																			if (data != "Invalid") {
+																				value.status = data.status;
+																				value.activeSessions = data.activeSessions;
+																				value.notAllowedSessions = data.notAllowedSessions;
+																			} else {
+																				value.status = "N/A";
+																				value.activeSessions = 0;
+																				value.notAllowedSessions = 0;
+																			}
+																		});
+
+														cnt++;
+													});
+								});
+			};
+
+			$scope.checkedValues = function(serverDetails, value, index) {
+				if (value == "YES") {
+					$scope.checkedCount++;
+					$scope.selectedServers.push(serverDetails);
+				} else {
+					$scope.checkedCount--;
+					var cnt = 0;
+					angular
+							.forEach(
+									$scope.selectedServers,
+									function(value, key) {
+										if (value.serverInstance.serverIp == serverDetails.serverInstance.serverIp
+												&& value.serverInstance.serverPort == serverDetails.serverInstance.serverPort) {
+											$scope.selectedServers.splice(cnt, 1);
+										}
+										cnt++;
+									});
+				}
+			};
+
+			$scope.refreshServerStatus();
+
+			$scope.startServerLMC = function() {
+				var startServer = prefixLMC + "startServer";
+
+				var cnt = 0;
+				angular.forEach($scope.selectedServers, function(value, key) {
+
+					var serverInstanceId = value.serverInstance.serverIp + ":"
+							+ value.serverInstance.serverPort;
+
+					$http.post(startServer, serverInstanceId).success(function(data) {
+						alert(data);
+					});
+
+					cnt++;
+				});
+
+				$scope.refreshServerStatus();
+			};
+
+			$scope.stopServerLMC = function() {
+				var stopServer = prefixLMC + "stopServer";
+
+				var cnt = 0;
+				angular.forEach($scope.selectedServers, function(value, key) {
+
+					var serverInstanceId = value.serverInstance.serverIp + ":"
+							+ value.serverInstance.serverPort;
+
+					$http.post(stopServer, serverInstanceId).success(function(data) {
+						alert(data);
+					});
+
+					cnt++;
+				});
+
+				$scope.refreshServerStatus();
+			};
+		
+	  
+  }]);
+  
+  
+  
+  app.controller('UserProfileController', ['$scope', '$http', '$compile', '$location', 'Todo', function($scope, $compile, $location, $http, Todo) {
+
+    var GlobalData = null;
+
+    $http.get('/leaverest/rest/settings?cd=' + (new Date()).getTime()).success(function(data) {
+
+      GlobalData = data;
+      $scope.settings = data.userProfileMap;
+
+      if ($scope.settings['FYI_NOTIFICATION_REQD'] == "true" || $scope.settings['FYI_NOTIFICATION_REQD'] == true) {
+        $scope.settings['FYI_NOTIFICATION_REQD'] = true;
+      } else {
+        $scope.settings['FYI_NOTIFICATION_REQD'] = false;
+      }
+
+      if ($scope.settings['FYI_EMAIL_NOTIFICATION_REQD'] == "true" || $scope.settings['FYI_EMAIL_NOTIFICATION_REQD'] == true) {
+        $scope.settings['FYI_EMAIL_NOTIFICATION_REQD'] = true;
+      } else {
+        $scope.settings['FYI_EMAIL_NOTIFICATION_REQD'] = false;
+      }
+
+      if ($scope.settings['FYA_EMAIL_NOTIFICATION_REQD'] == "true" || $scope.settings['FYA_EMAIL_NOTIFICATION_REQD'] == true) {
+        $scope.settings['FYA_EMAIL_NOTIFICATION_REQD'] = true;
+      } else {
+        $scope.settings['FYA_EMAIL_NOTIFICATION_REQD'] = false;
+      }
+
+      $scope.dataFmts = $.parseJSON(data.DATE_FORMATS);
+
+      for (var i = 0; i < data.locale.length; i++) {
+        if (data.locale[i].name == $scope.settings['LOCALE']) {
+          $scope.settings['LOCALE'] = data.locale[i].description;
+        }
+      }
+      $scope.locales = data.locale;
+    }).error(function(data) {
+      alert("Unable to Load User Profile parameter");
+    });
+
+    $scope.submit = function() {
+      for (var i = 0; i < GlobalData.locale.length; i++) {
+        if ($scope.settings['LOCALE'] == GlobalData.locale[i].description) {
+          $scope.settings['LOCALE'] = GlobalData.locale[i].name;
+        }
+      }
+
+      $http.post('/leaverest/rest/updateSettings?cd=' + (new Date()).getTime(), $scope.settings).success(function(data) {
+        alert("User Profile is Successfully Updated");
+        window.location.reload();
+      }).error(function(data) {
+        alert("Error in Adding/Updating the User Profile");
+      });
+    };
+
+    $scope.reload = function() {
+      window.location.reload();
+    };
+  }]);
+
+  function BrandingController($scope, data) {
+
+    $scope.userid = 2;
+
+    $scope.getUserId = function() {
+
+      return $scope.userid;
+
+    };
+
+    $scope.displayon = function() {
+
+      $scope.userid = 1;
+
+    };
+
+    $scope.displayoff = function() {
+      $scope.userid = 2;
+
+    };
+
+    $scope.displaypopup = function() {
+      $scope.userid = 1;
+
+    };
+
+    $('html').click(function(e) {
+      if (e.target.id == "uparrow" || $(e.target).parents("#uparrow").size()) {
+        $scope.userid = 1;
+        document.getElementById('userDetailsBox').style.display = 'none';
+      } else if (e.target.id == "brand" || $(e.target).parents("#brand").size()) {
+        $scope.userid = 1;
+        document.getElementById('userDetailsBox').style.display = 'block';
+      } else if (e.target.id == "downarrow" || $(e.target).parents("#downarrow").size()) {
+        $scope.userid = 1;
+        document.getElementById('userDetailsBox').style.display = 'block';
+        document.getElementById("userDetailsBox").style.zIndex = "2000";
+
+      } else {
+        $scope.userid = 2;
+        document.getElementById('userDetailsBox').style.display = 'none';
+      }
+
+    });
+
+  }
+
+  app.controller('BrandingController', ['$scope', 'data', function($scope, data) {
+    $scope.userid = 2;
+
+    $scope.getUserId = function() {
+
+      return $scope.userid;
+
+    };
+
+    $scope.displayon = function() {
+
+      $scope.userid = 1;
+
+    };
+
+    $scope.displayoff = function() {
+      $scope.userid = 2;
+
+    };
+
+    $scope.displaypopup = function() {
+      $scope.userid = 1;
+
+    };
+
+    $('html').click(function(e) {
+      if (e.target.id == "uparrow" || $(e.target).parents("#uparrow").size()) {
+        $scope.userid = 1;
+        document.getElementById('userDetailsBox').style.display = 'none';
+      } else if (e.target.id == "brand" || $(e.target).parents("#brand").size()) {
+        $scope.userid = 1;
+        document.getElementById('userDetailsBox').style.display = 'block';
+      } else if (e.target.id == "downarrow" || $(e.target).parents("#downarrow").size()) {
+        $scope.userid = 1;
+        document.getElementById('userDetailsBox').style.display = 'block';
+        document.getElementById("userDetailsBox").style.zIndex = "2000";
+
+      } else {
+        $scope.userid = 2;
+        document.getElementById('userDetailsBox').style.display = 'none';
+      }
+
+    });
+  }]);
+  
+ 
+  function SMLogoutController($scope) {
+
+    $scope.SMuserid = 2;
+    $scope.getSMUserId = function() {
+      return $scope.SMuserid;
+    };
+
+    $scope.SMlogout = function() {
+      $scope.SMuserid = 1;
+    };
+
+    $scope.display = function() {
+      $scope.SMuserid = 2;
+    };
+
+  }
+  app.controller('SMLogoutController', ['$scope', function($scope) {
+    $scope.SMuserid = 2;
+    $scope.getSMUserId = function() {
+      return $scope.SMuserid;
+    };
+
+    $scope.SMlogout = function() {
+      $scope.SMuserid = 1;
+    };
+
+    $scope.display = function() {
+      $scope.SMuserid = 2;
+    };
+  }]);
+  function loadStyleClass() {
+
+    var id = document.getElementById("Closed");
+    id.className = "frmwrkClosed";
+    document.getElementById("button.closed").onclick = function() {
+      alert("inside function");
+      var bodyId = document.getElementById("entireBody");
+      bodyId.id = "no";
+    };
+  }
+
+  function FooterPopUp($scope, data) {
+    $scope.footerId = 2;
+    $scope.getFooterId = function() {
+      return $scope.footerId;
+    };
+    $scope.displayCompatibility = function() {
+      $scope.footerId = 1;
+      document.getElementById('footerPopUp').style.display = 'block';
+
+    };
+  }
+
+  
+
+  function CommonLandingPageController($scope, $compile, $rootScope, $http, $location, $q) {
+
+    // to render customized favourite menu tiles
+
+    // timer for animation
+    var timer = 500;
+
+    // tile-hover code
+    $('#commonLandingPageDiv').find('.favourites-large-div, .favourites-small-div').hover(function() {
+
+      // ON HOVER
+
+      if ($(this).hasClass('favourites-large-div')) {
+        // for big tile in favourite section
+        $(this).addClass('favourites-large-div-selected');
+        $(this).find('.slide-from-left-hidden').addClass('favourites-hover').css({
+          'display': "block"
+        });
+        $(this).find('.slide-from-left-hidden').stop().animate({
+          'margin-left': '-15px'
+        }, timer);
+      } else {
+        // for all the small-tiles in favourites section
+        $(this).addClass('favourites-small-div-selected');
+        $(this).find('.slide-from-left-hidden').addClass('favourites-hover').css({
+          'display': "block"
+        });
+        $(this).find('.slide-from-left-hidden').stop().animate({
+          'margin-left': '-15px'
+        }, timer);
+      }
+    }, function() {
+      // HOVER OUT
+
+      if ($(this).hasClass('favourites-large-div')) {
+        // for big tile in favourite section
+        $(this).removeClass('favourites-large-div-selected');
+        $(this).find('.slide-from-left-hidden').stop().animate({
+          'margin-left': '-478px'
+        }, timer, function() {
+          $(this).find('.slide-from-left-hidden').removeClass('favourites-hover').css({
+            'display': "none"
+          });
+        });
+      } else {
+
+        // if()
+        $(this).removeClass('favourites-small-div-selected');
+        $(this).find('.slide-from-left-hidden').stop().animate({
+          'margin-left': '-241px'
+        }, timer, function() {
+          $(this).find('.slide-from-left-hidden').removeClass('favourites-hover').css({
+            'display': "none"
+          });
+        });
+      }
+
+    });
+
+    // tiles with custamizable menus
+    $scope.customizableTiles = {};
+
+    // *************** alerts & announcements code starts
+    // ************************
+
+    $scope.$on("dataLoaded", function(broadcastData) {
+      if (!$scope.mainObj.announcementListAndAlertListStatus) {
+        $scope.mainObj.announcementListAndAlertListStatus = true;
+        $scope.viewNotifications();
+      }
+    });
+    if (!$scope.mainObj.announcementListAndAlertListStatus) {
+      $scope.mainObj.announcementListAndAlertListStatus = true;
+      $scope.viewNotifications();
+    }
+
+    // to open notification details page from landing page if clicked on 'Read
+    // More'.
+    $scope.openNotificationDetailsPage = function(id, clickedFrom) {
+      if ($scope.mainObj.notificationLandingPageCloseStatus == "") {
+        $('.announcementLandingPageHover').css({
+          'display': 'none',
+          'height': '0px',
+          'width': "0px"
+        });
+        $location.path('/announcement');
+        setTimeout(function() {
+          document.getElementById('expandCollapseContent' + id).scrollIntoView(true);
+          $scope.expandContent(id);
+        }, 100);
+      }
+      $scope.mainObj.notificationLandingPageCloseStatus = "";
+    };
+
+    $scope.closeAnnouncement = function(index, status) {
+      $scope.mainObj.notificationLandingPageCloseStatus = status;
+      $(".announcement #expandCollapseContent" + index).slideUp(500);
+
+      setTimeout(function() {
+        $('.announcement .announcementRow').each(function(index) {
+          if ($($('.announcement .announcementRow')[index]).css('display') == 'none') ($scope.mainObj.announcementRowDisplayCounter)++;
+        });
+        if (($scope.mainObj.announcementRowDisplayCounter == 3) || $scope.mainObj.announcementRowDisplayCounter == $scope.mainObj.annoucementList.length) {
+          $scope.closeAnnouncementPopUp();
+          $scope.mainObj.announcementRowDisplayCounter = 0;
+        }
+      }, 600);
+
+    };
+
+    $scope.closeAnnouncementPopUp = function() {
+      $(".announcement").slideUp('slow', function() {
+        $('.announcementLandingPageHover').css({
+          'display': 'none',
+          'height': '0px',
+          'width': "0px"
+        });
+
+      });
+
+    };
+
+    $scope.showAnnouncement = function() {
+      $location.path("/announcement");
+    };
+    // *************** alerts & announcements code ends ************************
+  }
+  ;
+
+  function CustomisedHomeController($scope, $compile, $rootScope, $http) {
+    $scope.$watch('data', function() {
+      if ('' != $scope.data && null != $scope.data && undefined != $scope.data) {
+        buildCustomiseMenu($scope.menuList, $scope.appAvail, $rootScope.customizableMenuList);
+
+        $scope.renderCustoFavMenus();
+        var el = angular.element("#customisePage");
+        var compiled = $compile(el);
+
+        compiled($scope);
+      }
+    });
+
+    $scope.addRemoveFavMenu = function(item) {
+
+      // to hide success msg on save button click on page load
+      $scope.mainObj.saveCustomizeMenuSuccessMsg = false;
+
+      var imgClass = $('#img' + item).attr('class');
+      var removeFromPos = -1;
+      $scope.addToPos = 0;
+      var requestListMenuFlag = false;
+
+      // if it is a request-list menu, then add in request-list tile
+      for (var j = 0; j < myRequestListMenus.length; j++) {
+        if (item == myRequestListMenus[j]) {
+          requestListMenuFlag = true;
+          break;
+        }
+      }
+
+      // removing menu from favourite-tiles
+      if ("fav" == imgClass) {
+        for (var x = 0; x < $rootScope.customizableMenuList.length; x++) {
+          if (item == $rootScope.customizableMenuList[x]) {
+            removeFromPos = x;
+            break;
+          }
+        }
+
+        if (removeFromPos > -1) {
+          $rootScope.customizableMenuList[removeFromPos] = "";
+          $('#img' + item).attr('class', '');
+        } else {
+          $('#img' + item).attr('class', 'fav');
+
+          for (var x = 0; x < $rootScope.customizableMenuList.length; x++) {
+            if ("" == $rootScope.customizableMenuList[x]) {
+              $rootScope.customizableMenuList[x] = item;
+              break;
+            }
+          }
+        }
+      }
+      // adding menu to favourite-tiles
+      else {
+
+        // for request-list menu (9th tile)
+        if (requestListMenuFlag) {
+          if ("" == $rootScope.customizableMenuList[8]) {
+            $('#img' + item).attr('class', 'fav');
+            $rootScope.customizableMenuList[8] = item;
+          } else {
+            $scope.mainObj.errorMsg = "You can pin only one Request list as favorite in Home page.";
+            $('#saveCustomizeMenuErrorModal').modal();
+          }
+        }
+        // for other 8 menus
+        else {
+          var addeddStatus = false;
+          for (var x = 0; x < $rootScope.customizableMenuList.length - 1; x++) {
+
+            if ("" == $rootScope.customizableMenuList[x]) {
+              $('#img' + item).attr('class', 'fav');
+              $rootScope.customizableMenuList[x] = item;
+              addeddStatus = true;
+              break;
+            }
+          }
+
+          if (!addeddStatus) {
+            if ($rootScope.customizableMenuList[8] == '' && $rootScope.fav.favMenuidList.split(",")[8] != '')
+              $scope.mainObj.errorMsg = "Request list favourite can only be replaced with a Request favourite.";
+            else
+              $scope.mainObj.errorMsg = "Maximum of  nine  functionalities can be pinned as favorites.<br> As you have already pinned nine, kindly unpin one to  pin a new one";
+            $('#saveCustomizeMenuErrorModal').modal();
+          }
+        }
+      }
+
+      $scope.renderCustoFavMenus();
+    };
+
+    $scope.saveFav = function(from) {
+      $scope.mainObj.saveCustomizeMenuSuccessMsg = false;
+      $scope.mainObj.errorMsg = "";
+      var customizableMenuListFinalLength = 0;
+
+      for (var i = 0; i < $rootScope.customizableMenuList.length; i++) {
+        if (!utils.isNull($rootScope.customizableMenuList[i])) customizableMenuListFinalLength++;
+      }
+
+      var requiredCustomizableMenuListFinalLength = 0;
+      if ($scope.mainObj.customizableMenuListDefaultLength >= 3)
+        requiredCustomizableMenuListFinalLength = 3;
+      else
+        requiredCustomizableMenuListFinalLength = $scope.mainObj.customizableMenuListDefaultLength;
+
+      // to validate whether user has atleast addedd default no of customized
+      // menus.
+      if (customizableMenuListFinalLength >= requiredCustomizableMenuListFinalLength)// removed
+      // check
+      // for
+      // default-fav-list-count
+      {
+
+        if (from == 'save') {
+          var favMenuidList = [];
+          angular.forEach($rootScope.customizableMenuList, function(obj) {
+            if (!utils.isNull(obj)) favMenuidList.push(obj);
+          });
+
+          $rootScope.fav.favMenuidList = favMenuidList.join();
+          $http.post('/leaverest/rest/common/saveFav/?cd=' + (new Date()).getTime(), $rootScope.fav).error(function(data) {
+          }).success(function(data) {
+            $scope.mainObj.saveCustomizeMenuSuccessMsg = true;
+          });
+
+        }
+
+        else
+          openPreviewModal();
+      } else {
+        $scope.mainObj.saveCustomizeMenuSuccessMsg = false;
+
+        $scope.mainObj.errorMsg = ["You cannot pin less than ", requiredCustomizableMenuListFinalLength, " functionalities in favourites.<br> Kindly pin  more  favorites."].join('');
+
+        $('#saveCustomizeMenuErrorModal').modal();
+      }
+    };
+  }
+
+  app.controller('SiteMapController', ['$scope', '$compile', '$rootScope', '$http', function($scope, $compile, $rootScope, $http) {
+
+  }]);
+
+  function SearchMoreListController($scope, $compile, $rootScope, $http, $location) {
+    if ('searchMoreMenusPage' == $scope.mainObj.searchMoreMenusFromStatus) $scope.searchMoreMenus('searchMoreMenusPage');
+
+    if (!utils.isNull($location.search().searchMenus) && $location.search().searchMenus.length > 0) {
+
+      var searchedMenuList = $location.search().searchMenus;
+
+      $scope.$watch('data', function() {
+
+        searchedMenuList = escapeSpclChars(searchedMenuList)
+
+        var results = $.ui.autocomplete.filter($scope.newMenuList, searchedMenuList);
+        $scope.mainObj.searchMenuPageInput = searchedMenuList;
+        $scope.mainObj.searchedMenuPageInput = searchedMenuList;
+        searchedMenuList = "";
+        for (var i = 0; i < results.length; i++) {
+
+          if (i != 0) searchedMenuList = searchedMenuList + ",";
+
+          searchedMenuList = searchedMenuList + results[i].data.menuId;
+
+        }
+        if (results.length > 0) {
+          $http.post("/leaverest/rest/common/searchMore", {
+            'searchedMenuList': searchedMenuList
+          }).success(function(data) {
+            $scope.mainObj.searchedMenuListDb = data;
+            $location.search().searchMenus = "";
+          });
+        } else {
+          $scope.mainObj.searchResultsFound = false;
+        }
+      });
+
+    }
+
+  }
+
+  function escapeSpclChars(text) {
+    text = text.replace(/[<>]+/g, '');
+    return text;
+  }
+
+
+return app;
+});

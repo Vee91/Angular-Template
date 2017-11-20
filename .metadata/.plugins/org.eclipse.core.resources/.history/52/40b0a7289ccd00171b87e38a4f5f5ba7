@@ -1,0 +1,281 @@
+package com.plagiarism.controller;
+
+/**
+ * @author Priti Golegaonkar(738695)
+ */
+
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ultimatix.gess.leave.dto.CommonDTO;
+import com.ultimatix.gess.leave.dto.MyRequestBean;
+import com.ultimatix.gess.leave.dto.MyRequestListDTO;
+import com.ultimatix.gess.leave.dto.RedisDTOList;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.DeleteOnBehalfService;
+import com.ultimatix.gess.leave.service.MyRequestService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.ObjectUtility;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class LeaveMyRequestController {
+	
+	@Autowired 
+	private  MyRequestService myRequestService;
+	@Autowired
+	private  DeleteOnBehalfService deleteOnBehalfService;
+
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(LeaveMyRequestController.class);
+
+	// To load HTML page
+	
+	// To fetch all the Request Details
+	@RequestMapping(value = "/fetchLeaveAllRequestDetails", method = {RequestMethod.POST,RequestMethod.GET})
+	public @ResponseBody
+	Map<String,Object> fetchLeaveAllRequestDetails(@RequestParam(value="employeeId", required=false) String empId, @RequestParam(value="parentReqNo", required=false) String parentReqNo) throws SQLException {
+		LOG.info("LeaveMyRequestController | fetchLeaveAllRequestDetails initiated");
+		
+		String loggedInEmpId = !ObjectUtility.isNullSafe(empId)?(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal():empId; 
+					
+		LOG.info("LeaveMyRequestController | fetchLeaveAllRequestDetails empId is: "+loggedInEmpId);
+		
+		Map<String,Object> requestList=myRequestService.fetchLeaveAllRequestDetails(loggedInEmpId);
+
+		LOG.info("LeaveMyRequestController | fetchLeaveAllRequestDetails terminated");
+		
+		return requestList;
+		
+	}
+	
+	// To fetch  single  Request Details
+		@RequestMapping(value = "/fetchSingleRequestStatus", method = RequestMethod.POST)
+		public @ResponseBody
+		Map<String, Object> fetchSingleRequestStatus(@RequestParam(value="levRequestNo") String json) throws SQLException {
+			try{
+			LOG.info("LeaveMyRequestController | fetchSingleRequestStatus initiated");
+			Map<String, Object> map = new HashMap<String, Object>();
+			String loggedInEmpID = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+						
+			LOG.info("LeaveMyRequestController | fetchSingleRequestStatus empId is: "+loggedInEmpID);
+			if(ObjectUtility.isNullSafe(json)) {
+				map=myRequestService.fetchSingleRequestStatus(json, loggedInEmpID);
+			}
+			LOG.info("LeaveMyRequestController | fetchSingleRequestStatus terminated");
+			
+			return map;
+			}catch(JSONException e){
+				   throw new IllegalArgumentException("exception of fetchSingleRequestStatus",e);
+			    }
+			
+		}
+		// To fetch  single  Request Details
+		@RequestMapping(value = "/archiveUnRequest", method = RequestMethod.POST)
+		public @ResponseBody
+		 Map archiveUnRequest(@RequestBody String json) throws SQLException {
+			try{
+				LOG.info("LeaveMyRequestController | archiveUnRequest initiated");
+			
+			String loggedInEmpID = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+						
+			LOG.info("LeaveMyRequestController | archiveUnRequest empId is: "+loggedInEmpID);
+			
+			String outMessage=myRequestService.archiveUnRequest(loggedInEmpID,json);
+
+			LOG.info("LeaveMyRequestController | archiveUnRequest terminated");
+			Map map = new HashMap();
+			map.put("message", outMessage);
+			return map;
+		}catch(JSONException e){
+			   throw new IllegalArgumentException("exception ",e);
+		    }
+			
+		}
+
+		//to delete draft request
+		@RequestMapping(value = "/deleteDraftRequest", method = RequestMethod.POST )
+		public @ResponseBody
+		Map deleteDraftRequest(@RequestBody String json) throws SQLException{
+			try{
+				LOG.info("LeaveMyRequestController | deleteDraftRequest initiated");
+			
+			String loggedInEmpId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+									
+			LOG.info("LeaveMyRequestController | deleteDraftRequest empId is: "+loggedInEmpId);
+			
+			String outMessage=myRequestService.deleteDraftRequest(loggedInEmpId,json);
+
+			LOG.info("LeaveMyRequestController | deleteDraftRequest terminated");
+			Map map = new HashMap();
+			map.put("message", outMessage);
+			return map;
+		}catch(JSONException e){
+			   throw new IllegalArgumentException("exception ",e);
+		    }
+			
+		}
+		
+		@RequestMapping(value = "/cancelLeave", method = {RequestMethod.POST})
+		public @ResponseBody
+		List<ResponseResource> cancelLeaveReq(@RequestBody List<MyRequestListDTO> myRequestListDTO) throws SQLException{
+			String loggedInEmpId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+			LOG.info("LeaveMyRequestController | cancelLeaveReq Start | Login Id : "+loggedInEmpId +" | IP Address : "+ DataFixUtils.getIpAddress() );
+			
+		try{
+			List<ResponseResource> detail=myRequestService.cancelLeaveRequest(myRequestListDTO ,new ArrayList<RedisDTOList>(), new HashMap<String, Object>());
+			return detail;
+		}catch(JSONException e){
+			throw new IllegalArgumentException("exception of cancelLeave",e);
+		}
+		}
+		
+		
+		@RequestMapping(value = "/cancelLeaveDetails", method = {RequestMethod.POST})
+		public @ResponseBody
+		List<ResponseResource> cancelLeaveReqDetails(@RequestBody List<MyRequestListDTO> myRequestListDTO) throws SQLException{
+		try {
+			String loggedInEmpID = (String) SecurityContextHolder.getContext()
+					.getAuthentication().getPrincipal();
+			LOG.info("LeaveMyRequestController | cancelLeaveReq Start | Login Id : "
+					+ loggedInEmpID + " | IP Address : "
+					+ DataFixUtils.getIpAddress());
+
+			List<ResponseResource> detail = myRequestService
+					.cancelLeaveRequest(myRequestListDTO,
+							new ArrayList<RedisDTOList>(),
+							new HashMap<String, Object>());
+
+			for (MyRequestListDTO json : myRequestListDTO) {
+				String levRequestNo = json.getChildReqNo();
+				Map<String, Object> requestList = myRequestService
+						.fetchSingleRequestStatus(levRequestNo, loggedInEmpID);
+
+				ResponseResource resource = new ResponseResource(levRequestNo);
+				Integer index = detail.indexOf(resource);
+				if (index > -1) {
+					resource = detail.get(index);
+					resource.setSuccess(levRequestNo, requestList);
+					detail.set(index, resource);
+				}
+			}
+			return detail;
+		}catch(JSONException e){
+				throw new IllegalArgumentException("exception ",e);
+			}
+		}
+		
+		
+		@RequestMapping(value = "/deleteLeaveOnBehalfList", method = {RequestMethod.POST})
+		public @ResponseBody
+		Map<String,Object> deleteLeaveOnBehalf(@RequestBody List<MyRequestListDTO> associateList ) throws SQLException{
+			
+		
+			String hrEmpId = (String) SecurityContextHolder.getContext()
+					.getAuthentication().getPrincipal();
+			
+			
+			
+			Map<String,Object> list=deleteOnBehalfService.deleteOnBehalfList(associateList.get(0) ,hrEmpId);
+			
+			return list;
+		
+			
+		}
+		
+		@RequestMapping(value = "/deleteLeaveOnBehalf", method = {RequestMethod.POST})
+		public @ResponseBody
+		List<ResponseResource> deleteLeave(@RequestBody List<MyRequestListDTO> myRequestListDTO) throws SQLException{
+			
+			String hrEmpId = (String) SecurityContextHolder.getContext()
+					.getAuthentication().getPrincipal();
+			
+            boolean superuserFlag=true;
+			
+			List<ResponseResource> list=deleteOnBehalfService.deleteOnBehalfLeaveRequest(myRequestListDTO,superuserFlag ,new ArrayList<RedisDTOList>(),hrEmpId);
+			
+			return list;
+			
+		}
+		
+		@RequestMapping(value = "/getLERFDetails/{requestNo}", method = {RequestMethod.POST})
+		public @ResponseBody
+		Map getLERFDetails(@PathVariable(value="requestNo") String lerfReqNo) {			
+			Map returnMap = myRequestService.getLERFDetails(lerfReqNo);
+			myRequestService.getContactDetails(lerfReqNo,returnMap);
+			return returnMap;			
+		}
+		
+		@RequestMapping(value = "/getPostponementDetails/{requestNo}", method = {RequestMethod.POST})
+		public @ResponseBody
+		Map getPostponementDetails(@PathVariable(value="requestNo") String reqNo) {			
+			Map returnMap = myRequestService.getPostponementDetails(reqNo);
+			return returnMap;			
+		}
+		
+		@RequestMapping(value = "/fetchAddrDetails", method = {RequestMethod.POST})
+		public @ResponseBody
+		MyRequestBean fetchAddrDetails(@RequestParam(value="levRequestNo") String levReqNo) {
+          
+			MyRequestBean request = myRequestService.fetchAddrDetails(levReqNo);
+			
+			return request;
+		
+		}
+		
+		@RequestMapping(value="/getValue", method = RequestMethod.POST)
+		@ResponseBody public Map<String, Object> getValues() { 
+			
+			 String empId =(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	        
+			 String pVal=myRequestService.profileValue(empId);
+			
+			Map<String, Object> dataMap = new HashMap<String, Object>();
+			dataMap.put("value", pVal);
+			
+			return dataMap;
+		
+		}
+		
+		@RequestMapping(value = "/exportSysArch", method = {RequestMethod.POST, RequestMethod.GET})
+		@ResponseBody 
+		public Map<String,Object> exportSysArch(@RequestParam(value="employeeNo", required=false) String empNo, HttpServletRequest request, HttpServletResponse response) throws SQLException {
+			try{
+				LOG.info("LeaveMyRequestController | fetchLeaveAllRequestDetails initiated");
+			
+			
+			String empId = !ObjectUtility.isNullSafe(empNo)?(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal():empNo; 
+						
+			LOG.info("LeaveMyRequestController | fetchLeaveAllRequestDetails empId is: "+empId);
+			
+			Map<String,Object> requestList=myRequestService.fetchLeaveAllRequestDetails(empId);
+
+			LOG.info("LeaveMyRequestController | fetchLeaveAllRequestDetails terminated");
+			myRequestService.exportSysArch((List<MyRequestBean>) requestList.get("sysArchList"), request, response);
+			return requestList;
+			}catch(IOException e){
+				throw new IllegalArgumentException("exception ",e);
+			}
+			
+		}
+		
+		
+}

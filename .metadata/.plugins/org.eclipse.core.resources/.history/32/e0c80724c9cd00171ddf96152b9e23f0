@@ -1,0 +1,76 @@
+define(['angular','app','displayMenu'], function(angular,app,displayMenu) {
+  app.controller('feedBackController', ['$scope', '$http', '$location', function($scope, $http, $location) {
+		$scope.question = {"one":0,"two":0,"four":0,"comment":"",isDisabled:true,'commentBoxLenght':0};
+		
+		$scope.submitFeedBackForm=function(){
+			if($("#one #ratestar").hasClass("set") && $("#two #ratestar").hasClass("set")  && $("#four #ratestar").hasClass("set")){
+				$http.post('/leaverest/rest/common/submitfeedback',{'question':$scope.question})
+				.success(function(data) {
+					$("#feedBackModal #ratestar").removeClass("set");
+					$("#one #ratestar span i").removeClass("redStar orangeStar greenStar");
+					$("#two #ratestar span i").removeClass("redStar orangeStar greenStar");
+					$("#four #ratestar span i").removeClass("redStar orangeStar greenStar");
+					$("#submitFeedback").removeClass("feedbackbuttonenable");
+					$("#submitFeedback").addClass("feedbackbuttonprimary");
+					$("#submitFeedback").css("cursor","context-menu");
+					$('#feedBackModal').modal('hide');		
+					$('#feedbackSuccessModal').modal('show');
+					$('#feedBackModal #ratestar span i').removeClass("redStar orangeStar greenStar");
+					$scope.question = {"one":0,"two":0,"four":0,"comment":""};
+					$scope.success = true;
+				})
+				.error(function(data){
+					console.log("error : "+data);
+				});
+			}else{
+				return;
+			}
+			
+		};	
+		$scope.clearFeedBackForm=function(){
+			$scope.question = {"one":0,"two":0,"four":0,"comment":""};		
+			$('#feedBackModal').modal('hide');		
+			$("#feedBackModal #ratestar").removeClass("set");
+		};
+		$scope.submitFeedBackOK=function(){		
+			$('#feedbackSuccessModal').modal('hide');			
+		};
+		$scope.showFeedBack=function(){
+			$('#feedBackModal').modal('show');
+		};
+		$scope.hideFeedBack=function(){
+			$scope.question = {"one":0,"two":0,"four":0,"comment":""};		
+			$("#feedBackModal #ratestar").removeClass("set");
+			$("#one #ratestar span i").removeClass("redStar orangeStar greenStar");
+			$("#two #ratestar span i").removeClass("redStar orangeStar greenStar");
+			$("#four #ratestar span i").removeClass("redStar orangeStar greenStar");
+			$("#submitFeedback").removeClass("feedbackbuttonenable");
+			$("#submitFeedback").addClass("feedbackbuttonprimary");
+			$("#submitFeedback").css("cursor","context-menu");
+			$('#feedBackModal').modal('hide');
+				
+		};
+		
+		$scope.mobileFooter = function() {
+
+		     if (navigator.userAgent && (navigator.userAgent.match(/Android/i)
+		        || navigator.userAgent.match(/webOS/i)
+		        || navigator.userAgent.match(/iPhone/i)
+		        || navigator.userAgent.match(/iPad/i)
+		        || navigator.userAgent.match(/iPod/i)
+		        || navigator.userAgent.match(/BlackBerry/i)
+		        || navigator.userAgent.match(/Windows Phone/i))){
+
+		         return true;
+		     }else
+		    	 return false;
+		   };
+		   
+		$scope.$watch("question",function(){
+			if(($("#one #ratestar").hasClass("set") && $("#two #ratestar").hasClass("set") && $("#four #ratestar").hasClass("set"))){
+				$scope.question.isDisabled=false;
+				$("#submitFeedback").addClass("feedbackbuttonenable");
+				$("#submitFeedback").removeClass("feedbackbuttonprimary");
+			}
+		},true);}])
+});

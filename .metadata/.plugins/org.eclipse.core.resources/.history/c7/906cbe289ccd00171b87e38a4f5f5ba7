@@ -1,0 +1,277 @@
+package com.plagiarism.controller;
+
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import jxl.read.biff.BiffException;
+import jxl.write.WriteException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.ultimatix.gess.leave.dto.SingletonAttribute;
+import com.ultimatix.gess.leave.dto.UserDTO;
+import com.ultimatix.gess.leave.message.FieldErrorResource;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.EntitlementService;
+import com.ultimatix.gess.leave.service.RttService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.ObjectUtility;
+import com.ultimatix.gess.leave.util.ReportUtils;
+import com.ultimatix.gess.leave.util.StringUtility;
+import com.ultimatix.pfile.util.FileUtils;
+import com.ultimatix.pfile.util.HttpResponseUtils;
+import com.ultimatix.pfile.util.StreamUtils;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class EntitlementController {
+
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(EntitlementController.class);
+
+	@Autowired
+	private EntitlementService entService;
+	
+	@Autowired
+	private RttService rttService;
+	
+	@Autowired
+	private SingletonAttribute  singleAttribute;
+	
+	@RequestMapping(value="/getCountryLeave", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody Map<String, Object> getCountryLeave() 
+	{ 
+		String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		List<String> country=null;
+		if(ObjectUtility.isNullSafe(empId) && StringUtility.isNumberRegex(empId)){
+			UserDTO usrdto=new UserDTO();
+			usrdto.setpEmpId(empId);
+			country =entService.getCountry(usrdto.getpEmpId());
+		}
+		
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+		dataMap.put("countryName", country);
+	
+		return dataMap;
+	
+	}
+	
+	@RequestMapping(value="/getLeavetype", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody Map<String, Object> getLeavetype(@RequestBody String country) 
+	{ 
+		List<String> leave=null;
+		if(ObjectUtility.isNullSafe(country)){
+			UserDTO usr= new UserDTO();
+			usr.setCountryName(country);
+			leave = rttService.getLeave(usr.getCountryName()); 
+		}
+		Map<String, Object> dataMap = new HashMap<String, Object>();
+        dataMap.put("leaveType",leave);
+		
+		return dataMap;
+	
+	}
+	
+	@RequestMapping(value={"/report"}, method={ RequestMethod.GET,RequestMethod.POST})
+	public void exportReport(HttpServletRequest request, HttpServletResponse response) throws SQLException{
+		try{
+			entService.exportReport(response);
+		}catch(IOException e){
+			   throw new IllegalArgumentException("exception ",e);
+			   
+		}
+		
+	}
+	
+    @RequestMapping(value="/upload", method=RequestMethod.POST)
+    public @ResponseBody List<ResponseResource> handleFileUpload(@RequestParam(value="multipartFile", required=false) MultipartFile paramMultipartFile, HttpServletRequest request, HttpServletResponse response) throws BiffException
+    {
+    	List<ResponseResource> resp=new ArrayList<ResponseResource>();
+    	if(StringUtility.fileExtnCheck(paramMultipartFile.getOriginalFilename())){
+    		InputStream inputStream = null;
+    		try{
+
+    			LOG.info("EntitlementController | handleFileUpload | Uploaded FileName: "+paramMultipartFile.getOriginalFilename());
+    			float countrylevTypeId = Float.valueOf(request.getParameter("cntryLevType"));
+    			inputStream = paramMultipartFile.getInputStream();
+    			resp=entService.importToExcel(inputStream, countrylevTypeId);
+    			return resp;
+    		}catch(IOException e){
+			   throw new IllegalArgumentException("exception ",e);   
+    		}
+    	}
+    	else{
+    		ResponseResource res1= new ResponseResource("");
+			res1.setCode("422");
+			FieldErrorResource errorRes1 = new FieldErrorResource();
+			errorRes1.setCode("422");
+			errorRes1.setMessage("Please upload file with .xls or .xlsx extension!!");
+			res1.setFieldErrors(errorRes1);
+			resp.add(res1);
+			return resp;
+    	}
+    }
+    
+	@RequestMapping(value="/insertDetails", method = RequestMethod.POST, produces = "application/json")
+	public @ResponseBody List<ResponseResource> insertDetails(@RequestBody UserDTO user) 
+	{
+		try{
+			List<ResponseResource> response= entService.insertDetails(user);
+	        return response;
+		}
+		catch(Exception e){
+			   throw new IllegalArgumentException("exception ",e);
+			   
+		}
+		
+	}
+	
+	@RequestMapping(value={"/FranceReport"}, method={ RequestMethod.GET,RequestMethod.POST})
+	public void exportFranceReport(HttpServletRequest request, HttpServletResponse response) throws SQLException{
+		try{
+			entService.exportFranceReport(response);
+		}catch(IOException e){
+			   throw new IllegalArgumentException("exception ",e);
+			   
+		}
+		
+	}
+
+	@RequestMapping(value="/uploadFranceAlti", method=RequestMethod.POST)
+    public @ResponseBody List<ResponseResource> handleFileUploadForAlti(@RequestParam(value="multipartFile", required=false) MultipartFile paramMultipartFile, HttpServletRequest request, HttpServletResponse response) throws BiffException
+    {
+    	List<ResponseResource> resp=new ArrayList<ResponseResource>();
+    	String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    	if(StringUtility.fileExtnCheck(paramMultipartFile.getOriginalFilename())){
+    		InputStream inputStream = null;
+    		try{
+    			inputStream = paramMultipartFile.getInputStream();
+    			LOG.info("EntitlementController | handleFileUploadForAlti | Uploaded FileName: "+paramMultipartFile.getOriginalFilename());
+    			resp=entService.updatecategoriesForFrance(inputStream, empId);
+    			return resp;
+    		}catch(IOException e){
+			   throw new IllegalArgumentException("exception ",e);   
+    		} finally {
+    			if(inputStream!=null) {
+    				try {
+						inputStream.close();
+					} catch (IOException e) {
+						LOG.error("EntitlementController | handleFileUploadForAlti | FINALLY | IOException:",e);
+					}
+    			}
+    		}
+    	}
+    	else{
+    		ResponseResource res1= new ResponseResource("");
+			res1.setCode("422");
+			FieldErrorResource errorRes1 = new FieldErrorResource();
+			errorRes1.setCode("422");
+			errorRes1.setMessage("Please upload file with .xls or .xlsx extension!!");
+			res1.setFieldErrors(errorRes1);
+			resp.add(res1);
+			return resp;
+    	}
+    }
+	
+	
+
+	@RequestMapping(value = "/finalSheet", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  generateCreditReport(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody String json)  throws WriteException  {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Map<String, String> returnMap=new HashMap<String, String>();
+		try{
+			returnMap=entService.exportFinalReport(loginId,json,response,singleAttribute);
+			return returnMap;
+		}catch(IOException e){
+			   throw new IllegalArgumentException("exception ",e);
+			   
+		}
+	}
+	
+	@RequestMapping(value = "/finalCategorySheet", method = RequestMethod.POST)
+	public @ResponseBody
+	Map<String, String>  generateCategoryReport(HttpServletRequest request,
+			HttpServletResponse response,@RequestBody String json)  throws WriteException  {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		Map<String, String> returnMap=new HashMap<String, String>();
+		try{
+			returnMap=entService.exportFRFinalReport(loginId,json,response,singleAttribute);
+			return returnMap;
+		}catch(IOException e){
+			   throw new IllegalArgumentException("exception ",e);
+			   
+		}
+	}
+	
+	@RequestMapping(value = "/downloadCreditReport", method = RequestMethod.GET)
+	public void downloadCreditReport(HttpServletRequest request,HttpServletResponse response)
+
+			throws IOException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("EntitlementController | downloadCreditReport |  action initiated ");
+		String fileName = request.getParameter("fileName");
+		LOG.info("EntitlementController | downloadCreditReport |  Filename "+fileName);
+		InputStream inputStream = null;
+		DataOutputStream outStream = null;
+		String pathName = singleAttribute.getLocation();
+		LOG.info("EntitlementController | downloadCreditReport |  Pathname "+pathName);
+		String pathNameWithFile = pathName + fileName;
+		File temporaryFile = ReportUtils.getCustomFilePath(pathNameWithFile);
+		inputStream = FileUtils.getFileInputStream(temporaryFile);
+		try {
+			HttpResponseUtils.exportToExcel(fileName, response);
+			LOG.info("EntitlementController | downloadCreditReport |  Report Utils done for Filename"+fileName);
+			outStream = new DataOutputStream(response.getOutputStream());
+			StreamUtils.writeOutputStream(inputStream, outStream);
+/*			while ((c = inputStream.read()) != -1) {
+				outStream.writeByte(c);
+			}*/
+		} catch (Exception e) {
+			LOG.error("EntitlementController | downloadCreditReport |Exception error in writeToFile ",e);
+		} finally {
+			try {
+				
+				if (null != inputStream) {
+					inputStream.close();
+				}
+				if (null != response) {
+					response.getOutputStream().close();
+				}
+				if (null != outStream) {
+					outStream.flush();
+					outStream.close();
+				}
+				if (null != temporaryFile){
+					String name = temporaryFile.getName();
+					boolean result = FileUtils.deleteFile(temporaryFile);
+					LOG.info("EntitlementController | downloadCreditReport | FINALLY | fileName:"+name+" | deleted:"+result+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+				}
+				inputStream = null;
+				outStream = null;
+			} catch (Exception e) {
+				LOG.error("EntitlementController | downloadCreditReport |Exception error in writeToFile ",e);
+			}
+		}
+		LOG.error("EntitlementController | downloadCreditReport | action terminated");
+	}
+}

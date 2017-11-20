@@ -1,0 +1,595 @@
+define(
+		[ 'angular', 'app', 'moment', 'timeZone', 'uibootstrap_upd', 'angularAnimate',
+				'bootstrap', 'LeaveCommonDirectives', 'LeaveServices',
+				'LeaveFilters', 'teamCalTest', 'displayMenu', 'jqueryui',
+				'utils' ],
+		function(angular, app, moment, jqueryui) {
+
+			app
+					.controller(
+							'TeamCalenderController',
+							[
+									'$scope',
+									'$rootScope',
+									'teamCalendar',
+									'$http',
+									'$q',
+									'$filter',
+									'levCommonServices',
+									'TeamCalendarDateSplit',
+									function($scope, $rootScope, teamCalendar,
+											$http, $q, $filter,
+											levCommonServices,
+											TeamCalendarDateSplit) {
+
+										$rootScope.processing = true;
+										var daysToAdd = 30;
+										var calendarService;
+										var calendarServiceURL = '/leaverest/rest/teamCalendar/tx?';
+										var exportExcelServiceURL = '/leaverest/rest/teamCalendar/report?';
+										var apprCommentServiceURL = '/leaverest/rest/teamCalendar/updatePlanned';
+										var changedApproverList = [];
+										var listToSave = [];
+
+										$scope.sysDate = new Date();
+										$scope.empCalendarData = null;
+										$scope.legendTitle = null;
+										$scope.colCountArr = [];
+										$scope.totalNoOfLeaves = 0;
+										$scope.dateArr = [];
+										$scope.searchEmpName = null;
+										$scope.searchEmpNo = null;
+										$scope.emp_data = null;
+										$scope.resultToExport = null;
+										$scope.approversList = null;
+										$scope.empAllYearCalView = [];
+										$scope.outputMesg = null;
+										$scope.balanceReport = null;
+										$scope.testDate = undefined;
+										$scope.startDate = moment().format("DD-MMM-YYYY");//new Date();
+										$scope.planLeaveComments = []; // added
+																		// for
+																		// plan
+																		// leave
+																		// comments
+																		// popup
+										$scope.planEmployeeNo = null;
+										$scope.planParentIndex = null;
+
+										// $scope.startDate =
+										// $filter('date')(new Date(),
+										// 'dd-MM-yyyy');
+										// [moment().format('DD-MMM-YYYY'),
+										// moment()._d.getTime()];
+
+										// var startDateCopy =
+										// $scope.startDate[1];
+										// //$scope.startDate.replace($scope.startDate.substring(3,6),
+										// levCommonServices.getMonthNumber($scope.startDate.substring(3,6)));;
+
+										$scope.popoverContent = "<div class='row' style='z-index:1;'>"
+												+ "<div class='col-md-12'>Associate Comments : </div>"
+												+ "<div class='col-md-12'>{{content.appliedDate}} : {{content.employeeComment === null || content.employeeComment === '' ? 'No associate comments' : content.reasonForLeave}}</div>"
+												+ "<div class='col-md-12'>Previous Comments : </div>"
+												+ "<div class='col-md-12'>{{content.approvalDate}} : {{content.approvalComments === null || content.approvalComments === '' ? 'No approver comments' : content.approvalComments}}</div>"
+												+ "<div class='col-md-12'>Approver Comments : </div> "
+												+ "<div class='col-md-12'>{{sysDate | date:\"dd-MMM-yyyy\"}} : <input type='text' style='width:100%;' ng-model='content.apprComments' placeholder='please enter comments...'/></div>"
+												+ "<div float='right' class='popoverSaveBtnDiv'><input type='submit' class='btn btn-primary popoverSaveBtn' ng-click='saveApproverComments(content,emp_data.employeeNo,$parent.$index)' value='Save'/></div></div>"
+												+ "<div class='row' style='z-index:1;' ng-if='content.event !== \"P\"'><span>{{content.eventDescription=='' ||content.eventDescription== null ?'Working Day':content.eventDescription}}</span></div>";
+
+										/* Color codes */
+										$scope.colors = [ {
+											id : 'H',
+											color : '#46dbc6;'
+										}, {
+											id : 'P',
+											color : '#f0c000'
+										}, {
+											id : 'AL',
+											color : '#8cb61d'
+										}, {
+											id : 'W',
+											color : '#9EA9B5' /*#2e8bef*/
+										}, {
+											id : 'F',
+											color : '#5435ae'
+										}, {
+											id : 'L',
+											color : '#f37735'
+										} ];
+
+										calendarService = $http
+												.post(calendarServiceURL
+														+ 'startDate='
+														+ $scope.startDate);
+
+										/*
+										 * approverService = $http
+										 * .post(approverServiceURL +
+										 * 'startDate=' + new Date().getTime() +
+										 * "&endDate=" + teamCalendar.addDays(
+										 * new Date(), 30) .getTime());
+										 */
+
+										function handleCalendarInitialization() {
+											TeamCalendarDateSplit.startDate = moment(
+													$scope.startDate,
+													"DD-MMM-YYYY")._d.getTime();
+											TeamCalendarDateSplit.endDate = moment(
+													$scope.startDate, "DD-MMM-YYYY")
+													.add(daysToAdd, "days")._d
+													.getTime();
+											TeamCalendarDateSplit.initialize();
+										}
+
+										handleCalendarInitialization();
+										/*$scope.startDate = $filter('date')
+												($scope.startDate,
+														'dd-MMM-yyyy');*/
+
+										$q
+												.all([ calendarService ])
+												.then(
+														function(result) {
+															$rootScope.processing = false;
+															var tmpAdd = [];
+															angular
+																	.forEach(
+																			result,
+																			function(
+																					response) {
+																				tmpAdd
+																						.push(response.data);
+																			});
+															$scope.empCalendarData = tmpAdd[0];
+															var len = $scope.empCalendarData.length;
+															for ( var i = 0; i < len; i++) {
+																var calendarDetails = $scope.empCalendarData[i].calendarDetails;
+																$scope.empCalendarData[i].calendarDetails = TeamCalendarDateSplit
+																		.setData(calendarDetails);
+															}
+
+															$scope.resultToExport = tmpAdd[0];
+															$scope.emp_data = angular
+																	.copy(tmpAdd[0]);
+															handleResponse(
+																	$scope.empCalendarData,
+																	teamCalendar);
+														});
+
+										$scope.getCalendarFromStartDate = function() {
+											$rootScope.processing = true;
+											/*
+											 * var parsedDate = Date
+											 * .parse($scope.startDate);
+											 */
+
+											/*
+											 * $scope.startDate[1] =
+											 * moment($scope.startDate[0])._d.getTime();
+											 */
+										
+											handleCalendarInitialization();
+
+											$http
+													.post(
+															calendarServiceURL
+																	+ 'startDate='
+																	+ $scope.startDate)
+													.success(
+															function(data) {
+																$rootScope.processing = false;
+
+																$scope.empCalendarData = data;
+
+																var len = $scope.empCalendarData.length;
+																for ( var i = 0; i < len; i++) {
+																	var calendarDetails = $scope.empCalendarData[i].calendarDetails;
+																	$scope.empCalendarData[i].calendarDetails = TeamCalendarDateSplit
+																			.setData(calendarDetails);
+																}
+
+																$scope.resultToExport = data;
+																$scope.emp_data = angular
+																		.copy($scope.data);
+																handleResponse(
+																		$scope.empCalendarData,
+																		teamCalendar);
+
+															})
+													.error(
+															function(data) {
+																
+															});
+
+											/*$scope.startDate = $filter('date')(
+													$scope.startDate,
+													'dd-MMM-yyyy');*/
+										};
+
+										$scope.setBoxColor = function(obj) {
+											return teamCalendar.setBoxColor(
+													obj, $scope.colors);
+										};
+
+										$scope.setPlanLeave = function(obj){
+											return teamCalendar.setPlanLeave(
+													obj);
+										};
+										
+										$scope.fetchTotalRowCal = function(
+												calendarDetailsArray) {
+											return teamCalendar
+													.fetchTotalRowCal(calendarDetailsArray);
+										};
+
+										function handleTimeOut() {
+											$('.dateRanger')
+													.height(
+															$('.empNameTitle')
+																	.height());
+											$('.totalRow')
+													.height(
+															$('.empNameTitle')
+																	.height());
+											$('.rowCompleteTotal').width(
+													$('.totalRow').width());
+										}
+
+										function handleResponse(data) {
+											teamCalendar
+													.callTeamCalService(data);
+											$scope.legendTitle = teamCalendar.legendTitle;
+											$scope.colCountArr = teamCalendar.colCountArr;
+											$scope.dateArr = teamCalendar.dateArr;
+											$scope.totalNoOfLeaves = teamCalendar.totalNoOfLeaves;
+
+											window.setTimeout(function() {
+												// handleTimeOut();
+											}, 1000); /*
+														 * adjust this timeout
+														 * of milliseconds
+														 */
+
+										}
+
+										$scope.exportToExcel = function() {
+
+										
+											window
+													.open(
+															exportExcelServiceURL
+																	+ "startDate="
+																	+ $scope.startDate,
+															'_blank');
+										};
+
+										$scope.setDefaultValueAppr = function(
+												empDTO, flag) {
+											for (val in empDTO) {
+												if (flag === 1) {
+													if (empDTO[val].active) {
+														return empDTO[val];
+													}
+												} else if (flag === 0) {
+													if (!empDTO[val].active) {
+														return empDTO[val];
+													}
+												}
+											}
+										};
+
+										$scope.changeApprover = function(
+												empData, currentApprover, index) {
+
+											if (changedApproverList !== null
+													&& changedApproverList !== undefined) {
+												if (changedApproverList
+														.indexOf(index) === -1) {
+													changedApproverList
+															.push(index);
+												} else {
+													teamCalendar
+															.removeElement(
+																	changedApproverList,
+																	index);
+												}
+											} else {
+												changedApproverList.push(index);
+											}
+										};
+
+										$scope.saveChangedApprovers = function() {
+
+											if (changedApproverList.length > 0) {
+												$rootScope.processing = true;
+												$scope.outputMesg = null;
+												for ( var val = 0; val < changedApproverList.length; val++) {
+													var temp = $scope
+															.setDefaultValueAppr(
+																	$scope.empCalendarData[changedApproverList[val]].miscellaneous.employeeDTO,
+																	0);
+													var index = changedApproverList[val];
+													listToSave
+															.push({
+																employeeNo : $scope.empCalendarData[index].employeeNo,
+																supervisorNo : temp.employeeNo,
+																employeeType : temp.employeeType,
+																personId : index
+															});
+												}
+												
+												$http
+														.post(
+																'/leaverest/rest/teamCalendar/approvalChange',
+																listToSave)
+														.success(
+																function(data) {
+
+																	changeApproverStatus(listToSave);
+																	changedApproverList = [];
+																	listToSave = [];
+																	$scope.outputMesg = data.uniqueId;
+																	$(
+																			"#messageModal")
+																			.modal(
+																					'show');
+																	$rootScope.processing = false;
+																})
+														.error(
+																function(data) {
+																	$rootScope.processing = false;
+																	changedApproverList = [];
+																	listToSave = [];
+																	$scope.outputMesg = "Error in updating supervisor details!";
+																	$(
+																			"#messageModal")
+																			.modal(
+																					'show');
+																});
+											} else {
+												$rootScope.processing = false;
+												$scope.outputMesg = "Please update approver for at least one employee!";
+												$("#messageModal")
+														.modal('show');
+											}
+										};
+
+										function changeApproverStatus(
+												listToSave) {
+											var empNo = 0;
+											var index = -1;
+											for ( var i = 0; i < listToSave.length; i++) {
+												empNo = listToSave[i].supervisorNo;
+												index = listToSave[i].personId;
+												var employeeDTO = $scope.empCalendarData[index].miscellaneous.employeeDTO;
+												for ( var j = 0; j < employeeDTO.length; j++) {
+													if (employeeDTO[j].employeeNo === empNo) {
+														employeeDTO[j]['active'] = true;
+													} else {
+														employeeDTO[j]['active'] = false;
+													}
+												}
+											}
+										}
+										;
+
+										$scope.buildYearlyView = function(
+												empNo, empName) {
+											$scope.empNo = empNo;
+											$scope.empName = empName;
+											$rootScope.processing = true;
+											$scope.months = [];
+											$scope.empAllYearCalView = [];
+											var curYear = new Date()
+													.getFullYear();
+											var myCalenderDetails = $http
+													.post('/leaverest/rest/getEmployeeLevDetails?employeeId='
+															+ empNo);
+											var empLeaveBalanceReport = $http
+													.get('/leaverest/rest/getEmpLevBalReport?employeeNo='
+															+ empNo);
+											$q
+													.all(
+															[
+																	myCalenderDetails,
+																	empLeaveBalanceReport ])
+													.then(
+															function(result) {
+																var tmp = [];
+																angular
+																		.forEach(
+																				result,
+																				function(
+																						response) {
+																					tmp
+																							.push(response.data);
+																				});
+																var yearlist = tmp[0];
+																/*
+																 * console.log("Year
+																 * List :
+																 * "+JSON.stringify(yearlist));
+																 */
+
+																var levBalanceSheet = tmp[1];
+																var hostLeaveDetails = levBalanceSheet.EmployeeHostBalanceDetails;
+
+																$scope.balanceReport = hostLeaveDetails.length > 0 ? hostLeaveDetails
+																		: levBalanceSheet.EmployeeHomeBalanceDetails;
+
+																var calYearKeys = Object
+																		.keys(yearlist);
+																calYearKeys
+																		.sort();
+																for ( var index = 0; index < 3; index++) {
+																	$scope.months = [];
+																	var lookupValuesList=yearlist[calYearKeys[index]];
+																	angular.forEach(lookupValuesList, function (option, key){
+																		lookupValuesList[key].sd=teamCalendar.convertMilliToISTMilli(lookupValuesList[key].sd);
+																 		 if(!(0==lookupValuesList[key].ed))
+																 			lookupValuesList[key].ed=teamCalendar.convertMilliToISTMilli(lookupValuesList[key].ed);
+
+																	});
+																	for ( var i = 0; i < 12; i++) {
+																		$scope.currentDate = moment([ calYearKeys[index] ]);
+																		teamCalendar
+																				._buildMonth(
+																						$scope.currentDate
+																								.month(
+																										i)
+																								.date(
+																										1)
+																								.day(
+																										0)
+																								.hour(
+																										0)
+																								.minute(
+																										0)
+																								.second(
+																										0)
+																								.millisecond(
+																										0),
+																						moment()
+																								.month(
+																										i),
+																										lookupValuesList);
+																		$scope.months
+																				.push({
+																					monthName : $scope.currentDate
+																							.month(
+																									i)
+																							.format(
+																									'MMMM'),
+																					weeks : teamCalendar.weeks
+																				});
+																	}
+
+																	$scope.empAllYearCalView
+																			.push({
+																				year : calYearKeys[index],
+																				calData : $scope.months,
+																				isActive : parseInt(calYearKeys[index]) === curYear ? true
+																						: false
+																			});
+																}
+
+																/*
+																 * console.log("12
+																 * -months
+																 * calendar view :
+																 * "+JSON.stringify($scope.empAllYearCalView));
+																 */
+																$rootScope
+																		.pagination(
+																				$scope.empAllYearCalView,
+																				1,
+																				'paginationSelect',
+																				1);
+																$(
+																		"#yearViewModal")
+																		.modal(
+																				'show');
+
+																$rootScope.processing = false;
+															});
+
+										};
+
+										$scope.saveApproverComments = function(
+												obj, cancelComments) {
+											var employeeNo, parentIndex;
+											employeeNo = $scope.planEmployeeNo;
+											parentIndex = $scope.planParentIndex;
+											$('#planLeaveModal').modal('hide');
+
+											$rootScope.processing = true;
+
+											$http
+													.post(
+															apprCommentServiceURL,
+															{
+																'approvalComment' : cancelComments,
+																'employeeNo' : employeeNo,
+																'approvalDate' : moment(obj.dateTime).format("DD-MMM-YYYY")
+															})
+													.success(
+															function(data) {
+																$("#commentsBox").val("");
+																$rootScope.processing = false;
+																$scope.outputMesg = data.message;
+																$(
+																		"#messageModal")
+																		.modal(
+																				'show');
+																
+																$http
+																		.post(
+																				calendarServiceURL
+																						+ 'startDate='
+																						+ $scope.startDate
+																						+ '&employeeId='
+																						+ employeeNo)
+																		.success(
+																				function(
+																						innerData) {
+
+																					handleCalendarInitialization();
+																					var calendarDetails = innerData[0].calendarDetails;
+																					innerData[0].calendarDetails = TeamCalendarDateSplit
+																							.setData(calendarDetails);
+																					$scope.empCalendarData[parentIndex] = innerData[0];
+																				})
+																		.error(
+																				function(
+																						innerData) {
+
+																				});
+																/*$scope.startDate = $filter(
+																		'date')
+																		(
+																				$scope.startDate,
+																				'dd-MMM-yyyy');*/
+
+															}).error(
+															function(data) {
+															});
+										};
+
+										$scope.showAction = function(content,
+												employeeNo, parentIndex, index) {
+											$scope.planLeaveComments = [];
+											$scope.planEmployeeNo = employeeNo;
+											$scope.planParentIndex = parentIndex;
+											$scope.planLeaveComments
+													.push(content);
+
+											if (content.event.toLowerCase() === 'p') {
+												$("#planLeaveModal").modal(
+														'show');
+											}
+										};
+
+										$scope.setToolTipContent = function(
+												content) {
+											if (content.event === 'W'
+													|| content.event === 'H') {
+												return content.eventDescription;
+											} else if (content.event === 'P') {
+												return "Please click here to enter comments";
+											} else {
+												return content.reasonForLeave;
+											}
+										};
+										
+										$scope.calculateDynHeight = function(obj){
+											var height = screen.height*0.3059;
+											return {'height' : height};
+										};
+										
+										function formatStartDateAsMoment(date){
+											return moment(date).format("DD-MMM-YYYY");
+										}
+
+									} ]);
+		});

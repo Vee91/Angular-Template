@@ -1,0 +1,172 @@
+.Responsibilities, .title, .Travel, .average-star, .Benefits_and_Taxes, .Claims_and_Advances, .default-star, .Employee_Perks, .excellent-star, .Leave, .My_Profile, .My_Request_Lists, .poor-star, .Reports, .Travel_hover, .anchor-hover, .Benefits_and_Taxes_hover, .Claims_and_Advances_hover, .Employee_Perks_hover, .icon-megamenu, .Leave_hover, .My_Profile_hover, .My_Request_Lists_hover, .Reports_hover, .Responsibilities_hover, .icon-landing-page, .Icon-home, .search{
+	background: url(sprites.png) no-repeat;
+}
+
+.Responsibilities{
+	background-position: -47px -76px ;
+	width: 33px;
+	height: 33px;
+}
+
+.title{
+	background-position: -229px -5px ;
+	width: 32px;
+	height: 32px;
+}
+
+.Travel{
+	background-position: -160px -80px ;
+	width: 33px;
+	height: 33px;
+}
+
+.average-star{
+	background-position: -264px -6px ;
+	width: 22px;
+	height: 22px;
+}
+
+.Benefits_and_Taxes{
+	background-position: -121px -82px ;
+	width: 33px;
+	height: 33px;
+}
+
+.Claims_and_Advances{
+	background-position: -194px -5px ;
+	width: 33px;
+	height: 33px;
+}
+
+.default-star{
+	background-position: -260px -34px ;
+	width: 22px;
+	height: 22px;
+}
+
+.Employee_Perks{
+	background-position: -156px -5px ;
+	width: 33px;
+	height: 33px;
+}
+
+.excellent-star{
+	background-position: -231px -41px ;
+	width: 22px;
+	height: 22px;
+}
+
+.Leave{
+	background-position: -119px -5px ;
+	width: 33px;
+	height: 33px;
+}
+
+.My_Profile{
+	background-position: -81px -4px ;
+	width: 33px;
+	height: 33px;
+}
+
+.My_Request_Lists{
+	background-position: -43px -2px ;
+	width: 33px;
+	height: 33px;
+}
+
+.poor-star{
+	background-position: -233px -68px ;
+	width: 22px;
+	height: 22px;
+}
+
+.Reports{
+	background-position: -6px -3px ;
+	width: 33px;
+	height: 33px;
+}
+
+.Travel_hover{
+	background-position: -196px -80px ;
+	width: 33px;
+	height: 33px;
+}
+
+.anchor-hover{
+	background-position: -271px -98px ;
+	width: 5px;
+	height: 7px;
+}
+
+.Benefits_and_Taxes_hover{
+	background-position: -84px -78px ;
+	width: 33px;
+	height: 33px;
+}
+
+.Claims_and_Advances_hover{
+	background-position: -195px -42px ;
+	width: 33px;
+	height: 33px;
+}
+
+.Employee_Perks_hover{
+	background-position: -159px -41px ;
+	width: 33px;
+	height: 33px;
+}
+
+.icon-megamenu{
+	background-position: -273px -84px ;
+	width: 5px;
+	height: 7px;
+}
+
+.Leave_hover{
+	background-position: -120px -44px ;
+	width: 33px;
+	height: 33px;
+}
+
+.My_Profile_hover{
+	background-position: -83px -41px ;
+	width: 33px;
+	height: 33px;
+}
+
+.My_Request_Lists_hover{
+	background-position: -45px -40px ;
+	width: 33px;
+	height: 33px;
+}
+
+.Reports_hover{
+	background-position: -7px -39px ;
+	width: 33px;
+	height: 33px;
+}
+
+.Responsibilities_hover{
+	background-position: -8px -75px ;
+	width: 33px;
+	height: 33px;
+}
+
+.icon-landing-page{
+	background-position: -262px -82px ;
+	width: 6px;
+	height: 10px;
+}
+
+.Icon-home{
+	background-position: -262px -62px ;
+	width: 13px;
+	height: 11px;
+}
+
+.search{
+	background-position: -233px -96px ;
+	width: 18px;
+	height: 17px;
+}
+

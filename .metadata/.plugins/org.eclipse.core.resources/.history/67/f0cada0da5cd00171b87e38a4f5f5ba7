@@ -1,0 +1,38 @@
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+	<deployment>
+		<dependencies>
+			<module name="com.ultimatix.gess.jars"  export="true">
+				<imports>
+					<include path="META-INF**" />
+					<include path="org**" />
+					<include path="com**" />
+					<include path="*" />
+				</imports>
+				<exports>
+					<include path="META-INF**" />
+					<include path="org**" />
+					<include path="com**" />
+					<include path="*" />
+				</exports>
+			</module>
+			
+			<module name="com.oracle.jdbc" export="true" />
+			<module name="com.plagiarism.jars.ast" export="true">
+				<imports>
+					<include path="META-INF**" />
+					<include path="org**" />
+					<include path="com**" />
+					<include path="*" />
+				</imports>
+				<exports>
+					<include path="META-INF**" />
+					<include path="org**" />
+					<include path="com**" />
+					<include path="*" />
+				</exports>
+			</module> 
+			
+		</dependencies>
+		<local-last value="true"/>
+	</deployment>
+</jboss-deployment-structure> 

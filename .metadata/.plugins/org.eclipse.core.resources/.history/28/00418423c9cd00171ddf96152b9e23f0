@@ -1,0 +1,309 @@
+@font-face {
+	font-family: 'Gess-Claims-Icons';
+	src:url('../../fonts/Gess-Claims-Icons.eot?r0xhyt');
+	src:url('../../fonts/Gess-Claims-Icons.eot?r0xhyt#iefix') format('embedded-opentype'),
+		url('../../fonts/Gess-Claims-Icons.ttf?r0xhyt') format('truetype'),
+		url('../../fonts/Gess-Claims-Icons.woff?r0xhyt') format('woff'),
+		url('../../fonts/Gess-Claims-Icons.svg?r0xhyt#Gess-Claims-Icons') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+[class^="clm-icon-"], [class*=" clm-icon-"] {
+    /* use !important to prevent issues with browser extensions that change fonts */
+    font-family: 'Gess-Claims-Icons' !important;
+    speak: none;
+    font-style: normal;
+    font-weight: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+
+    /* Better Font Rendering =========== */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.clm-icon-Income:before {
+    content: "\e900";
+}
+.clm-icon-Investments:before {
+    content: "\e901";
+}
+.clm-icon-TRLP:before {
+    content: "\e902";
+}
+.clm-icon-bill-gallery:before {
+    content: "\e903";
+}
+.clm-icon-browse:before {
+    content: "\e904";
+}
+.clm-icon-go-to-bill-gallery:before {
+    content: "\e905";
+}
+.clm-icon-no-attachment:before {
+    content: "\e906";
+}
+.clm-icon-notifications:before {
+    content: "\e907";
+}
+.clm-icon-other-Claims:before {
+    content: "\e908";
+}
+.clm-icon-select-claimhead:before {
+    content: "\e909";
+}
+.clm-icon-travel-Claims:before {
+    content: "\e90a";
+}
+.clm-icon-travel-without-req1:before {
+    content: "\e90b";
+}
+.clm-icon-travel-with-request1:before {
+    content: "\e90c";
+}
+.clm-icon-travel-with-request2:before {
+    content: "\e90d";
+}
+.clm-icon-accomodation:before {
+    content: "\e90e";
+}
+.clm-icon-add-employee:before {
+    content: "\e90f";
+}
+.clm-icon-airport-transfer:before {
+    content: "\e910";
+}
+.clm-icon-business-meeting-expense:before {
+    content: "\e911";
+}
+.clm-icon-car-expense:before {
+    content: "\e912";
+}
+.clm-icon-certification:before {
+    content: "\e913";
+}
+.clm-icon-client-entertainment:before {
+    content: "\e914";
+}
+.clm-icon-communication-expense:before {
+    content: "\e915";
+}
+.clm-icon-housing:before {
+    content: "\e916";
+}
+.clm-icon-late-working-hours:before {
+    content: "\e917";
+}
+.clm-icon-local-conveyance:before {
+    content: "\e918";
+}
+.clm-icon-meals:before {
+    content: "\e919";
+}
+.clm-icon-mileage:before {
+    content: "\e91a";
+}
+.clm-icon-mobile-data:before {
+    content: "\e91b";
+}
+.clm-icon-nightshift:before {
+    content: "\e91c";
+}
+.clm-icon-office-exp:before {
+    content: "\e91d";
+}
+.clm-icon-others:before {
+    content: "\e91e";
+}
+.clm-icon-proff-membership:before {
+    content: "\e91f";
+}
+.clm-icon-relocation:before {
+    content: "\e920";
+}
+.clm-icon-schooling:before {
+    content: "\e921";
+}
+.clm-icon-staff-welfare:before {
+    content: "\e922";
+}
+.clm-icon-taining-and-conferences:before {
+    content: "\e923";
+}
+.clm-icon-travel-conveyance:before {
+    content: "\e924";
+}
+.clm-icon-travel-tickets:before {
+    content: "\e925";
+}
+.clm-icon-visa-passport:before {
+    content: "\e926";
+}
+.clm-icon-approve:before {
+    content: "\e927";
+}
+.clm-icon-approved-by-hr:before {
+    content: "\e928";
+}
+.clm-icon-approved-by-hr-selected:before {
+    content: "\e929";
+}
+.clm-icon-approve-selected:before {
+    content: "\e92a";
+}
+.clm-icon-attention:before {
+    content: "\e92b";
+}
+.clm-icon-attention-selected:before {
+    content: "\e92c";
+}
+.clm-icon-notifications2:before {
+    content: "\e92d";
+}
+.clm-icon-reject:before {
+    content: "\e92e";
+}
+.clm-icon-reject-selected:before {
+    content: "\e92f";
+}
+.clm-icon-seek-clarification:before {
+    content: "\e930";
+}
+.clm-icon-seek-clarification-selected:before {
+    content: "\e931";
+}
+.clm-icon-add-attachment:before {
+    content: "\e932";
+}
+.clm-icon-add-row:before {
+    content: "\e933";
+}
+.clm-icon-approve-all:before {
+    content: "\e934";
+}
+.clm-icon-archive:before {
+    content: "\e935";
+}
+.clm-icon-back .path1:before {
+    content: "\e936";
+    color: rgb(0, 0, 0);
+}
+.clm-icon-back .path2:before {
+    content: "\e937";
+    margin-left: -1em;
+    color: rgba(0, 0, 0, 0.4);
+}
+.clm-icon-cancel:before {
+    content: "\e938";
+}
+.clm-icon-clear-flagging:before {
+    content: "\e939";
+}
+.clm-icon-collapse-all:before {
+    content: "\e93a";
+}
+.clm-icon-compare:before {
+    content: "\e93b";
+}
+.clm-icon-delete:before {
+    content: "\e93c";
+}
+.clm-icon-edit:before {
+    content: "\e93d";
+}
+.clm-icon-enlarge-image:before {
+    content: "\e93e";
+}
+.clm-icon-excel:before {
+    content: "\e93f";
+}
+.clm-icon-excel-download:before {
+    content: "\e940";
+}
+.clm-icon-excel-upload:before {
+    content: "\e941";
+}
+.clm-icon-expand-all:before {
+    content: "\e942";
+}
+.clm-icon-Flag:before {
+    content: "\e943";
+}
+.clm-icon-Flag_LERF:before {
+    content: "\e944";
+}
+.clm-icon-hide:before {
+    content: "\e945";
+}
+.clm-icon-info:before {
+    content: "\e946";
+}
+.clm-icon-info-on-click:before {
+    content: "\e947";
+}
+.clm-icon-print:before {
+    content: "\e948";
+}
+.clm-icon-reassigncopy:before {
+    content: "\e949";
+}
+.clm-icon-reject-all:before {
+    content: "\e94a";
+}
+.clm-icon-reset-selection:before {
+    content: "\e94b";
+}
+.clm-icon-save:before {
+    content: "\e94c";
+}
+.clm-icon-search:before {
+    content: "\e94d";
+}
+.clm-icon-select-all:before {
+    content: "\e94e";
+}
+.clm-icon-select-all-selected:before {
+    content: "\e94f";
+}
+.clm-icon-show:before {
+    content: "\e950";
+}
+.clm-icon-unarchive:before {
+    content: "\e951";
+}
+.clm-icon-up-down-arow:before {
+    content: "\e952";
+}
+.clm-icon-zoom-in:before {
+    content: "\e953";
+}
+.clm-icon-zoom-out:before {
+    content: "\e954";
+}
+.clm-icon-calendar:before {
+    content: "\e955";
+}
+.clm-icon-dummy-image:before {
+    content: "\e956";
+}
+.clm-icon-error-failure:before {
+    content: "\e957";
+}
+.clm-icon-filter:before {
+    content: "\e958";
+}
+.clm-icon-form:before {
+    content: "\e959";
+}
+.clm-icon-note-2:before {
+    content: "\e95a";
+}
+.clm-icon-sort:before {
+    content: "\e95b";
+}
+.clm-icon-success:before {
+    content: "\e95c";
+}
+

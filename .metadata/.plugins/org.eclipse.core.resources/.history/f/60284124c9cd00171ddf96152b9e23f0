@@ -1,0 +1,429 @@
+
+<link href="appResources/css/clm-icons.css" rel="stylesheet" />
+<link href="appResources/css/leaveReqList.css" rel="stylesheet"
+	type="text/css" />
+
+<style>
+th {
+	text-align: center;
+}
+
+td {
+	text-align: center;
+}
+.radioMod input[type='radio'] {
+  	margin: 0px;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 1px solid darkgray;
+    border-radius: 60%;
+    outline: none;
+    box-shadow: 0 0 3px 0px #428bca inset;
+}
+.radioMod input[type='radio']:hover {
+    box-shadow:0 0 5px 0px #428bca inset;
+    cursor:pointer;
+}
+.radioMod input[type='radio']:before {
+   content: '';
+    display: block;
+    width: 60%;
+    height: 60%;
+    margin: 17% 19% 5% 20%;
+    border-radius: 48%;   
+}
+.radioMod input[type='radio']:checked:after {
+    background: #428bca;
+}
+
+
+</style>
+<div ng-controller="cmnLerfReqDtlsCtrl">
+
+
+	<div class="col-lg-12" style="padding-left: 0px">
+
+		<div class="row">
+			<div class="col-lg-12" style="padding-top: 10px; padding-left: 0px;">
+				<span class="pageTitle">{{pageName}}</span>
+			</div>
+		</div>
+		
+		<div class="alert errorDiv" ng-show="isErrorMsg">
+				<span>{{errorMsg}}</span>
+		</div>
+
+
+		<!-- div by viji -->
+		<div class="container-fluid  row"
+			style="margin-left: 0px; margin-right: 0px; padding: 0px;">
+			<div class="row">
+
+				<div class="col-md-12 col-xs-12 row subRequestDtlsClass " style="background-color: #F5F8FD;">
+					<div class="col-md-12 col-lg-12"
+						style="margin-top: 6px; margin-bottom: 6px;">
+						<div class="col-lg-3 col-xs-5 topPanelUserDetails">
+							<label class="titleFont">Raised By</label><br> <span
+								class="contentFont">{{lerfObj.lerfData.raisedBy | capitalize}}</span>
+						</div>
+						<div class="col-lg-3 col-xs-4 topPanelUserDetails">
+							<label class="titleFont">LERF Request No</label><br> <span
+								class="contentFont">{{lerfObj.lerfReqNo}}</span>
+						</div>
+
+						<div class="col-lg-3 col-xs-6 topPanelUserDetails"
+							style="word-wrap: break-word;">
+							<label class="titleFont">Address</label><br> <span
+								class="contentFont">{{lerfObj.lerfData.address}}</span>
+						</div>
+
+						<div class="col-lg-3 col-xs-6 topPanelUserDetails">
+							<label class="titleFont">Contact Number</label><br> <span
+								class="contentFont">{{lerfObj.lerfData.contact}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+	</div>
+	<div class="col-lg-12 col-xs-12"
+		style="padding-left: 0px; margin-bottom: 5px;">
+		<div class="container-fluid  containerBox row"
+			style="margin-left: 0px; margin-right: 0px; padding: 0px; margin-top: 15px;">
+
+			<div class="reqDetails" style="border:0px;">
+	
+					<div class="row requestBar" style="border-bottom: 1px solid #ccc;">
+							<div class="col-lg-12 col-xs-12 whiteBarReqDetails"
+								data-toggle="collapse" data-aria-expanded="false"
+								style="cursor: pointer; padding-left: 0px;"
+								id="whitebar{{$index}}"
+								ng-mouseenter="$emit('setDivHoverStyle', $index, 'whitebar','enter')"
+								ng-mouseleave="$emit('setDivHoverStyle', $index, 'whitebar','leave')">
+								<div
+							   
+							    class="col-lg-1 col-xs-2 orangeBar">
+						        <span > <img src="appResources/img/levReqDtlBar_icon.png"> </span>
+					        	</div>
+								<div class="col-lg-9 col-xs-5" id="headClass{{$index}}"
+									style="text-align: left; min-height: 30px; margin-top: 10px;"
+									verticalalign>
+									<span class="leaveHeadClass">LERF Details</span>
+								</div>
+								<div class="col-lg-2 col-xs-5"
+							style="margin-bottom: 0px; padding-left: 20px; min-height: 30px; height: 30px; float: right;"
+							verticalalign>
+							<label style="font-size: 12px; padding-top: 5px;"></label>
+
+						</div>
+							</div>
+						</div>
+				</div>
+
+				<!-- Phase 1 -->
+				<!-- collapse -->
+				<div class=" in" id="subRequestDetails{{$index}}"
+					style="height: auto;">
+					<div class="row">
+						<div class=" subRequestDtlsClass addFields" style="border:0px;border-bottom: 1px solid #ccc;padding-bottom: 10px;">
+							<div class="row">
+								<div class="col-lg-4 col-xs-4" >
+									<label class="titleFont">Reporting Date</label><br> <span
+										class="contentFont">{{lerfObj.lerfData.LERFDetails.reportDate
+										| date : 'dd-MMM-yyyy'}}</span>
+								</div>
+								<div class="col-lg-4 col-xs-4">
+									<!-- style="padding-left: 3%;" -->
+									<label class="titleFont">Reporting Leave(s) Start Date</label><br>
+									<span class="contentFont">{{lerfObj.lerfData.LERFDetails.lerfStartDate
+										| date : 'dd-MMM-yyyy'}}</span>
+								</div>
+
+								<div class="col-lg-4 col-xs-4">
+									<label class="titleFont">Reporting Leave(s) End Date</label><br>
+									<span class="contentFont">{{lerfObj.lerfData.LERFDetails.lerfEndDate
+										| date : 'dd-MMM-yyyy'}}</span>
+								</div>
+
+
+							</div>
+						</div>
+
+						<div class="subRequestDtlsClass addFields" style="border:0px;">
+							<div class="row">
+								<div style="background-color: #fff; padding: 1%;">
+
+									<span class="titleFont"
+										style="float: left; font-weight: bold; padding-bottom: 5px;">LERF
+										applied for the following leave Requests</span>
+									<table class="table table-bordered" style="margin-bottom: 0">
+										<thead>
+											<tr class="titleFont">
+												<th></th>
+												<th>Request Number</th>
+												<th>Leave Type</th>
+												<th>Start Date</th>
+												<th>Duration</th>
+												<th>End Date</th>
+												<th>Duration</th>
+												<th>No of Days</th>
+												<th>Additional Fields</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											<tr
+												data-ng-repeat="lerfData in lerfObj.lerfData.LERFDetails.lerfLeaveDTO"
+												class="contentFont">
+												<td><input  type="radio" name="selectReq" ng-model="lerfObj.selctedReq" ng-value="lerfData.requestNo" basic-tracker reset-tracker ng-click="getWorkFlowdtls(lerfData.requestNo,lerfData.parentReqNo);"></td>
+												<td>{{lerfData.requestNo}}</td>
+												<td>{{lerfData.leaveType}}</td>
+												<td>{{lerfData.fromDate | date:'dd-MMM-yyyy'}}</td>
+												<td>{{lerfData.startDateDuration}}</td>
+												<td>{{lerfData.toDate | date:'dd-MMM-yyyy'}}</td>
+												<td>{{lerfData.endDateDuration}}</td>
+												<td>{{lerfData.noOfDays}}</td>
+												<td>{{lerfData.reason}}</td>
+											<tr>
+										</tbody>
+									</table>
+
+
+								</div>
+								<div ng-if="i94DtlsAvailable">
+									<span class="titleFont" style="float: left;margin-left: 10px;margin-left: 10px;font-weight: bold;padding-bottom: 5px;">I94 Details</span>
+									<div class="col-md-12" style="padding-bottom: 10px;">
+										<div class="col-md-2" >
+											<div class="titleFont" style="font-weight: bold;">Travel Date</div>
+											<div class="contentFont">{{lerfObj.lerfData.LERFDetails.i94TravelDate}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="titleFont" style="font-weight: bold;">I94 Number</div>
+											<div class="contentFont">{{lerfObj.lerfData.LERFDetails.i94Number}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="titleFont" style="font-weight: bold;">Issue Date</div>
+											<div class="contentFont">{{lerfObj.lerfData.LERFDetails.i94issueDate}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="titleFont" style="font-weight: bold;">Expiry Date</div>
+											<div class="contentFont">{{lerfObj.lerfData.LERFDetails.i94ExpiryDate}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="titleFont" style="font-weight: bold;">Visa Type</div>
+											<div class="contentFont">{{lerfObj.lerfData.LERFDetails.visaType}}</div>
+										</div>
+									</div>
+
+								</div>
+
+								<div ng-if="lerfObj.lerfData.LERFDetails.oldEndDate !== null && lerfObj.lerfData.LERFDetails.oldNoOfDays > 0">
+									<span class="titleFont" style="float: left;margin-left: 10px;font-weight: bold;color: #286090;">The end
+										date of leave request number
+										'{{lerfObj.lerfData.LERFDetails.levReqNo}}' has been changed
+										from '{{lerfObj.lerfData.LERFDetails.oldEndDate | date : 'dd-MMM-yyyy'}}' to '{{lerfObj.lerfData.LERFDetails.levEndDate | date : 'dd-MMM-yyyy'}}'.The leave duration has been
+										changed from {{lerfObj.lerfData.LERFDetails.oldNoOfDays}} days to {{lerfObj.lerfData.LERFDetails.noOfDays}} days.</span>
+										<br/>
+										<span class="titleFont" style="float: left;margin-left: 10px;font-weight: bold;color: #286090;">Please Note: Incase of early reporting balances will be reverted on LERF Approval.</span>
+								</div>
+								
+								<div class="row">
+									<div class="col-lg-12 col-xs-12"
+										style="margin-bottom: 10px; padding-left: 0px; padding-right: 0px;">
+										<div class="tab-content trackerBarDetail">
+											<div>
+												<ul class="nav nav-pills">
+													<li class="active"><a id="workflow{{$index}}"
+														ng-click="trackDetails('Workflow', $index, isLWP)"
+														style="background-color: #0449b0; margin-top: 10px; margin-left: 10px; font-size: 11px; padding-top: 5px; padding-bottom: 5px;">WORKFLOW
+															DETAILS</a></li>
+												</ul>
+											</div>
+											<div
+												style="border-top: 3px solid #0449b0; margin-left: 10px; margin-right: 10px;">
+											</div>
+											
+											<div id="divWorkflow"
+												style="min-height: 295px; padding-bottom: 1px;">
+												<h3></h3>
+
+												<div class="col-md-12 col-xs-12" id="workflowContainer">
+													<div basic-tracker="lerfObj.basicWorkFlowData"
+														tracker-status-color="" ></div>
+												</div>
+												
+											</div>
+										</div>
+
+								</div>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="actionButtonsForSubmit" class="row col-lg-12 col-xs-12"
+				style="margin: 15px 0px 20px 0px; text-align: right; padding-bottom: 10px;padding-right:0px;">
+				<div class="col-lg-12"
+					style="margin-right: 6px; padding-right: 0px;">
+					<button class="btn-default col-lg-1 col-xs-2" ng-show="!isApproverLerfCtrl"
+						style="float: right;" ng-click="backToRequestList()" id="backBtn">Back</button>
+					<button class="btn-default col-lg-1 col-xs-2" ng-show="isApproverLerfCtrl"
+						style="float: right;margin-top: 50px;height: 32px;">Close</button>
+					<button class="btn-primary col-lg-1 col-xs-2" ng-show="isApproverLerfCtrl"
+						style="float: right; margin-right: 10px; margin-top: 50px;" ng-click="reassignLERF()">
+						<span class="clm-icon-reassigncopy"></span>
+						<span>Reassign</span></button>
+						<button class="btn-primary col-lg-1 col-xs-2" ng-show="isApproverLerfCtrl"
+						style="float: right; margin: 0 10px; margin-top: 50px;" ng-click="rejectLERF()">
+						<span class="clm-icon-reject-all"></span>
+					 	 <span>Reject</span>
+						</button>
+					<button class="btn-primary col-lg-1 col-xs-2" ng-show="isApproverLerfCtrl"
+						style="float: right; margin-top: 50px;" ng-click="approveLERF()">
+						<span class="clm-icon-approve-all" style="font-size: 13px; padding-right: 5px;"></span><span>Approve</span>
+						</button>
+					<button class="btn btn-primary col-lg-1 col-xs-2"
+							style="width: 130px;margin-left: 10px; margin-right: 10px; padding-left: 10px; float: right; outline: none !important; padding-top: 4px;"
+							data-ng-click="onBehalfReassignLERF();"
+							id="reassignBtn"
+							ng-if="isReAssignLevReqList" ng-disabled="isReassigned">Reassign Request</button>
+					<button class="btn btn-primary col-lg-1 col-xs-2"
+							style="width: 130px;margin-left: 10px; margin-right: 10px; padding-left: 10px; float: right; outline: none !important; padding-top: 4px;"
+							data-ng-click="onBehalfDeleteLERF();"
+							id="deleteBtn"
+							ng-if="isDeleteLevReqList" ng-disabled="isDeleted">Delete Request</button>
+							
+					<span class="subRequestCommentClass" ng-show="isApproverLerfCtrl">Approver Comments</span><span class="asterisk" style="float:left;" ng-show="isApproverLerfCtrl">*</span>
+					<br />
+					<textarea id="appCmnts" class="col-lg-4" style="height: 60px; width: 450px;" ng-model="approveLERF.commentAll" ng-show="isApproverLerfCtrl"></textarea>
+					<br />
+							<div id="reassignModal" class="modal fade reassign-modal">
+
+					<div class="modal-dialog reassign-modal-dialog"
+						style="padding-top: 206px;">
+						
+												
+						<div class="modal-content reassign-modal-content" >
+							
+							
+												
+							<div class="modal-body reassign-modal-body reassign-modal-text"
+								style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+								<div>
+									<form role="form" name="putComments" ng-submit="" novalidate>
+									<div style="font-weight: bold;"><span >Reassign To:</span><br />
+									 <span>Approver Number*</span>
+									
+									</div>
+									<div style="margin-top:10px;">
+									
+										<input 
+												class="form-control feedBackLettersChars col-xs-2" ng-minlength="1" allow-only-numbers
+												ng-maxlength="300" style="overflow: auto; resize: none; width:50%;margin-top: 6px;"
+												name="reassignEmpIdBox"  cols="50" ng-required="true"
+												id="reassignEmpIdBox"></input>
+												<button id="reassignButton" class="leave-modal-button"
+												data-ng-click="reassignEmpSearch();" style="margin-left: 10px;"
+												ng-disabled="putComments.$invalid">Search</button>
+									</div>
+										
+									
+									
+									<div id="reassignErrorDiv">
+										<span style="color: red;"
+											ng-if="putComments.reassignEmpIdBox.$dirty && putComments.reassignEmpIdBox.$error.required">Please
+											enter Approver Number</span>
+									</div>
+									<div style="margin-top: 3%; margin-bottom: 1%; padding:0;border: 1px solid #D5D5D5" data-ng-if="reassignEmpSearchFlag">
+									 	<div class="reqListTitleBar reqListTitleBarFont">
+									 		<div class="row">
+		 
+											 	<div class="col-md-3" style="padding-left: 21px;">
+											 		<div>Employee No</div>
+											 	</div>
+		 	
+											 	<div class="col-md-5">
+											 		<div>Full Name</div>
+											 	</div>
+		 	
+											 	<div class="col-md-4">
+											 		<div>Employment Status </div>
+											 	</div>
+											 </div>
+										</div>
+		 	
+		 								 <div class="row " ng-repeat="obj in reassignEmpData.details track by $index">
+											 <div style="background-color: #f7f7f7;    text-align: center;">
+											 	<div class="col-md-3" style="padding-left: 5px;">
+											 		<div class="col-md-1 radioMod" style="padding-left:0px;">
+											 			<input type="radio" name="selectEmp" ng-model="reassignEmpData.details" ng-value="obj.employeeNo"  ng-click="setEmpNo(obj);" ng-if="navigationShow">
+											 		</div>
+											 		<div class="col-md-1" style="padding: 6px 0; padding-left: 5px;">{{obj.employeeNo}}</div>
+											 		
+											 	</div>
+		 	
+											 	<div class="col-md-5">
+											 		<div style="padding: 6px 0;">{{obj.firstName}}&nbsp;{{obj.lastName}}</div>
+											 	</div>
+		 	
+											 	<div class="col-md-4">
+											 		<div style="padding: 6px 0;">{{obj.employeeStatus}}</div>
+											 	</div>
+		 									</div>
+										 </div>
+		 							</div>
+								
+									<div style="padding-top: 20px; padding-bottom: 20px;">
+										<button id="OKButton" class="leave-modal-button"
+											ng-click="onBehalfReassign();"
+											ng-disabled="putComments.$invalid" >OK</button>
+										<button class="leave-modal-button" id="cancelButton" 
+										ng-disabled="putComments.$invalid" 
+											onclick="$('#reassignModal').modal('hide');">Cancel</button>
+									</div>
+									</form>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+
+function showFaltuDtls(){
+//alert('Hope for the best');
+document.getElementById("faltuID").style.display = "block";
+}
+$(document).ready(function()
+{
+   $(document).ready(function()
+{
+    $("#workflowContainer").mouseup(function(e)
+    {
+        var subject = $("#faltuID"); 
+
+        if(e.target.id != subject.attr('id') && !subject.has(e.target).length)
+        {
+            subject.fadeOut();
+        }
+    });
+});
+});
+
+
+
+</script>
+

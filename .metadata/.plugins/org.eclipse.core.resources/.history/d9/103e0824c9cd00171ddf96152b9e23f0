@@ -1,0 +1,534 @@
+define(['angular','app','moment','displayMenu','jqueryui','utils','bootstrap',], function(angular,app,moment,jqueryui) {
+app.controller("creditEntController",['$scope','$http','$compile','$rootScope','$route','$window', '$location', function($scope,$http,$compile,$rootScope,$route,$window,$location){
+
+      //-----------------------------------start of credit entitlement-----------------------------------
+      
+      $scope.submitForm = false; 
+   	  $scope.types={};
+   	$scope.count=null;
+   	$scope.leavty=null;
+   	$scope.urlSrc ="";
+   	$rootScope.showSingleTab=true;
+	$rootScope.showMultipleTab=true;
+	$rootScope.showFRTab=false;
+   	$rootScope.creditFinalDetailList=undefined;
+   	$rootScope.createFinalSheet=false;
+   	$rootScope.createCategoryFinalSheet=false;
+	$rootScope.categoryFinalDetailList=undefined;
+  	$http.post('/leaverest/rest/getCountryLeave').success(function(result) {
+
+		 $scope.count=result.countryName;
+		
+		
+	}).error(function()
+	  {
+	console.log("Error in getting Details");
+	  });
+
+  	
+  	$scope.selectCountry=function(){
+  	 
+  		$http.post('/leaverest/rest/getLeavetype',$scope.user.selectedCountry).success(function(result) {
+			
+				 console.log("Successfully insert country type ");
+
+				 $scope.leavty=result.leaveType;
+				})
+				.error(function()
+			     {
+				console.log("Error in inserting country type");
+			     });
+			
+  		
+  		
+  	};
+  	
+    $rootScope.onChnageCountryLevId = function(value) {
+    	$scope.levCountryId = value;
+    	if($scope.levCountryId=='599'){
+    		$scope.showSingleTab=false;
+    		$rootScope.showMultipleTab=false;
+    		$rootScope.showFRTab=true;
+    		tabClicked(3);
+    	}else{
+    		tabClicked(1);
+    		$rootScope.showFRTab=false;
+    	}
+    	
+    };
+  	
+    function tabClicked(id){
+    	if (1 == id ) {
+			active=true;
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/credit_Single.html";
+
+		} else if (id == 2 ) {
+			active=true;
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/credit_Multiple.html";
+
+		}else if (id == 3 ) {
+			active=true;
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/credit_Categories.html";
+
+		}
+    }
+    
+  	$scope.tabClick = function(id) {
+		if (1 == id ) {
+			active=true;
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/credit_Single.html";
+
+		} else if (id == 2 ) {
+			active=true;
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/credit_Multiple.html";
+
+		}else if (id == 3 ) {
+			active=true;
+			$scope.tabClicked=id;
+			$scope.urlSrc ="pages/leave/credit_Categories.html";
+
+		}
+		
+	};
+  	
+  	var exportExcelServiceURL = '/leaverest/rest/report';
+  	var exportFRServiceURL='/leaverest/rest/FranceReport';
+ 
+  	$scope.insertDetails = function()
+  	   {  
+  		debugger;
+  		  //   console.log($scope.user.selectedLeave.value);
+  		  // $scope.user.done = false;
+  		//   $scope.submitForm = true;
+  		     var input = {
+  		    //	console.log($scope.user.selectedLeave.value);
+  		    	'pCountryLevTypId':$scope.user.selectedLeave.COUNTRY_LEV_TYPE_ID,
+  		    	'pEmpId':$scope.user.empno,
+  		    	'pLevToBeAdded':$scope.user.credit,
+  		    	'pRemark':$scope.user.remarks
+  		     
+  		     }//angular.copy($scope.user);
+  			
+  			console.log(input);
+  			 $rootScope.processing = true;
+  			$http.post('/leaverest/rest/insertDetails',input).success(function(response) {
+  			  
+  				debugger;
+				  for (var i=0; i < response.length ; i++){
+						var code=response[i].code;
+						if("422"==code){
+						$scope.errorQuick="";	
+						$scope.disableSubmit=false;
+						$rootScope.processing=false;
+						$scope.serverErrMsg=response[i].fieldErrors[0].message;
+	                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+i));
+	                    errorField.addClass('dirty-field'); //commited for temporary reason
+	                 }else if("200"==code){
+	                	 $scope.disableSubmit=true;
+	                	 $rootScope.processing=false;
+							$scope.errorMsg='';
+							$scope.serverErrMsg='';
+							$scope.submitLeaveResponse = response[i].message;
+							
+							if(!($scope.submitLeaveResponse==undefined)){
+								debugger;
+								 $rootScope.outMsg=$scope.submitLeaveResponse;
+								$("#messageModal").modal('show');
+								};
+					 };
+				  };
+  			});
+       };
+       
+       
+   	$scope.redirectToHomePage=function(){
+			$('#messageModal').modal('hide');
+			var myEl = angular.element( document.querySelector( '.modal-backdrop' ) );
+			myEl.remove();
+			var myE2=angular.element(document.getElementById("entireBody"));
+			myE2.removeClass("modal-open");
+			$location.path("/creditEntitlement");
+		};
+       
+		$scope.createFinalCreditSheet= function(){
+			debugger;
+			$scope.submitData=[];
+			if(!($rootScope.creditFinalDetailList==undefined)){
+				$scope.submitData[0]=$rootScope.creditFinalDetailList;	 
+			}
+			$http.post('/leaverest/rest/finalSheet',{
+				"creditGiven":$scope.submitData[0].creditGiven,
+				"creditNotGiven":$scope.submitData[0].creditNotGiven
+			}).success(function(data) {
+				var reportName=data.reportName;
+				window.location = "/leaverest/rest/downloadCreditReport?fileName="+reportName;
+				$location.path("/creditEntitlement");
+			});
+		};
+		
+		$scope.createFRFinalCategorySheet= function(){
+			debugger;
+			$scope.submitData=[];
+			if(!($rootScope.categoryFinalDetailList==undefined)){
+				$scope.submitData[0]=$rootScope.categoryFinalDetailList;	 
+			}
+			$http.post('/leaverest/rest/finalCategorySheet',{
+				"successList":$scope.submitData[0].successList,
+				"unSuccessList":$scope.submitData[0].unSuccessList
+			}).success(function(data) {
+				var reportName=data.reportName;
+				window.location = "/leaverest/rest/downloadCreditReport?fileName="+reportName;
+				$location.path("/creditEntitlement");
+			});
+		};
+		
+       $scope.ExportToExcel =  function() {
+    	   window.open(exportExcelServiceURL);
+    	   
+       };
+       
+       $scope.ExportToFranceExcel= function(){
+    	   window.open(exportFRServiceURL);
+       };
+
+      $scope.master={};
+      $scope.reset = function(){
+  	     $('#inputFile').val("");
+  	     $scope.user=angular.copy($scope.master);
+  	   //$scope.user.file = undefined;
+  	  // alert("In reset Method .. " + $scope.user.file);
+          };
+          
+          $scope.setFiles = function(element) {
+        	    scope.$apply(function(scope) {
+        	      console.log('files:', element.files);
+        	      // Turn the FileList object into an Array
+        	        scope.files = []
+        	        for (var i = 0; i < element.files.length; i++) {
+        	          $scope.files.push(element.files[i])
+        	        }
+        	      });
+        	    };
+  
+  	 
+
+ 
+      //-----------------------------------end of credit--------------------------------------------------
+      
+      
+      
+		
+
+}]);
+app.controller('entitlementdragDrop',['$scope','$rootScope','$location','$filter','$http','$window',
+                                      function($scope, $rootScope,$location, $filter, $http, $window) {
+ 	
+ 	
+ 	var fileSizeLimitTransaction=1;
+ 	var fileList = "";
+ 	var objHTML="";
+ 	var uploadedFileNames=[];
+ 	var fileTransactionSize=0;
+ 	var filesTransaction=[];
+ 	var UploadedfileList="";
+
+ 	 
+ 	
+ 	$(document).ready(function(){
+ 		 objHTML = $("#dragandrophandler");
+ 		 objHTML.on('dragenter', function (e) 
+ 		{
+ 		    e.stopPropagation();
+ 		    e.preventDefault();
+ 		    $(this).css('border', '2px dashed #1479bf');
+ 		    $(this).css('background-color', '#ededed');
+ 		});
+ 		 objHTML.on('dragover', function (e) 
+ 		{
+ 		     e.stopPropagation();
+ 		     e.preventDefault();
+ 		});
+ 		 objHTML.on('drop', function (e) 
+ 		{	
+ 		     $(this).css('border', '1px dashed #da532c');
+ 		     $(this).css('background-color', '');
+ 		     e.preventDefault();
+ 		     fileList = e.originalEvent.dataTransfer.files;
+ 		     $('#errorMessageForFile').html("");
+ 		     if(filesTransaction.length==1){
+		    	 $('#errorMessageForFile').append("<span class='lev-field-error'>You can upload only 1 document</span><br>");
+		     }
+		     else if(fileList.length>fileSizeLimitTransaction)
+		    	 $('#errorMessageForFile').append("<span class='lev-field-error'>You can upload 1 document at a time.</span><br>");
+ 		     else{
+ 		    	 var exceedFlag=false;
+ 		    	 angular.forEach(fileList,function(value){
+ 						if(fileValidation(value)&&(!checkExistingFile(uploadedFileNames,value.name))){
+ 							fileTransactionSize=fileTransactionSize+value.size;
+ 							if(fileTransactionSize/(1024*1024) <= fileSizeLimitTransaction){
+ 								 filesTransaction.push(value);
+ 								 uploadedFileNames.push({"name": value.name});
+ 								 generateView(filesTransaction,UploadedfileList,"downloadThisFile","removeThisFile","uploadedDocDiv");
+ 							}else{
+ 								fileTransactionSize=fileTransactionSize-value.size;
+ 								exceedFlag=true;
+ 								//$('#errorMessageForFile').append("<span class='lev-field-error'>Upload failed exceeds size limit of 5 MB </span><br>");
+ 							}
+ 						}
+ 					});
+ 					if(exceedFlag){
+ 						$('#errorMessageForFile').append("<span class='lev-field-error'>Document upload failed as file size exceeded 5 MB </span><br>");
+ 					}
+ 		     }
+ 		});
+ 		 objHTML.on('dragleave', function (e) 
+ 					{
+ 					    e.stopPropagation();
+ 					    e.preventDefault();
+ 					    $(this).css('border', '1px dashed #da532c');
+ 					    $(this).css('background-color', '');
+ 					}); 
+ 		 
+ 		$('#singleFile').on('change',function(event){
+ 			 $('#errorMessageForFile').html("");
+ 			 var fileList=[];
+ 			 fileList.push(document.getElementById("singleFile").files[0]);
+ 			 if($scope.isLevReqDetails){
+ 				 rowIndex=0;
+ 			 }else{
+ 				 rowIndex=commonAppLevService.rowIndex;
+ 			 }
+ 			 dragDropService.validateFiles(fileList,rowIndex);
+ 		});
+ 		
+ 	});
+ 	
+ 	function fileValidation(file){
+ 		var fileName=file.name;
+ 		var regexForExt = /(\.|\/)(xls|xlsx)$/i;
+ 		var sizeLimitInBytes=5242880;
+ 		if (fileName == null)
+ 				return false;
+ 		if (!regexForExt.test(fileName)){
+ 			$('#errorMessageForFile').append("<span class='lev-field-error'>File <span style='font-style: italic;'>"+fileName+"</span> type not suported </span><br>");
+ 			return false;
+ 		}
+ 		if(file.size>sizeLimitInBytes){
+ 			$('#errorMessageForFile').append("<span class='lev-field-error'>File <span style='font-style: italic;'>"+fileName+"</span> size exceeds </span>");
+ 			return false;
+ 		}
+ 		return true;
+ 	};
+ 	
+ 	function checkExistingFile(fileArray,fileName){
+ 		var flag=false;
+ 		for(var i=0;i<fileArray.length;i++){
+ 			if(fileName==fileArray[i].name){
+ 				$('#errorMessageForFile').append("<div><span class='lev-field-error'> File <span style='font-style: italic;'>"+fileName+"</span> exist </span></div>");
+ 				flag=true;
+ 				break;
+ 			}
+ 		}
+ 		return flag;
+ 	};
+ 	
+ 	function generateView(fileList,checkList,download,remove,divName){
+ 		var spanTextHTML = "";
+ 		
+ 		if(fileList.length!=0){
+ 			var spanTextHTML1 = "";
+ 			spanTextHTML1 += "<div><div  class='doc-upload-header' style='padding-bottom:8px;border-bottom:1px solid #da532c;margin-bottom:8px;' translate>Documents Uploaded</div>";
+ 			$("#uploadedDivName").html(spanTextHTML1).css({
+ 				"font-size" : "12px",
+ 				"text-align" : "left",
+ 			});
+ 		};
+ 		
+ 		angular.forEach(fileList,function(value, key) {
+ 			spanTextHTML += "<div><div class='col-xs-8 col-sm-8 col-md-10 col-lg-10' >"
+ 			+value.name	
+ 			+"</div>"
+ 			+"<div class='col-xs-2 col-sm-2 col-md-1 col-lg-1' style='padding-top:2px;'><a>" +
+ 			"<span class='glyphicon glyphicon-download-alt' style='color:#2084c9;cursor:pointer;' onclick='"+download+"("
+ 			+ key + ")'></span></a></div>"
+ 			+"<div class='col-xs-2 col-sm-2 col-md-1 col-lg-1' style='padding-top:2px;'>" +
+ 					"<span class='glyphicon glyphicon-trash' style='color:#2084c9;cursor:pointer;' onclick='"+remove+"("
+ 			+ key + ")'></span></div></div>";
+ 		});
+ 		
+ 		
+ 		$("#"+divName).html(spanTextHTML).css({
+ 			"font-size" : "12px",
+ 			"text-align" : "left",
+ 		});
+ 	};
+ 	
+ 	 $scope.uploadCreditEntlReport= function()
+  	   {  
+ 		debugger;
+    	  var fileData = new FormData();
+    	var fileSize=0;
+    	 for (var i = 0; i < filesTransaction.length; i++){
+ 			fileSize=fileSize+filesTransaction[i].size;
+ 			fileData.append('multipartFile', filesTransaction[i]);
+    	 }
+		 if(filesTransaction.length==0){
+       		 $('#errorMessageForFile').append("<span class='lev-field-error'>Please drag the document and then click on Upload! </span><br>");
+       		 return false;
+       	 }
+    	 $rootScope.processing = true;
+  		    var http = $http({
+  		    	url: '/leaverest/rest/upload?cntryLevType='+$scope.user.selectedLeave.COUNTRY_LEV_TYPE_ID,
+  		    	method: 'POST',
+  		    	data: fileData,
+  		        transformRequest: angular.identity,
+  		    	headers: {
+  		          "Content-Type": undefined
+  		      }
+  		    });
+  			http.success(function(response) {
+  				debugger;
+  				  for (var i=0; i < response.length ; i++){
+  						var code=response[i].code;
+  						if("422"==code){
+  						$scope.errorQuick="";	
+  						$scope.disableSubmit=false;
+  						$rootScope.processing=false;
+  						$scope.serverErrMsgMultiple=response[i].fieldErrors[0].message;
+  	                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+i));
+  	                    errorField.addClass('dirty-field'); //commited for temporary reason
+  	                 }else if("200"==code){
+  	                	 $scope.disableSubmit=true;
+  	                	 $rootScope.processing=false;
+  							$scope.errorMsg='';
+  							$scope.serverErrMsgMultiple='';
+  							$scope.submitLeaveResponse = response[i].message;
+  							if(!($scope.submitLeaveResponse==undefined)){
+  								debugger;
+  								$rootScope.creditFinalDetailList=response[i].infoMap;
+  								 $rootScope.outMsg=$scope.submitLeaveResponse;
+  								$("#messageMultipleModal").modal('show');
+  								};
+  					 };
+  				  };
+  			});
+
+  
+  	   };
+ 	
+  	   
+   	 $scope.uploadFranceCreditEntlReport= function()
+	   {  
+		debugger;
+  	  var fileData = new FormData();
+  	var fileSize=0;
+  	 for (var i = 0; i < filesTransaction.length; i++){
+			fileSize=fileSize+filesTransaction[i].size;
+			fileData.append('multipartFile', filesTransaction[i]);
+  	 }
+		 if(filesTransaction.length==0){
+     		 $('#errorMessageForFile').append("<span class='lev-field-error'>Please drag the document and then click on Upload! </span><br>");
+     		 return false;
+     	 }
+  	 $rootScope.processing = true;
+		    var http = $http({
+		    	url: '/leaverest/rest/uploadFranceAlti?cntryLevType='+$scope.user.selectedLeave.COUNTRY_LEV_TYPE_ID,
+		    	method: 'POST',
+		    	data: fileData,
+		        transformRequest: angular.identity,
+		    	headers: {
+		          "Content-Type": undefined
+		      }
+		    });
+			http.success(function(response) {
+				debugger;
+				  for (var i=0; i < response.length ; i++){
+						var code=response[i].code;
+						if("422"==code){
+						$scope.errorQuick="";	
+						$scope.disableSubmit=false;
+						$rootScope.processing=false;
+						$scope.serverErrMsgMultiple=response[i].fieldErrors[0].message;
+	                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+i));
+	                    errorField.addClass('dirty-field'); //commited for temporary reason
+	                 }else if("200"==code){
+	                	 $scope.disableSubmit=true;
+	                	 $rootScope.processing=false;
+							$scope.errorMsg='';
+							$scope.serverErrMsgMultiple='';
+							$scope.submitLeaveResponse = response[i].message;
+							if(!($scope.submitLeaveResponse==undefined)){
+								debugger;
+								$rootScope.categoryFinalDetailList=response[i].infoMap;
+								 $rootScope.outMsg=$scope.submitLeaveResponse;
+								$("#messageFranceModal").modal('show');
+								};
+					 };
+				  };
+			});
+
+
+	   };
+  	   
+  	   
+ 	removeThisFile=function(index){
+ 		$('#errorMessageForFile').html("");
+ 		var deleteFileName=filesTransaction[index].name;
+ 		fileTransactionSize=fileTransactionSize-filesTransaction[index].size;
+ 		filesTransaction.splice(index,1);
+ 		angular.forEach(uploadedFileNames,function(value, key) {
+ 			if(deleteFileName==value.name)
+ 				uploadedFileNames.splice(key,1);
+ 		});
+ 		generateView(filesTransaction,UploadedfileList,"downloadFile","removeThisFile","uploadedDocDiv");
+ 	};
+
+ 	downloadThisFile=function(id){
+ 		var formData = new FormData();
+ 		formData.append('file', filesTransaction[id]); 
+ 		sendFileToDownload(formData);	
+ 	};
+ 	
+ 	function sendFileToDownload(formData){
+ 	   $http({
+         method: 'POST',
+         url: '/leaverest/rest/downloadFile',
+         headers: {'Content-Type': undefined},
+         data: formData,
+         transformRequest: angular.identity
+ 	   }).success(function(data, status) {
+     	   if(null!=data && undefined!=data && ""!=data){
+     		  window.location = "/leaverest/rest/downloadDoc?fileName="+data.fileName+"" +
+    			"&contentType="+data.contentType;
+     	 }
+ 	   });
+ 	};
+ 	
+   	$scope.redirectToHomePage=function(){
+   		debugger;
+		$('#messageMultipleModal').modal('hide');
+		var myEl = angular.element( document.querySelector( '.modal-backdrop' ) );
+		myEl.remove();
+		$rootScope.createFinalSheet=true;
+		var myE2=angular.element(document.getElementById("entireBody"));
+		myE2.removeClass("modal-open");
+	};
+  	  
+	$scope.redirectToFRHomePage=function(){
+   		debugger;
+		$('#messageFranceModal').modal('hide');
+		var myEl = angular.element( document.querySelector( '.modal-backdrop' ) );
+		myEl.remove();
+		$rootScope.createCategoryFinalSheet=true;
+		var myE2=angular.element(document.getElementById("entireBody"));
+		myE2.removeClass("modal-open");
+	};
+ 	
+ }]);
+return app;
+});

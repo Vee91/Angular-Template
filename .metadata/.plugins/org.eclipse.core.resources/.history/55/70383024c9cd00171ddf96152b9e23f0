@@ -1,0 +1,215 @@
+
+
+<div class="row" style="margin-left: 40px;margin-top: 40px;">
+	<div class="col-md-12" ng-controller="cmnEmpSearchCtrl">
+		<div class="row" style="text-align:left; color:#1F84C8; font-size:15px;">
+		<label><span>Employee Search</span></label>
+		<br/>
+		<span class="messageDiv" ng-show="msgFlag">Please enter valid Employee No.</span>
+		</div>
+		
+    	
+  		
+		 <div class="row" style="padding-top:1%;">
+		 	<div class="col-md-2 text-left" ng-if=false>
+		 		<label class="subRequestCommentClass">EMPLOYEE NAME</label>
+				<input id="firstName" type="text" placeholder="First Name" style="font-style: italic; padding:1px; width: 100%;" ng-model="firstName" only-Char>
+		 	
+		 	</div>
+		 	<div class="col-md-2" style="margin-top: 22px;" ng-if=false>
+		 		<input id="lastName" type="text" placeholder="Last Name" style="font-style: italic;padding:1px; width: 100%;" ng-model="lastName" only-Char>
+		 	</div>
+		 	
+		 	<div class="col-md-1 subRequestDtlsClass" style="margin-top: 26px; text-align: center;" ng-if=false>
+		 		<span>OR</span>
+		 	</div>
+		 	
+		 	<div class="col-md-2 text-left">
+		 		<label class="subRequestCommentClass">EMPLOYEE NO.</label>
+				<input id="empNo" type="text" placeholder="Enter employee No." style="font-style: italic;padding:1px; width: 100%;" ng-model="empNo" only-Number>
+				
+		 	</div>
+		 	
+		 	<div class="col-md-1" style="margin-top:21px;">
+		 		<button class="empSearchBtn col-md-12" ng-click="empSearch(firstName,lastName,empNo)">Search</button>
+		 	</div>
+		 	<div class="col-md-1" style="margin-top:21px;">
+		 		<button class="empResetBtn col-md-12" ng-click="searchReset();">Reset</button>
+		 	</div>
+		 </div>
+		 
+		 <loading ng-show="loading"></loading>
+		 <!--  
+		 <div ng-show="selctionSec" class="col-md-6" style="margin-top: 1%;">
+		 	<div class="row empHeadBar">
+		 		<div class="col-md-4">Employee No</div>
+		 		<div class="col-md-4">Employee Name</div>
+		 		<div class="col-md-4">Employment Status</div>
+		 	</div>
+		 	<div class="row empSearchDtls">
+		 		<div class="col-md-4">{{selEmpNo}}</div>
+		 		<div class="col-md-4">{{selEmpFirstName}}&nbsp;{{selEmpLastName}}</div>
+		 		<div class="col-md-4">{{selEmpStatus}}</div>
+		 	</div>
+		 
+		 		
+		 </div>
+		 -->
+		 <div id="searchMainDiv" ng-show="searchClicked" style="margin-top:30px;">
+		 <div  ng-if="navigationShow">
+		 	<div class="col-md-8" style="float:right">
+		 		<div class="col-md-1">
+		 			<a class="btn btn-link actionButton" ng-click="prevClick(firstName,lastName,empNo);">
+		 				<span class="glyphicon glyphicon-chevron-left"></span>
+		 			</a>
+		 		</div>
+		 		
+		 		<div class="col-md-3" style="padding-top: 10px;">
+		 				<span>{{leaveApprObj.startIndex}}-{{leaveApprObj.endIndex}} of {{leaveApprObj.totSearchCount.count}}</span>
+		 		</div>
+		 		
+		 		<div class="col-md-1">
+		 			<a class="btn btn-link actionButton" ng-click="nextClick(firstName,lastName,empNo);">
+		 				<span class="glyphicon glyphicon-chevron-right"></span>
+		 			</a>
+		 		</div>
+		 		
+		 	</div>
+		 </div>
+		 
+		 <div style="border:solid 1px; margin-top: 1%; margin-bottom: 1%; padding:0" class="col-md-7">
+		 <div class="empHeadBar">
+		 <div class="row">
+		 
+		 	<div class="col-md-3" style="padding-left: 21px;">
+		 		<div>Employee No</div>
+		 	</div>
+		 	
+		 	<div class="col-md-5">
+		 		<div>Full Name</div>
+		 	</div>
+		 	
+		 	<div class="col-md-4">
+		 		<div>Employment Status </div>
+		 	</div>
+		 	
+		 	
+		 	
+		 </div>
+		 </div>
+		 
+		 
+		 <div class="row bgColorRow" ng-repeat="obj in leaveApprObj.empSearchData track by $index">
+		 <div class="empSearchDtls">
+		 	<div class="col-md-3" style="padding-left: 5px;">
+		 		<div class="col-md-1 radioMod" style="padding-left:0px;">
+		 			<input type="radio" name="selectEmp" ng-model="leaveApprObj.selEmpNo" ng-value="obj.employeeNo"  ng-click="setEmpNo(obj);" ng-if="navigationShow">
+		 		</div>
+		 		<div class="col-md-1" style="padding: 6px 0; padding-left: 5px;">{{obj.employeeNo}}</div>
+		 		
+		 	</div>
+		 	
+		 	<div class="col-md-5">
+		 		<div style="padding: 6px 0;">{{obj.firstName}}&nbsp;{{obj.lastName}}</div>
+		 	</div>
+		 	
+		 	<div class="col-md-4">
+		 		<div style="padding: 6px 0;">{{obj.employeeStatus}}</div>
+		 	</div>
+		 	
+		 	
+		 </div>
+		 </div>
+		 
+		 
+		 
+		 </div>
+		</div>
+		<!-- bulk reassign -->
+		
+		<div class="row" style="margin-bottom:3%" ng-show="submitSecShowBulk">
+		 	<div class="col-md-2" style="margin-left: 44%;">
+		 		<button class="empSearchBtn col-md-5" ng-click="reassignPopup()">Reassign</button>
+		 		<button class="empSearchBtn col-md-5" style="margin-left: 4%;" ng-click="cancelReAssign();">Cancel</button>
+		 	</div>
+		 </div>
+		 
+		 <div id="messageReassign" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px; background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:22px;">Do you want to reassign Request ? </div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+									onclick="$('#messageReassign').modal('hide');" ng-click="reassignAction();">OK</button>
+								<button class="leave-modal-button"
+									onclick="$('#messageReassign').modal('hide');">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+		</div>
+		 <div>
+		 <div class="row" style="margin-bottom:3%" ng-show="submitSecShow">
+		 	<div class="col-md-2" style="margin-left: 44%;">
+		 		<button class="empSearchBtn col-md-5" ng-click="reassignFromEmpPage()">Reassign</button>
+		 		<button class="empSearchBtn col-md-5" style="margin-left: 4%;" ng-click="cancelReAssign();">Cancel</button>
+		 	</div>
+		 </div>
+		 
+		 <div id="messageModalReassign" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px; background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:22px;">Do you want to reassign Request ? </div>
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+									onclick="$('#messageModalReassign').modal('hide');" ng-click="test();">OK</button>
+								<button class="leave-modal-button"
+									onclick="$('#messageModalReassign').modal('hide');">Cancel</button>
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		
+	
+
+</div>
+
+
+<script>
+/*count = 0;
+        $('#empNo').keypress(function(event){
+            console.log(event.which);
+        if(event.which != 8 && isNaN(String.fromCharCode(event.which))){
+            event.preventDefault();
+        }
+        else{
+        count++;
+       }
+        
+        if(count>20){
+        event.preventDefault();
+        }
+        });*/
+
+</script>

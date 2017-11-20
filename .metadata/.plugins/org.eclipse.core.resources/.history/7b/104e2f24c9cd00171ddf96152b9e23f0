@@ -1,0 +1,932 @@
+<style>
+.processBar {
+	float: left;
+	font-size: 11px;
+	border: 1px solid #1ECAC3;
+	width: 74px;
+	height: 18px;
+	margin-top: 6px;
+	margin-left: 24px;
+	color: #ffffff;
+	font-weight: bold;
+	background-color: #1ECAC3;
+	padding-top: 1px;
+}
+
+.btn {
+	color: #2084c9;
+	font-size: 14px;
+	background-color: white;
+	border-color: white;
+}
+
+.btn:focus,.btn:active:focus,.btn.active:focus,.btn.focus,.btn:active.focus,.btn.active.focus,.btn:hover,.btn:focus,.btn.focus
+	{
+	background-color: #e7e7e7;
+	color: #185d8d;
+}
+
+.addPopover {
+	float: right;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 10px;
+	/* box-shadow: 0px 1px 4px 0px rgba(153, 153, 153, 0.6); */
+	z-index: 9999999;
+}
+
+.addPopover .triangle:before {
+	content: '';
+	display: block;
+	background-image: url("appResources/images/up_arrow.png");
+	width: 17px;
+	height: 13px;
+	position: absolute;
+	left: 88%;
+	top: -9px;
+	margin-left: -8px;
+}
+
+.btn-primary {
+	height: 32px;
+	min-width: 90px;
+	color: #ffffff;
+	background-color: #2084c9;
+	border: 2px solid #2084C9;
+	font-size: 14px;
+}
+
+.btn-secondary {
+	height: 32px;
+	/* 	min-width: 125px; */
+	border: none;
+	border: 2px solid #2084C9;
+	font-size: 14px;
+	color: #2084c9;
+}
+
+.btn-primary:focus,.btn-primary:active:focus,.btn-primary.active:focus,.btn-primary.focus,.btn-primary:active.focus,.btn-primary.active.focus,.btn-primary:hover,.btn-primary:focus,.btn-primary.focus
+	{
+	outline: #6ec7ff 2px;
+	color: #ffffff;
+	background-color: #2084c9;
+	border: 2px solid #6ec7ff;
+}
+
+.btn-secondary:focus,.btn-secondary:active:focus,.btn-secondary.active:focus,.btn-secondary.focus,.btn-secondary:active.focus,.btn-secondary.active.focus,.btn-secondary:hover,.btn-secondary:focus,.btn-secondary.focus
+	{
+	background-color: #6ec7ff;
+	color: #2084c9;
+	border: 2px solid #6ec7ff;
+}
+
+.btn-default {
+	height: 32px;
+	min-width: 90px;
+	color: #FFFFFF;
+	background-color: #2084c9;
+	border: 2px solid #2084C9;
+	font-size: 14px;
+}
+
+.btn-default:focus,.btn-default:active:focus,.btn-default.active:focus,.btn-default.focus,.btn-default:active.focus,.btn-default.active.focus,.btn-default:hover,.btn-default:focus,.btn-default.focus
+	{
+	background-color: #2084c9;
+	border: 2px solid #2084C9;
+	outline: #6ec7ff 2px;
+	color: #ffffff;
+}
+.reqListTitleBarFont {
+	font-size: 11px !important;
+	color: #ffffff;
+}
+
+.reqListTitleBar {
+	height: 33px;
+	background-color: #4F82B1;
+	padding-top: 0px;
+	padding-bottom: 0px;
+	margin-bottom: 0px;
+}
+</style>
+<div ng-controller="CmnReqDetailsCtrl">
+	<div ng-if="isValidPage">
+		<div ng-if="!isLwp && !isMaternity">
+			<div class="col-lg-12" style="padding-left: 0px">
+
+				<div class="row">
+					<div class="col-lg-12"
+						style="padding-top: 10px; padding-left: 0px;">
+						<span class="pageTitle">Leave - Request Details</span>
+					</div>
+				</div>
+
+
+				<!-- div by viji -->
+				<div class="container-fluid row"
+					style="margin-left: 0px; margin-right: 0px; padding: 0px;">
+					<div class="row">
+
+						<div class="col-md-12 col-xs-12 row subRequestDtlsClass"
+							style="background-color: #F5F8FD;">
+							<div class="col-md-9 col-lg-9"
+								style="border-right: 1px solid #ccc; margin-top: 6px; margin-bottom: 6px;">
+								<div class="col-lg-3 col-xs-5 topPanelUserDetails">
+									<label class="titleFont">Raised By</label><br> <span
+										class="contentFont">{{masterList[0].empName |
+										capitalize}}</span>
+								</div>
+								<div class="col-lg-2 col-xs-4 topPanelUserDetails">
+									<label class="titleFont">Submit Date</label><br> <span
+										class="contentFont">{{masterList[0].submitDate | istDateFormat}}</span>
+								</div>
+
+								<div class="col-lg-5 col-xs-6 topPanelUserDetails"
+									style="word-wrap: break-word;">
+									<label class="titleFont">Address</label><br> <span
+										class="contentFont" style="line-height: 1.2;">{{addressDetails.contactAddress}}</span>
+								</div>
+
+								<div class="col-lg-2 col-xs-6 topPanelUserDetails">
+									<label class="titleFont">Contact Number</label><br> <span
+										class="contentFont">{{addressDetails.contactNumCell}}</span>
+								</div>
+							</div>
+
+							<div class="col-lg-3 col-md-3 col-xs-12"
+								style="padding: 15px 0px 15px 0px;" id="docSection"
+								verticalalign>
+
+								<div class="col-lg-5 col-xs-6 titleFont"
+									style="padding: 0px 0px 0px 31px;">
+									<label>Documents</label><br /> <span>{{documentCount}}</span>
+								</div>
+								<div class="col-lg-7 col-xs-6"
+									style="padding: 0px 0px 0px 8px; margin-top: -6px;">
+									<button class="btn" style="outline: none !important;" id="add"
+										ng-click="showDragDrop();">
+										<span class="glyphicon glyphicon-pencil"
+											style="color: #2084c9;"></span>
+										<!-- <img src="appResources/img/Edit.png"
+											style="width: 14px; height: 14px; margin-right: 8px;" /> -->
+										<label class="labelAnchor" style="margin-bottom: 0px;">ADD/DELETE</label>
+
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- 	upload part-viji -->
+				<div class="panel panel-default addPopover col-lg-6 col-xs-12 "
+					data-ng-controller="dragDropController" id="add_delete_tab"
+					style="display: none;">
+					<div class="triangle">
+						<div class="col-xs-12" style="margin-top: 13px;">
+
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<div class="pull-left" id="errorMessageForFile"></div>
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+								style="padding-left: 0px; margin-top: 8px; text-align: left;">
+								<img src="appResources/img/UploadIcon.png"
+									style="margin-bottom: 5px;"> <span
+									class="doc-upload-header" translate=""><span
+									class="ng-scope">Upload Documents</span></span>
+								<div class="row">
+									<div id="dragandrophandler"
+										style="vertical-align: middle; font-size: 12px; text-align: center;"
+										class="doc-upload-body col-md-12">
+										<span>Drag &amp; Drop Documents Here</span>
+									</div>
+									<div
+										style="text-align: left; word-wrap: break-word; font-size: 10px; font-weight: bold; padding-left: 0px;"
+										class="col-md-11">
+										<span>Supported file type : pdf, png, jpg, jpeg, docx,
+											doc, xls, xlsx, ppt, pptx, txt, ods, tiff, bmp </span> <br> <span>File
+											size limit : 5 MB</span>
+									</div>
+									<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"
+										style="padding-top: 5px;" data-ng-if="isLevReqDetails">
+										<label> <input name="file" type="file" id="singleFile"
+											class="span4"
+											style="width: 85px; max-height: 23px; overflow: hidden; display: none;"
+											multiple=""> <img
+											src="appResources/img/AttachmentIcon.png"
+											style="width: 24px; height: 24px; align: left; cursor: pointer;"
+											tooltip="Browse documents..." tooltip-placement="top"
+											tooltip-trigger="mouseenter" class="ng-scope">
+										</label>
+									</div>
+								</div>
+
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+								style="padding-left: 0px; text-align: left;">
+								<div id="uploadedDivName"></div>
+								<div id="uploadedFileDiv"></div>
+								<div id="uploadedDocDiv"></div>
+							</div>
+						</div>
+
+						<div class="col-lg-12 col-xs-12"
+							style="text-align: right; padding-bottom: 10px;">
+							<button id="fileSaveBtn" class="btn btn-primary"
+								data-ng-click="UploadFiles();" data-ng-if="isLevReqDetails && !uploadProcessing">Save</button>
+							<button class="btn btn-secondary" style="padding-left: 10px;"
+								id="fileCancelBtn" data-toggle="modal" data-target="#myModal"
+								data-ng-click="cancelDragDrop();">Cancel</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-lg-12 col-xs-12" style="padding-left: 0px;">
+					<div class="container-fluid row containerBox"
+						style="margin-left: 0px; margin-right: 0px; padding: 8px; margin-top: 15px;">
+
+						<div class="reqDetails" data-ng-repeat="data in detailsList">
+							<div class="row requestBar"
+								style="border-bottom: 1px solid #ccc;">
+								<div class="col-lg-12 col-xs-12 whiteBarReqDetails"
+									data-toggle="collapse" data-aria-expanded="false"
+									style="cursor: pointer; padding-left: 0px;"
+									id="whitebar{{$index}}"
+									ng-mouseenter="$emit('setDivHoverStyle', $index, 'whitebar','enter')"
+									ng-mouseleave="$emit('setDivHoverStyle', $index, 'whitebar','leave')">
+									<div class="col-lg-1 col-xs-2 orangeBar">
+										<!--style="width: 35px; padding-top: 12px; padding-left: 9px; top: 0px; font-weight: bold;"
+								 class="col-lg-1 col-xs-2 orangeBar glyphicon glyphicon-menu-down"
+									id="orngBar{{$index}}" -->
+										<span> <img
+											src="appResources/img/levReqDtlBar_icon.png">
+										</span>
+
+									</div>
+									<div class="col-lg-9 col-xs-5" id="headClass{{$index}}"
+										style="text-align: left; min-height: 30px; margin-top: 10px;"
+										verticalalign>
+										<span class="leaveHeadClass">{{data.leaveType |
+											capitalize}}</span>
+									</div>
+									<div class="col-lg-2 col-xs-5"
+										style="margin-bottom: 0px; padding-left: 20px; min-height: 30px; height: 30px; float: right;"
+										verticalalign>
+										<label style="font-size: 12px; padding-top: 5px;"
+											ng-style="bgColorforMsg(data.status)">{{data.status}}</label>
+
+									</div>
+								</div>
+							</div>
+
+							<!-- Phase 1 -->
+							<!-- collapse -->
+							<div class=" in" id="subRequestDetails{{$index}}"
+								style="height: auto;">
+								<div class="row" style="margin: 0px;">
+									<div class=" subRequestDtlsClass addFields"
+										style="border: 0px;">
+										<div class="row" style="border-bottom: 1px solid #ccc;">
+											<div class="row">
+												<div class="col-lg-1 col-xs-1">
+													<label class="titleFont">Request No.</label><br> <span
+														class="contentFont">{{data.subRequest}}</span>
+												</div>
+												<div class="col-lg-2 col-xs-2 " style="padding-left: 5%;">
+
+													<label class="titleFont">Leave Start Date</label><br>
+													<span class="contentFont">{{data.startDate | istDateFormat}}</span>
+												</div>
+												<div class="col-lg-1 col-xs-1">
+													<label class="titleFont">Start Duration</label><br> <span
+														class="contentFont">{{data.startDuration}}</span>
+												</div>
+												<div class="col-lg-2 col-xs-2" style="padding-left: 5%;">
+													<label class="titleFont">Leave End Date</label><br> <span
+														class="contentFont">{{data.endDate | istDateFormat}}</span>
+												</div>
+												<div class="col-lg-1 col-xs-1">
+													<label class="titleFont">End Duration</label><br> <span
+														class="contentFont">{{data.endDuration}}</span>
+												</div>
+												<div class="col-lg-2 col-xs-2" style="padding-left: 5%;">
+													<label class="titleFont">No of Days</label><br> <span
+														class="contentFont">{{masterList[0].totalDays}}</span>
+												</div>
+												<div class="col-lg-3 col-xs-3"
+													style="word-wrap: break-word;">
+													<label class="titleFont">Remarks</label><br> <span
+														class="contentFont">{{data.remarks}}</span>
+												</div>
+											</div>
+											<!-- 	<hr
+							style="border: 1px solid #999999; margin-top: 10px; margin-bottom: 0px;"> -->
+											<!-- viji commented div -->
+
+											<div class="row" style="margin-top: 10px;">
+												<div class="col-lg-12 padding-zero">
+													<div class="col-lg-3" ng-if="data.attribute1Name !== null">
+														<label class="titleFont">{{data.attribute1Name}}</label><br>
+														<span class="contentFont">{{data.attribute1Value}}</span>
+													</div>
+													<div class="col-lg-3" ng-if="data.attribute2Name !== null">
+														<label class="titleFont">{{data.attribute2Name |
+															capitalize}}</label><br> <span class="contentFont">{{data.attribute2Value}}</span>
+													</div>
+													<div class="col-lg-3" ng-if="data.attribute3Name !== null">
+														<label class="titleFont">{{data.attribute3Name |
+															capitalize}}</label><br> <span class="contentFont">{{data.attribute3Value}}</span>
+													</div>
+													<div class="col-lg-3" ng-if="data.attribute4Name !== null">
+														<label class="titleFont">{{data.attribute4Name |
+															capitalize}}</label><br> <span class="contentFont">{{data.attribute4Value}}</span>
+													</div>
+
+													<div class="col-lg-3" ng-if="data.attribute5Name !== null ">
+														<label class="titleFont">{{data.attribute5Name |
+															capitalize}}</label><br> <span class="contentFont">{{data.attribute5Value}}</span>
+													</div>
+
+													<div class="col-lg-3" ng-if="data.emailAddr !== null">
+														<label class="titleFont">Email Address</label><br> <span
+															class="contentFont">{{data.emailAddr}}</span>
+													</div>
+													<div class="col-lg-3" ng-if="data.eDto.applicantIESel === '0' && 'Leave Without Pay'===data.leaveType">
+														<label class="titleFont">iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.applicantIESel === '1' ? 'Yes' : 'No'}}</span>
+													</div>
+												</div>
+
+											</div>
+											<div class="row" style="margin-top: 10px;"
+												ng-if="data.isLwpUndertaking">
+												<button class="btn btn-default col-lg-1 col-xs-2"
+													style="margin-left: 10px; margin-right: 10px; margin-bottom: 10px; width: auto;"
+													ng-click="lwpUndertaking($index);" id="lwpUnderTakingBtn">LWP
+													Undertaking</button>
+											</div>
+										</div>
+
+
+									</div>
+
+									<div class="container-fluid subRequestDtlsClass addFields"
+										style="margin: 0px; border: 0px; border-bottom: 1px solid #ccc;"
+										ng-if="data.maternityLeave && isMaternChildBirth">
+
+										<div class="row">
+											<div class="col-lg-3 col-xs-3 titleFont"
+												ng-repeat="(key,val) in data.nominationDetails">
+												<!-- ng-style="$index === 0 ? {'padding-left': '3%'} : ''" -->
+												<label>{{key | separateCamelCase}}</label><br> <span class="contentFont">{{val}}</span>
+											</div>
+										</div>
+
+										<div class="row"
+											style="margin-top: 10px; margin-bottom: 15px;">
+											<button class="btn btn-default col-lg-1 col-xs-2"
+												style="margin-left: 10px; margin-right: 10px; width: auto;"
+												ng-click="maternityNomForm($index);" id="maternityNomBtn">Nomination
+												Form</button>
+										</div>
+									</div>
+
+																	<!-- iEvolve Section -->
+									<div class="row" style="text-align: left;border-bottom: 1px solid #ccc; margin-bottom: 1%; height: auto"
+									ng-if="'Leave Without Pay'===data.leaveType && data.eDto.applicantIESel === '1'">
+									<!-- IEvolve --><br>
+													<div class="col-lg-3" ng-if="data.eDto.applicantIESel !== 'null' && 'Leave Without Pay'===data.leaveType">
+														<label class="titleFont">{{data.eDto.applRole}} iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.applicantIESel === '1' ? 'Yes' : 'No'}}</span>
+													</div>
+													
+													<div class="col-lg-3" ng-if="data.eDto.firstApproverIESel !== 'null' && 'Leave Without Pay'===data.leaveType && 'Pending'!== data.eDto.firstApproverIESel ">
+														<label class="titleFont">{{data.eDto.firstApprRole}} iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.firstApproverIESel === '1' ? 'Yes' : 'No'}}</span>
+													</div>
+													
+													<div class="col-lg-3" ng-if="data.eDto.secondApproverIESel !== 'null' && 'Leave Without Pay'===data.leaveType && 'Pending'!== data.eDto.secondApproverIESel">
+														<label class="titleFont">{{data.eDto.secondApprRole}} iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.secondApproverIESel === '1' ? 'Yes' : 'No'}}</span>
+													</div>
+													
+													<div class="col-lg-3" ng-if="data.eDto.thirdApproverIESel !== 'null' && 'Leave Without Pay'===data.leaveType && 'Pending'!== data.eDto.thirdApproverIESel">
+														<label class="titleFont">{{data.eDto.thirdApprRole}} iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.thirdApproverIESel === '1' ? 'Yes' : 'No'}}</span>
+													</div>
+													
+													<!-- Pending Ievolve cases -->
+													<div ng-if="'Approved' !== data.status && 'System-Approved' !== data.status && 'System Approved' !== data.status">
+													<div class="col-lg-3" ng-if="data.eDto.firstApproverIESel !== 'null' && 'Leave Without Pay'===data.leaveType && 'Pending'=== data.eDto.firstApproverIESel">
+														<label class="titleFont">{{data.eDto.firstApprRole}} iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.firstApproverIESel}}</span>
+													</div>
+													
+													<div class="col-lg-3" ng-if="data.eDto.secondApproverIESel !== 'null' && 'Leave Without Pay'===data.leaveType && 'Pending'=== data.eDto.secondApproverIESel">
+														<label class="titleFont">{{data.eDto.secondApprRole}} iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.secondApproverIESel}}</span>
+													</div>
+													
+													<div class="col-lg-3" ng-if="data.eDto.thirdApproverIESel !== 'null' && 'Leave Without Pay'===data.leaveType && 'Pending'=== data.eDto.thirdApproverIESel && 'Approved'">
+														<label class="titleFont">{{data.eDto.thirdApprRole}} iEvolve Selection</label><br> 
+														<span class="contentFont">{{data.eDto.thirdApproverIESel}}</span>
+													</div>
+													</div>
+													<!-- End of Pending Ievolve cases -->
+													<!-- End of Ievolve --> <br></div>
+								
+									
+									<!-- Start of workflow details section -->
+									<div class="row">
+										<div class="col-lg-12 col-xs-12"
+											style="margin-bottom: 10px; padding-left: 0px; padding-right: 0px;">
+											<!-- <ul class="nav nav-tabs trackerBar"
+											style="background-color: #4E4C51; margin-left: 0px; margin-right: 0px; box-shadow: 1px 1px 1px 1px #7B7682;">
+											<li class="active"><a id="workflow{{$index}}"
+												ng-click="trackDetails('Workflow', $index, isLWP)">Workflow
+													Details</a></li>
+											commented by viji
+											<li><a id="lwp{{$index}}"
+										ng-click="trackDetails('LWP',$index, isLWP)" ng-if="isLWP">LWP
+											AMENDMENT HISTORY</a></li>
+											end here
+										</ul> -->
+
+											<div class="tab-content trackerBarDetail">
+												<div>
+													<ul class="nav nav-pills">
+														<li class="active"><a id="workflow{{$index}}"
+															ng-click="trackDetails('Workflow', $index, isLWP)"
+															style="background-color: #0449b0; margin-top: 10px; margin-left: 10px; font-size: 11px; padding-top: 5px; padding-bottom: 5px;">WORKFLOW
+																DETAILS</a></li>
+													</ul>
+												</div>
+												<div
+													style="border-top: 3px solid #0449b0; margin-left: 10px; margin-right: 10px;">
+												</div>
+												<!-- <div class="tab-content trackerBarDetail col-xs-12 col-lg-12"
+											style="margin-left: 0px; margin-right: 0px; min-height: 350px; margin-top: 0px;"> -->
+												<div id="divWorkflow{{$index}}"
+													style="min-height: 295px; padding-bottom: 1px;">
+													<h3></h3>
+													<div id="demoContainer">
+														<div class="col-md-12 col-xs-12" ng-if="!isCancelled">
+															<div basic-tracker="data.basicWorkFlowData"
+																tracker-status-color=""></div>
+														</div>
+														<div class="col-md-12 col-xs-12" ng-if="isCancelled">
+															<div basic-tracker="data.cancelWorkFlowData"
+																tracker-status-color=""></div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											<!--  <div id="divWorkflow{{$index}}">
+								
+								</div>
+								<div id="divLWP{{$index}}">
+								
+								</div>-->
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div id="actionButtonsForSubmit" class="row col-lg-12 col-xs-12"
+						style="margin: 15px 0px 20px 0px; text-align: right; padding-bottom: 10px; padding-right: 0px;">
+
+
+						<div class="col-lg-12"
+							style="margin-right: 6px; padding-right: 0px;">
+							<button class="btn btn-secondary col-lg-1 col-xs-2"
+								style="float: right; outline: none !important; padding-left: 3px; padding-top: 4px;"
+								ng-click="backToRequestList()" id="backBtn"
+								ng-if="isLevReqDetails || isEmpReqDetails || isTrackReqDtls || isReassignReqDetails || isDelReqDetails">Back</button>
+							<button class="btn btn-primary col-lg-1 col-xs-2"
+								style="width: 130px;margin-left: 10px; margin-right: 10px; padding-left: 10px; float: right; outline: none !important; padding-top: 4px;"
+								data-ng-click="reassignRequest();"
+								id="reassignBtn"
+								ng-if="isReassignReqDetails" ng-disabled="isReassigned">Reassign Request</button>
+							<button class="btn btn-primary col-lg-1 col-xs-2"
+								style="width: 130px;margin-left: 10px; margin-right: 10px; padding-left: 10px; float: right; outline: none !important; padding-top: 4px;"
+								data-ng-click="deleteRequest();"
+								id="deleteBtn"
+								ng-if="isDelReqDetails" ng-disabled="isDeleted">Delete Request</button>
+							<button class="btn btn-primary col-lg-1 col-xs-2"
+								style="margin-left: 10px; margin-right: 10px; padding-left: 10px; float: right; outline: none !important; padding-top: 4px;"
+								ng-click="requestCopyToNew(0);" id="copyBtn"
+								ng-if="isLevReqDetails">Copy to New</button>
+							<button class="btn btn-primary col-lg-1 col-xs-2"
+								style="float: right; outline: none !important; padding-left: 3px; padding-top: 4px;"
+								onclick="$('#commentsModal').modal('show');" id="cancelBtn"
+								ng-if="isLevReqDetails" ng-disabled="isCancelled">Cancel
+								Request</button>
+							
+						
+						</div>
+					</div>
+				</div>
+				<div id="messageModal" class="modal fade leave-modal">
+					<div class="modal-dialog leave-modal-dialog"
+						style="padding-top: 206px;">
+						<div class="modal-content leave-modal-content">
+							<div class="modal-header ng-scope"
+								style="background-color: #427cb2; text-align: left; color: white; padding-left: 30px">
+								<h3 class="modal-title">
+									<img src="appResources/img/please_note_icon_success.png"
+										style="vertical-align: middle;"> <span
+										style="vertical-align: middle;">Please Note!</span>
+								</h3>
+							</div>
+							<div class="modal-body leave-modal-body leave-modal-text"
+								style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+								<div ng-repeat="msg in outMsg">
+									<p style="word-wrap: break-word;">{{msg}}</p>
+								</div>
+								<div style="padding-top: 20px; padding-bottom: 20px;">
+									<button class="leave-modal-button"
+										onclick="$('#messageModal').modal('hide');">OK</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				<div id="commentsModal" class="modal fade leave-modal">
+					<div class="modal-dialog leave-modal-dialog"
+						style="padding-top: 206px;">
+						<div class="modal-content leave-modal-content">
+							<!-- <div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-hidden="true">&times;</button>
+
+						</div> -->
+							<div class="modal-body leave-modal-body leave-modal-text"
+								style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+								<div>
+									<form role="form" name="putComments" ng-submit="" novalidate>
+										<span>Please enter comments here: </span><br /> <span>
+											<textarea ng-model="cancelComments"
+												class="form-control feedBackLettersChars" ng-minlength="1"
+												ng-maxlength="300" style="overflow: auto; resize: none"
+												name="commentsBox" rows="4" cols="50" ng-required="true"
+												id="commentsBox"></textarea>
+										</span>
+										<div class="row-fluid">
+											<div class="span12 feedbackcount">
+
+												<span data-ng-bind-template="{{250-commentBoxTextlength}}"
+													style="font-size: 12px; background-color: Color:#1c66a9;">
+												</span> Characters left
+											</div>
+										</div>
+										<span style="color: red;"
+											ng-if="putComments.commentsBox.$dirty && putComments.commentsBox.$error.required">Please
+											ente the comments!</span>
+										<div style="padding-top: 20px; padding-bottom: 20px;">
+											<button id="cancelButton" class="leave-modal-button"
+												ng-click="cancel(cancelComments);"
+												ng-disabled="putComments.$invalid">OK</button>
+											<button class="leave-modal-button"
+												onclick="$('#commentsModal').modal('hide');">Cancel</button>
+										</div>
+									</form>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div id="workFlowModalDetls" class="modal fade">
+					<div class="modal-dialog">
+						<div class="modal-content" style="width: 100%;">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal"
+									aria-hidden="true">&times;</button>
+								<h4 class="modal-title">Workflow Details</h4>
+							</div>
+							<div class="modal-body">
+								<div class="simDetlLeaveBar">
+									<div class="row" ng-repeat="data in moreWorkflowDetails">
+										<p>{{data.employeeRole}}</p>
+										<p>{{data.fullName}} | {{data.employeeNo}} |</p>
+										<p>{{data.contactDTO.emailId}} |
+											{{data.contactDTO.contactNumberCell}}</p>
+									</div>
+								</div>
+							</div>
+							<div class="modal-footer">
+								<button type="button" class="btn btn-default"
+									data-dismiss="modal">Close</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+		</div>
+
+		<!-- maternity and lwp undertakings	 -->
+
+		<div data-ng-show="isLwp">
+
+
+			<div class="row" style="margin: 0px;">
+				<div class="col-lg-12 text-left"
+					style="font-size: 16px; font-weight: bold; color: #224272">
+					<span>Leave Without Pay Undertaking Form</span>
+				</div>
+			</div>
+			<div class="row" style="margin: 20px 0px 20px 0px">
+
+				<div class="col-lg-offset-2 col-lg-8 col-lg-offset-2">
+					<div class="row"
+						style="background-color: #f7f7f7; box-shadow: 0px 1px 4px 1px #999999; margin: 0px;">
+						<div class="col-lg-12 text-center" style="padding-top: 20px;">
+							<span
+								style="font-size: large; text-decoration: underline; font-weight: bolder;">LWP
+								Undertaking form </span>
+						</div>
+						<div class="col-lg-12 text-center" style="margin-bottom: 15px;">
+							<span
+								style="font-size: 14px; font-weight: bold; font-family: Arial; color: dodgerblue;"
+								data-ng-bind="lwpTitle"></span>
+						</div>
+						<div class=" col-lg-12 text-left"
+							style="font-size: 14px; font-weight: bold; font-family: arial; margin-bottom: 25px;">
+							<span data-ng-bind="para_1"></span>
+						</div>
+						<div class=" col-lg-12 text-left"
+							style="font-size: 14px; font-weight: bold; font-family: arial; margin-bottom: 25px;">
+							<span data-ng-bind="para_2"></span>
+						</div>
+						<div class=" col-lg-12 text-left"
+							style="font-size: 14px; font-weight: bold; font-family: arial; margin-bottom: 25px;">
+							<span data-ng-bind="para_3"></span>
+						</div>
+						<div class=" col-lg-12 text-left"
+							style="font-size: 14px; font-weight: bold; font-family: arial; margin-bottom: 25px;">
+							<span data-ng-bind="para_4"></span>
+						</div>
+						<div class=" col-lg-12 text-left"
+							style="font-size: 14px; font-weight: bold; font-family: arial; margin-bottom: 25px;">
+							<span data-ng-bind="para_5"></span>
+						</div>
+						<div class=" col-lg-12 text-left"
+							style="font-size: 14px; font-weight: bold; font-family: arial; margin-bottom: 25px;">
+							<span data-ng-bind="para_6"></span>
+						</div>
+						<div class="row" style="margin: 0px 0px 15px 0px;">
+							<div class="col-lg-12 text-left">
+								<div>Signature of Employee</div>
+								<div data-ng-bind="systemDate"></div>
+								<div data-ng-bind="lwpEmpName"></div>
+								<div data-ng-bind="lwpEmpNo"></div>
+							</div>
+
+						</div>
+						<div
+							style="background-color: #efefef; height: 60px; padding-top: 15px;">
+							<div class="col-lg-12 text-right">
+								<button type="button" class="btn btn-default btn-lg"
+									data-ng-click="printLwpUndertaking();" translate>Print</button>
+								<button type="button" class="btn btn-default btn-lg"
+									data-ng-click="changeLwpFlg();" translate>Back</button>
+							</div>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div data-ng-show="isMaternity">
+
+
+			<div class="row" style="margin: 0px;">
+				<div class="col-lg-12 text-left"
+					style="font-size: 16px; font-weight: bold; color: #224272">
+					<span>Maternity Leave Nomination form</span>
+				</div>
+			</div>
+
+			<div class="row" style="margin: 15px 0px 20px 0px">
+				<div class="col-lg-offset-2 col-lg-8 col-lg-offset-2">
+					<div
+						style="background-color: #f7f7f7; box-shadow: 0px 1px 4px 1px #999999; margin: 0px;">
+						<div class="col-lg-12 text-center"
+							style="padding-top: 15px; padding-bottom: 5px;">
+							<img data-ng-src="appResources/img/TATA.png" />
+						</div>
+						<div class="col-lg-12 text-center">
+							<span
+								style="font-size: large; text-decoration: underline; font-weight: bolder;">Notice
+								under Section 6 of the Maternity Benefit Act, 1961</span>
+						</div>
+						<div class="col-lg-12 text-center" style="margin-bottom: 15px;">
+							<span
+								style="font-size: 14px; font-weight: bold; font-family: Arial; color: #A94442;">(
+								TO BE SUBMITTED ALONG WITH THE MATERNITY LEAVE APPICATION )</span>
+						</div>
+						<div class=" col-lg-10 text-left"
+							style="font-size: 14px; font-weight: bold; font-family: arial; margin-bottom: 25px;">
+							<div>Tata Consultancy Services Ltd.</div>
+							<div>
+								Depute Branch: <span data-ng-bind="branchName"></span>
+							</div>
+							<div>
+								Depute Location: <span data-ng-bind="branchName"></span>
+							</div>
+						</div>
+						<div class="col-lg-12 text-left" style="margin-bottom: 20px;">
+							<div style="margin-bottom: 15px; font-size: 14px;"
+								ng-bind="dataObj1"></div>
+							<div style="font-size: 14px;" ng-bind="dataObj2"></div>
+						</div>
+						<div class="row" style="margin: 0px 0px 15px 0px;">
+							<div class="col-lg-1 text-left">
+								<div>Date:</div>
+							</div>
+							<div class="col-lg-offset-8 col-lg-3 text-left"
+								style="margin-bottom: 15px;">
+								<div>Signature of Employee:</div>
+							</div>
+						</div>
+
+						<div
+							style="background-color: #efefef; height: 60px; padding-top: 15px;">
+							<div class="col-lg-12 text-right">
+								<button type="button" class="btn btn-default btn-lg"
+									data-ng-click="printMaternityForm();" translate>Print</button>
+								<button type="button" class="btn btn-default btn-lg"
+									ng-click="changeMaternityFlg();" translate>Back</button>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div ng-if="!isValidPage">
+		<div class="row">
+			<div class="col-md-12 col-lg-12 col-xs-12 col-sm-12">
+				<span class="error">You are not authorized for viewing this
+					request.</span><br />
+				<button class="btn btn-default col-lg-1 col-xs-2"
+					style="float: right;" ng-click="backToRequestList()" id="backBtn">Back</button>
+			</div>
+		</div>
+	</div>
+	
+	
+	<div id="reassignModal" class="modal fade reassign-modal">
+					<div class="modal-dialog reassign-modal-dialog"
+						style="padding-top: 206px;">
+						<div class="modal-content reassign-modal-content" >
+							<!-- <div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal"
+								aria-hidden="true">&times;</button>
+
+						</div> -->
+							<div class="modal-body reassign-modal-body reassign-modal-text"
+								style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+								<div>
+									<form role="form" name="putComments" ng-submit="" novalidate>
+									<div style="font-weight: bold;"><span >Reassign To:</span><br />
+									 <span>Approver Number*</span>
+									
+									</div>
+									<div style="margin-top:10px;">
+									
+										<input 
+												class="form-control feedBackLettersChars col-xs-2" ng-minlength="1" allow-only-numbers
+												ng-maxlength="300" style="overflow: auto; resize: none; width:50%;margin-top: 6px;"
+												name="reassignEmpIdBox"  cols="50" ng-required="true"
+												id="reassignEmpIdBox"></input>
+												<button id="reassignButton" class="leave-modal-button"
+												ng-click="reassignEmpSearch();" style="margin-left: 10px;"
+												ng-disabled="putComments.$invalid">Search</button>
+									</div>
+										
+									
+									
+									<div id="reassignErrorDiv">
+										<span style="color: red;"
+											ng-if="putComments.reassignEmpIdBox.$dirty && putComments.reassignEmpIdBox.$error.required">Please
+											enter Approver Number</span>
+									</div>
+									<div style="margin-top: 3%; margin-bottom: 1%; padding:0;border: 1px solid #D5D5D5" data-ng-if="reassignEmpSearchFlag">
+									 	<div class="reqListTitleBar reqListTitleBarFont">
+									 		<div class="row">
+		 
+											 	<div class="col-md-3" style="padding-left: 21px;">
+											 		<div>Employee No</div>
+											 	</div>
+		 	
+											 	<div class="col-md-5">
+											 		<div>Full Name</div>
+											 	</div>
+		 	
+											 	<div class="col-md-4">
+											 		<div>Employment Status </div>
+											 	</div>
+											 </div>
+										</div>
+		 	
+		 								 <div class="row " ng-repeat="obj in reassignEmpData.details track by $index">
+											 <div style="background-color: #f7f7f7;    text-align: center;">
+											 	<div class="col-md-3" style="padding-left: 5px;">
+											 		<div class="col-md-1 radioMod" style="padding-left:0px;">
+											 			<input type="radio" name="selectEmp" ng-model="reassignEmpData.details" ng-value="obj.employeeNo"  ng-click="setEmpNo(obj);" ng-if="navigationShow">
+											 		</div>
+											 		<div class="col-md-1" style="padding: 6px 0; padding-left: 5px;">{{obj.employeeNo}}</div>
+											 		
+											 	</div>
+		 	
+											 	<div class="col-md-5">
+											 		<div style="padding: 6px 0;">{{obj.firstName}}&nbsp;{{obj.lastName}}</div>
+											 	</div>
+		 	
+											 	<div class="col-md-4">
+											 		<div style="padding: 6px 0;">{{obj.employeeStatus}}</div>
+											 	</div>
+		 									</div>
+										 </div>
+		 							</div>
+								
+									<div style="padding-top: 20px; padding-bottom: 20px;">
+										<button id="OKButton" class="leave-modal-button"
+											ng-click="onBehalfReassign();"
+											ng-disabled="putComments.$invalid" >OK</button>
+										<button class="leave-modal-button" id="cancelButton" 
+										ng-disabled="putComments.$invalid" 
+											onclick="$('#reassignModal').modal('hide');">Cancel</button>
+									</div>
+									</form>
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+				
+</div>
+
+
+<script>
+	$(document).ready(
+			function() {
+				$('#messageModal').on('hidden.bs.modal', function() {
+					$('body').css("padding-right", "0px");
+				});
+
+				$('#commentsModal').on('hidden.bs.modal', function() {
+					$('body').css("padding-right", "0px");
+				});
+
+				$("#demoContainer").mouseup(
+						function(e) {
+							var subject = $("#faltuId");
+
+							if (e.target.id != subject.attr('id')
+									&& !subject.has(e.target).length) {
+								subject.fadeOut();
+							}
+						});
+			});
+
+	$('.modal').bind('cut copy paste', function(e) {
+		e.preventDefault();
+	});
+
+	function workFlowDtls() {
+		console.log("Test Fun Called ... ");
+		$("#workFlowModalDetls").modal('show');
+	}
+
+	angular.element(document).ready(function() {
+		angular.element(add).click(function() {
+
+			angular.element(add_delete_tab).show();
+		});
+	});
+
+	function showFaltuDtls() {
+		//alert('Hope for the best');
+		document.getElementById("faltuID").style.display = "block";
+	}
+</script>
+<div data-ng-include="'xssValidate.html'"></div>
+<div data-ng-include="'CommentsValidate.html'"></div>

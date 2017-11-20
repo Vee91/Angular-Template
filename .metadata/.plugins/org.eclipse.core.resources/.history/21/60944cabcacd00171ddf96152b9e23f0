@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="GessLeave">
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <dependent-module archiveName="jboss-as-naming-7.1.0.Final.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/jboss-as-naming-7.1.0.Final.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="UltxTouchRedisConnectivity.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/UltxTouchRedisConnectivity.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="json-simple-1.1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/json-simple-1.1.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jdt-compiler-3.1.1.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/jdt-compiler-3.1.1.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="dfc.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/dfc.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jackson-annotations-2.0.0.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/jackson-annotations-2.0.0.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-webmvc-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/spring-webmvc-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-context-support-3.2.4.release.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/spring-context-support-3.2.4.release.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-codec-1.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/commons-codec-1.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jboss-saaj-api_1.3_spec-1.0.2.Final-redhat-2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/jboss-saaj-api_1.3_spec-1.0.2.Final-redhat-2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="LMC.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/LMC.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="cglib-2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/cglib-2.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="alfresco-web-client-3.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/alfresco-web-client-3.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-io-1.4.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/commons-io-1.4.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-test-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/spring-test-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="alfresco-web-service-client-3.3.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/alfresco-web-service-client-3.3.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-pool-1.5.5.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/commons-pool-1.5.5.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="apache-velocity-velocity-1.5.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/apache-velocity-velocity-1.5.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="commons-digester.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/commons-digester.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-jms-3.2.4.release.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/spring-jms-3.2.4.release.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="XmlSchema-1.4.7.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/XmlSchema-1.4.7.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="aopalliance.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/aopalliance.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="spring-tx-3.2.4.RELEASE.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/spring-tx-3.2.4.RELEASE.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="SymJavaAPI.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/SymJavaAPI.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="gson-2.2.2.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/gson-2.2.2.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="LeaveOrgServices.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/PlagiarismLib/LeaveOrgServices.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="java-output-path" value="/GessLeave/build/classes"/>
+        <property name="context-root" value="leave"/>
+    </wb-module>
+</project-modules>

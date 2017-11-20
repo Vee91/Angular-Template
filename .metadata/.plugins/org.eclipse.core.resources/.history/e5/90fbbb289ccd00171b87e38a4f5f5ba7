@@ -1,0 +1,181 @@
+package com.plagiarism.controller;
+
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.util.List;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ultimatix.gess.leave.dto.LerfDTO;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.LerfService;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.ReflectionUtility;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class LerfController {
+
+	@Autowired 
+	private  LerfService lerfService;
+	
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(LeaveMyRequestController.class);
+
+	// To load HTML page
+	
+	// To fetch all the Request Details
+	@RequestMapping(value = "/fetchLERFHistoryDetails", method = RequestMethod.POST)
+	public @ResponseBody
+	List fetchLERFHistoryDetails()  {
+		LOG.info("lerfController | fetchLERFHistoryDetails initiated");
+		
+		String empId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+					
+		LOG.info("lerfController | fetchLERFHistoryDetails empId is: "+empId);
+		
+		List  detailsList=lerfService.fetchLERFHistoryDetails(empId);
+		
+		LOG.info("lerfController | fetchLERFHistoryDetails terminated");
+		
+		return detailsList;
+		
+	}
+	
+	@RequestMapping(value = "/fetchSingleLerfDetails", method = RequestMethod.POST)
+	public @ResponseBody
+
+	Object fetchSingleLerfDetails(@RequestBody String json) throws SQLException {
+		try{
+			LOG.info("lerfController | fetchSingleLerfDetails initiated");
+	
+
+		
+		String loggedInEmpID = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+					
+		LOG.info("lerfController | fetchSingleLerfDetails empId is: "+loggedInEmpID);
+		
+		Object  lerfDetail=lerfService.fetchSingleLerfDetails(loggedInEmpID,json);
+
+		LOG.info("lerfController | fetchLERFHistoryDetails terminated");
+		
+		return lerfDetail;
+		}catch(JSONException e){
+			   throw new IllegalArgumentException("exception ",e);
+			   
+		}
+		
+	}
+	
+
+	@RequestMapping(value = "/fetchLerfDetails", method = RequestMethod.POST)
+	public @ResponseBody
+List<Map<String,Object>> fetchLerfDetails(@RequestBody Map json) throws  JSONException {
+	
+			LOG.info("lerfController | applyLerf initiated " );
+		
+		String onBehalfFlag=(String) json.get("onBehalfFlag");	
+		String empId=(String) json.get("empId");
+		List<Map<String,Object>> requestList=null;
+			
+		String loggedInEmpId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+					
+		LOG.info("lerfController | applyLerf Start | Login Id : "+loggedInEmpId +" | IP Address : "+ DataFixUtils.getIpAddress() );
+		
+		if(null!=onBehalfFlag && null!=empId  && "Y".equalsIgnoreCase(onBehalfFlag)) {
+			if(empId.equalsIgnoreCase(loggedInEmpId)){
+				return null;
+			}else{
+			requestList=lerfService.fetchLerfDetails(empId);
+			}	
+			}else{
+			
+				requestList=lerfService.fetchLerfDetails(loggedInEmpId);
+		}
+			
+		
+
+		LOG.info("lerfController | applyLerf terminated");
+	
+		return requestList;
+		
+	}
+
+	@RequestMapping(value = "/reportingDateChange", method = RequestMethod.POST)
+	public @ResponseBody
+	LerfDTO reportingDateChange(@RequestBody List<Map> detail) throws  JSONException, SQLException {
+	
+		String loggedInEmpID = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("lerfController | reportingDateChange Start | Login Id : "+loggedInEmpID +" | IP Address : "+ DataFixUtils.getIpAddress() );
+		LerfDTO requestList=null;
+		List<LerfDTO> list  =ReflectionUtility.copy(detail);
+		String onBehalfFlag = (String) detail.get(0).get("onBehalfFlag") ;
+		String empId =(String) detail.get(0).get("employeeNo") ;
+		if(null!=onBehalfFlag  && "Y".equalsIgnoreCase(onBehalfFlag))
+		{
+		if(null!=empId){
+			
+			 requestList=lerfService.reportingDateChange(empId ,list.get(0));}
+		else{
+			return requestList;	
+				
+			}
+		}else{
+			 requestList=lerfService.reportingDateChange(loggedInEmpID ,list.get(0));
+		}
+		LOG.info("lerfController | reportingDateChange terminated");
+	
+		return requestList;
+		
+	}	
+	
+	@RequestMapping(value = "/submitLerfDetails", method = RequestMethod.POST)
+	public @ResponseBody
+List<ResponseResource> submitLerf(@RequestBody List<Map> detail) throws SQLException, ParseException{
+	
+		LOG.info("lerfController | submitLerf initiated");
+		
+		String loggedInEmpID = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("lerfController | submitLerf Start | Login Id : "+loggedInEmpID +" | IP Address : "+ DataFixUtils.getIpAddress() );
+		List<ResponseResource> requestList=null;
+		String onBehalfFlag = (String) detail.get(0).get("onBehalfFlag") ;
+		String empId =(String) detail.get(0).get("employeeNo") ;
+		
+		if(null!=onBehalfFlag  && "Y".equalsIgnoreCase(onBehalfFlag)){
+			if(null!=empId){
+				
+				detail.get(0).put("SuperuserId", loggedInEmpID);
+		       requestList=lerfService.submitLerf(detail.get(0),empId);}
+			else{
+				return null;
+			}
+		}else{
+			
+		 requestList=lerfService.submitLerf(detail.get(0),loggedInEmpID);
+		 }
+
+		LOG.info("lerfController | submitLerf terminated");
+	
+		return requestList;
+		
+	}	
+	
+	@RequestMapping(value = "/i94Details", method = RequestMethod.POST)
+	public @ResponseBody
+List<ResponseResource> i94Details(@RequestBody String json) throws  JSONException{
+		
+		
+		
+		return null;
+	}
+	
+	
+}

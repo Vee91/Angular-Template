@@ -1,0 +1,101 @@
+
+<div class="row-fluid">
+	
+							<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 text-left">
+								<span class="font1">Upload credit entitlement for single associate
+								</span>
+								<form name="form" novalidate>
+								<div class="row row1">
+									<div class="upper">
+									   <span class="font2">Employee Number<span class="lab">*</span>
+									   </span> 
+									   <span><input class="input" type="text" style="margin-left:18px;"
+												 name="emp" ng-model="user.empno"
+												 ng-required="true"
+												placeholder="Enter Number Here">
+									   </span>
+                                       <div ng-show="form.$submitted || form.emp.$touched">
+									   <span class="lab" ng-show="form.emp.$error.required">Please Enter Your Employee Number
+									   </span>
+								     
+									   </div>
+								 	 </div>
+									 <div class="upper">
+									    <span class="font2">Credits<span class="lab">*</span>
+									    </span> 
+									    <span><input class="input"
+												type="text" style="margin-left: 83px;" name="ucredit"
+												ng-model="user.credit" pattern="^\d{2}$"
+												placeholder="Enter Credit Here" required>
+									     </span>
+									     <div ng-show="form.$submitted || form.ucredit.$touched">
+									     <span class="lab" ng-show="form.ucredit.$error.required">Enter The Credits 
+									     </span> 
+									     <span class="lab" ng-show="form.ucredit.$error.pattern">Please Enter Valid Number
+									     </span>
+									     </div>
+									  </div>
+									  <div class="upper">
+											<span class="font2">Remarks<span class="lab">*</span>
+											</span>
+											 <span><textarea name="rem" ng-model="user.remarks"
+													style="margin-left: 74px; width: 150px" required></textarea>
+											 </span>
+											<div ng-show="form.$submitted || form.rem.$touched">
+												<span class="lab" ng-show="form.rem.$error.required">Please Enter Your Remarks
+												</span>
+                                            </div>
+											<div>
+												<span class="font1" >Please provide remarks within 50 characters
+												</span>
+											</div>
+									   </div>
+										<span class="text-left lev-field-error"  data-ng-bind="serverErrMsg"></span>	
+
+										<div class="row" >
+											<div class="col-xs-12 col-sm-12 col-lg-12 text-left" style="margin-left: 200px">
+												<br>
+												<button type="button" class="btn btn-primary btn-lg"
+												ng-click="insertDetails(user)"
+													ng-disabled="(form$invalid)" data-ng-class="{'disabled':(form.$invalid)}">Submit</button>
+
+												<button type="reset" class="btn btn-default btn-lg"
+												 ng-click="reset()">Reset</button>
+
+
+											</div>
+										</div>
+
+									</div>
+								</form>
+							</div>	
+							
+							<!-- sucess Modal -->
+
+<div id="messageModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px; background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:22px;">
+								{{outMsg}}
+								</div>
+								
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+									ng-click="redirectToHomePage();">OK</button>
+								
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+</div>
+	

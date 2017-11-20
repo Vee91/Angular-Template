@@ -1,0 +1,121 @@
+
+define(['angular','app','moment','displayMenu','jqueryui','bootstrap'], function(angular,app,moment) {
+
+	
+	app.controller('columbiaEncashCtrl', ['$scope','$location','$http','$q','$compile','$modal', '$log','$rootScope','$route','$window',function($scope,$location, $http,$q,$compile,$modal, $log,$rootScope,$route,$window)
+	                           	   { 
+		$scope.leaveBalance=0.0;
+		$scope.leavesEncashed=0.0;
+		$scope.leaveType="Vacation Days"
+			
+			
+			
+			var encashDetails=$http.post('/leaverest/rest/getColDetails/?cd=' + (new Date()).getTime());
+    	
+    	
+    	var fullResponse=$q.all([encashDetails]);
+    	fullResponse.then(function(resultList)
+            {
+            	
+            	if(resultList[0]){
+            		$scope.encashDetails=resultList[0].data;
+            		$scope.encashLevDetails=$scope.encashDetails.encashableLeaves[0];
+            		if(!($scope.encashLevDetails==undefined)){
+            		if($scope.encashLevDetails.leaveBalance >=7){
+            			$scope.noOfDays=7;
+            		}else{
+            			$scope.noOfDays=$scope.encashLevDetails.leaveBalance;
+            		}
+            		};
+            		
+            	};
+            	
+            	
+            },function(error) {
+            	if(error.config.url.includes("getColDetails") && error.status=="404"){
+            		$rootScope.processing=false;
+            		 $location.path("/colEncahErr");
+            	}
+            }, function(update) {
+            	  alert('Got notification: ' + update);
+            });
+    	
+    	
+    	
+    	
+    	$scope.askForEncash=function(){
+    		$scope.encashAccptMsg="You have requested an encashment of "+ $scope.noOfDays +" days of your annual leave balance.";
+    		$("#columbiaEncashId").modal('show');
+    		$scope.pleaseNote="Please Note : Once you submit an encashment request, you cannot cancel the same.";
+    		
+    		
+    	};
+		
+    	$scope.encashCnfm=function(){	
+    		var encashSubmitObj={};
+    		encashSubmitObj.leaveTypeID=$scope.encashLevDetails.leaveTypeID;
+    		encashSubmitObj.countryCode=$scope.encashDetails.countryCode;
+    		
+    		var resp = $http.post('/leaverest/rest/submitColEncash?cd=' + (new Date()).getTime(),encashSubmitObj)
+			.then(function(response)
+			{
+				$scope.responseMessage=response.data.statusMessage;
+				
+			//	if("Encashment done."==$scope.responseMessage){
+					var encashDetails=$http.post('/leaverest/rest/getColDetails/?cd=' + (new Date()).getTime());
+		        	var fullResponse=$q.all([encashDetails]);
+		        	fullResponse.then(function(resultList)
+		                {
+		                	
+		                	if(resultList[0]){
+		                		$scope.encashDetails=resultList[0].data;
+		                		$scope.encashLevDetails=$scope.encashDetails.encashableLeaves[0];
+		                		if(!($scope.encashLevDetails==undefined)){
+		                		if($scope.encashLevDetails.leaveBalance >=7){
+		                			$scope.noOfDays=7;
+		                		}else{
+		                			$scope.noOfDays=$scope.encashLevDetails.leaveBalance;
+		                		}
+		                		};
+		                		
+		                	};
+		                	
+		                	
+		                },function(error) {
+		                	if(error.config.url.includes("getColDetails") && error.status=="404"){
+		                		$rootScope.processing=false;
+		                		 $location.path("/colEncahErr");
+		                	}
+		                }, function(update) {
+		                	  alert('Got notification: ' + update);
+		                });
+			//	}
+				
+				/*for (var i=0; i < response.data.length ; i++){
+					var code=response.data[i].code;
+					if("422"==code){
+					$scope.disableSubmit=false;
+					$scope.leave.leaveList1[i].errorMsg=response.data[i].fieldErrors[0].message;
+					$rootScope.processing=false;
+                    var errorField=angular.element($("#"+response.data[i].fieldErrors[0].field+"_"+i));
+                    errorField.addClass('dirty-field');
+                 }else if("200"==code){
+                	 $rootScope.processing=false;
+                	 $scope.disableSubmit=true;
+						$scope.leave.leaveList1[i].errorMsg='';
+						$scope.leave.leaveList1[i].serverErrMsg='';
+						$scope.submitLeaveResponse = response.data[i].message;
+						if(!($scope.submitLeaveResponse==undefined)){
+							$scope.outputMesg=$scope.submitLeaveResponse;
+							$("#archiveSuccessModal").modal('show');
+							};
+					};
+				};*/
+			}); //server response ends---
+    		
+    		
+    		
+    	};
+	            }]);
+
+});

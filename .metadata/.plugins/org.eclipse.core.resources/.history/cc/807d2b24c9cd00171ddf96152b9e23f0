@@ -1,0 +1,131 @@
+
+<div data-ng-controller="dataFixCtrl">
+	<div class="row">
+		<div>
+			<label class="col-md-2" style="font-size: 16px;">Please
+				select a Module : </label> <select ng-model="moduleSelected"
+				class="col-md-3" ng-change="fetchModuleDFList()"
+				ng-options="x for x in modulesList"><br>
+				<option style="display: none" value="">Please Select
+					Module:</option>
+				<br></select> <br> <br> <br>
+		</div>
+		<div data-ng-if="moduleSelected">
+			<label class="col-md-2" style="font-size: 16px;">Please
+				select DF : </label> <select ng-model="$parent.moduleDfSelected" class="col-md-3"
+				 ng-options="x for x in moduleDfList"><br>
+				<option style="display: none" value="">Please Select DF
+					Type</option>
+				<br></select> <br> <br> <br>
+		</div>
+	</div>
+
+	<div class="row" data-ng-show="moduleDfSelected">
+		<button class="btn btn-primary btn-lg" type="button"
+			ng-click="fetchExcel()" style="margin-right: 10px">Download
+			DF</button>
+
+
+
+		<button class="btn btn-primary btn-lg" type="button"
+			ng-click="enableUpload()" style="margin-right: 10px">Upload
+			DF Document</button>
+
+	</div>
+
+	<div class="row" style="margin-top: 25px;">
+
+
+		<div class="panel panel-default addPopover col-lg-11 col-xs-12 "
+			data-ng-controller="dragDropController" id="add_delete_tab"
+			style="display: none;">
+			<div class="triangle">
+				<div class="col-xs-12" style="margin-top: 13px;">
+
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+						<div class="pull-left" id="errorMessageForFile"></div>
+					</div>
+
+					<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+						style="padding-left: 0px; margin-top: 8px; text-align: left;">
+						<img src="appResources/img/UploadIcon.png"
+							style="margin-bottom: 5px;"> <span
+							class="doc-upload-header" translate=""><span
+							class="ng-scope">Upload Documents</span></span>
+						<div class="row">
+							<div id="dragandrophandler"
+								style="vertical-align: middle; font-size: 12px; text-align: center;"
+								class="doc-upload-body col-md-12">
+								<span>Drag &amp; Drop Documents Here</span>
+							</div>
+							<div
+								style="text-align: left; word-wrap: break-word; font-size: 10px; font-weight: bold; padding-left: 0px;"
+								class="col-md-11">
+								<span>Supported file type : pdf, png, jpg, jpeg, docx,
+									doc, xls, xlsx, ppt, pptx, txt, ods, tiff, bmp </span> <br> <span>File
+									size limit : 5 MB</span>
+							</div>
+							<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"
+								style="padding-top: 5px;" data-ng-if="isLevReqDetails">
+								<label> <input name="file" type="file" id="singleFile"
+									class="span4"
+									style="width: 85px; max-height: 23px; overflow: hidden; display: none;"
+									multiple=""> <img
+									src="appResources/img/AttachmentIcon.png"
+									style="width: 24px; height: 24px; align: left; cursor: pointer;"
+									tooltip="Browse documents..." tooltip-placement="top"
+									tooltip-trigger="mouseenter" class="ng-scope">
+								</label>
+							</div>
+						</div>
+
+					</div>
+
+					<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+						style="padding-left: 0px; text-align: left;">
+						<div id="uploadedDivName"></div>
+						<div id="uploadedFileDiv"></div>
+						<div id="uploadedDocDiv"></div>
+					</div>
+				</div>
+
+				<div class="col-xs-12"
+					style="margin-top: 15px; margin-bottom: 15px; text-align: right;">
+
+					<button class="btn btn-primary btn-lg" type="button"
+						ng-click="UploadDF()" style="margin-right: 10px;"
+						data-ng-if="!fileProcessing">Upload</button>
+				</div>
+
+			</div>
+
+		</div>
+	</div>
+
+
+	<div id="messageModal" class="modal fade leave-modal">
+		<div class="modal-dialog leave-modal-dialog"
+			style="padding-top: 206px;">
+			<div class="modal-content leave-modal-content">
+				<div class="modal-header ng-scope"
+					style="background-color: #427cb2; text-align: left; color: white; padding-left: 30px">
+					<h3 class="modal-title">
+						<img src="appResources/img/please_note_icon_success.png"
+							style="vertical-align: middle;"> <span
+							style="vertical-align: middle;">Please Note!</span>
+					</h3>
+				</div>
+				<div class="modal-body leave-modal-body leave-modal-text"
+					style="min-height: 130px; padding-left: 30px; padding-right: 30px; text-align: left; padding-top: 12px;">
+					<div ng-repeat="msg in outputMesg track by $index">
+						<p style="word-wrap: break-word;">{{msg}}</p>
+					</div>
+					<div style="padding-top: 20px; padding-bottom: 20px;">
+						<button class="leave-modal-button"
+							onclick="$('#messageModal').modal('hide');">OK</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

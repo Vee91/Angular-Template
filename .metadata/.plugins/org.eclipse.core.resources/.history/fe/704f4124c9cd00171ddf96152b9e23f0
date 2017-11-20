@@ -1,0 +1,223 @@
+<link href="appResources/css/leaveReqList.css" rel="stylesheet"
+	type="text/css" />
+
+<style>
+th {
+	text-align: center;
+}
+
+td {
+	text-align: center;
+}
+</style>
+<div ng-controller="cmnPostponementReqCtrl">
+
+
+	<div class="col-lg-12" style="padding-left: 0px">
+
+		<div class="row">
+			<div class="col-lg-12" style="padding-top: 10px; padding-left: 0px;">
+				<span class="pageTitle">Leave - Request Details</span>
+			</div>
+		</div>
+
+
+		<!-- div by viji -->
+		<div class="container-fluid row"
+			style="margin-left: 0px; margin-right: 0px; padding: 0px;">
+			<div class="row">
+
+				<div class="col-md-12 col-xs-12 row subRequestDtlsClass" style="background-color: #F5F8FD;">
+					<div class="col-md-12 col-lg-12"
+						style="margin-top: 6px; margin-bottom: 6px;">
+						<div class="col-lg-3 col-xs-5 topPanelUserDetails">
+							<label class="titleFont">Raised By</label><br> <span
+								class="contentFont">{{postponementObj.postponementData.leaveDetails.firstName}} {{postponementObj.postponementData.leaveDetails.lastName}}</span>
+						</div>
+						<div class="col-lg-3 col-xs-4 topPanelUserDetails">
+							<label class="titleFont">Request No</label><br> <span
+								class="contentFont">{{postponementObj.postponementData.leaveDetails.levReqNo}}</span>
+						</div>
+
+						<div class="col-lg-3 col-xs-6 topPanelUserDetails"
+							style="word-wrap: break-word;">
+							<label class="titleFont">Address</label><br> <span
+								class="contentFont">{{postponementObj.postponementData.leaveDetails.contactAddress}}</span>
+						</div>
+
+						<div class="col-lg-3 col-xs-6 topPanelUserDetails">
+							<label class="titleFont">Contact Number</label><br> <span
+								class="contentFont">{{postponementObj.postponementData.leaveDetails.contactNumCell}}</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+	</div>
+	<div class="col-lg-12 col-xs-12"
+		style="padding-left: 0px; margin-bottom: 5px;">
+		<div class="container-fluid row containerBox"
+			style="margin-left: 0px; margin-right: 0px; padding: 8px; margin-top: 15px;">
+
+			<div class="reqDetails">
+				<div class="row requestBar" style="border-bottom: 1px solid #ccc;">
+					<div class="col-lg-12 col-xs-12 whiteBarReqDetails"
+						data-toggle="collapse" data-aria-expanded="false"
+						style="cursor: pointer; padding-left: 0px;"
+						id="whitebar{{$index}}"
+						ng-mouseenter="$emit('setDivHoverStyle', $index, 'whitebar','enter')"
+						ng-mouseleave="$emit('setDivHoverStyle', $index, 'whitebar','leave')">
+						<div class="col-lg-1 col-xs-2 orangeBar">
+									<!--style="width: 35px; padding-top: 12px; padding-left: 9px; top: 0px; font-weight: bold;"
+								 class="col-lg-1 col-xs-2 orangeBar glyphicon glyphicon-menu-down"
+									id="orngBar{{$index}}" -->
+									 <span > <img src="appResources/img/levReqDtlBar_icon.png"> </span> 
+
+						</div>
+							<div class="col-lg-9 col-xs-5" id="headClass{{$index}}"
+									style="text-align: left; min-height: 30px;margin-top:10px; "
+									>
+									<span class="leaveHeadClass">Leave Carry Over(Postponement) Details</span>
+								</div>
+								<div class="col-lg-2 col-xs-5"
+							style="margin-bottom: 0px; padding-left: 20px; min-height: 30px; height: 30px; float: right;"
+							verticalalign>
+							<label style="font-size: 12px; padding-top: 5px;"></label>
+
+						</div>
+						
+					</div>
+				</div>
+
+				<!-- Phase 1 -->
+				<!-- collapse -->
+				<div class=" in" id="subRequestDetails{{$index}}"
+					style="height: auto;">
+					<div class="row">
+						
+
+						<div class="subRequestDtlsClass" style="border:0px;border-bottom: 1px solid #ccc;">
+							<div class="row" >
+								<div style="background-color: #fff; padding: 2%;">
+
+									<table class="table table-bordered" style="margin-bottom: 0;">
+										<thead>
+											<tr class="titleFont">
+												
+												<th>Leave Type</th>
+												<th>Last Year Postponed Balance</th>
+												<th>Current Year Leave Credit</th>
+												<th>Current Years Leave approved</th>
+												<th>Current Years Leaves Awaiting Approval </th>
+												<th>Current Year Unavailed Balance</th>
+												<th>Balance Already Postponed</th>
+												<th>Balance that Can Be Postponed*</th>
+											</tr>
+										</thead>
+
+										<tbody>
+											<tr class="contentFont">
+												<td>{{postponementObj.postponementData.balanceDetails.countryLevTypeName}}</td>
+												<td>{{postponementObj.postponementData.balanceDetails.lastYrPost}}</td>
+												<td>{{postponementObj.postponementData.balanceDetails.currentCredit}}</td>
+												<td>{{postponementObj.postponementData.balanceDetails.currentAvailed}}</td>
+												<td>{{postponementObj.postponementData.balanceDetails.currentPending}}</td>
+												<td>{{postponementObj.postponementData.balanceDetails.currentUnavailed}}</td>
+												<td>{{postponementObj.postponementData.balanceDetails.alreadyPostpone}}</td>
+												<td>{{postponementObj.postponementData.balanceDetails.balCanPost}}</td>
+											<tr>
+										</tbody>
+									</table>
+
+
+								</div>
+								
+
+								
+
+							</div>
+						</div>
+						
+						<div class="subRequestDtlsClass addFields" style="border:0px;">
+							
+							<label class="contentFont" style="float: left;margin-left: 25px;">Postponment Approval Details</label>
+							<div class="row col-lg-12 col-xs-12">
+								<div class="col-lg-8 col-xs-8" style="padding-left: 3%;height: 30px;">
+									<div class="contentFont">No. of day(s) for which Leave Carry Over (Postponement) has been applied by an associate</div>
+								</div>
+								<div class="col-lg-2 col-xs-2">
+									
+									<div class="contentFont divBorder">{{postponementObj.postponementData.leaveDetails.appliedDays}}</div>
+								</div>
+								<div ng-show="postponementObj.appr1">
+								<div class="col-lg-8 col-xs-8" style="padding-left: 3%;height: 30px;">
+									<div class="contentFont">No. of day(s)for which Leave Carry Over (Postponement) has been/to approved/approve at the first level</div>
+								</div>
+								<div class="col-lg-2 col-xs-2">
+									
+									<div class="contentFont divBorder">{{postponementObj.postponementData.leaveDetails.apprverOneLevel}}</div>
+								</div>
+								</div>
+								<div ng-show="postponementObj.appr2">
+								<div class="col-lg-8 col-xs-8" style="padding-left: 3%;height: 30px;">
+									<div class="contentFont">No. of day(s)for which Leave Carry Over (Postponement) has to be approved at the second level</div>
+								</div>
+								<div class="col-lg-2 col-xs-2">
+									
+									<div class="contentFont divBorder">{{postponementObj.postponementData.leaveDetails.apprverTwoLevel}}</div>
+								</div>
+								</div>
+							</div>
+						</div>
+						
+						<div class="row">
+									<div class="col-lg-12 col-xs-12"
+										style="margin-bottom: 10px; padding-left: 0px; padding-right: 0px;">
+										<div class="tab-content trackerBarDetail">
+											<div>
+												<ul class="nav nav-pills">
+													<li class="active"><a id="workflow{{$index}}"
+														ng-click="trackDetails('Workflow', $index, isLWP)"
+														style="background-color: #0449b0; margin-top: 10px; margin-left: 10px; font-size: 11px; padding-top: 5px; padding-bottom: 5px;">WORKFLOW
+															DETAILS</a></li>
+												</ul>
+											</div>
+											<div
+												style="border-top: 3px solid #0449b0; margin-left: 10px; margin-right: 10px;">
+											</div>
+											
+											<div id="divWorkflow{{$index}}"
+												style="min-height: 295px; padding-bottom: 1px;">
+												<h3></h3>
+
+												<div class="col-md-12 col-xs-12">
+													<div basic-tracker="postponementObj.basicWorkFlowData"
+														tracker-status-color=""></div>
+												</div> 
+												
+											</div>
+										</div>
+
+								</div>
+								</div>
+						
+					</div>
+				</div>
+			</div>
+
+			<div id="actionButtonsForSubmit" class="row col-lg-12 col-xs-12"
+				style="margin: 15px 0px 0px 0px; text-align: right; padding-bottom: 10px;padding-right:0px;">
+				<div class="col-lg-12"
+					style="margin-right: 6px; padding-right: 0px;">
+					<button class="btn btn-default col-lg-1 col-xs-2"
+						style="float: right;" ng-click="backToRequestList()" id="backBtn">Back</button>
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

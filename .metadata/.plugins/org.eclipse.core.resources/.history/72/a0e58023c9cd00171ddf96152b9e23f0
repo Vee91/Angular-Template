@@ -1,0 +1,782 @@
+.row{
+	margin:0;
+}
+.topPanel{
+	min-height:100px;
+	margin-top: -1px;
+	background-color: #fff;
+	background-image: -moz-linear-gradient(top, #fff, #fff);
+	background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fff),
+		to(#fff));
+	background-image: -webkit-linear-gradient(top, #fff, #fff);
+	background-image: -o-linear-gradient(top, #fff, #fff);
+	background-image: linear-gradient(to top, #fff, #fff);
+	background-repeat: repeat-x;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff',
+		endColorstr='#fff', GradientType=0);
+	border: 1px solid #fff;
+	border-bottom:1px double #fff;
+}
+
+.breadcrumb{
+	font-size: 11px;
+	color:#505050;
+	padding-left: 5px;
+	float: left;
+	background-color: #fff;
+}
+
+.topPanelBoldText{
+	color: #555555;
+	font-size: 12px;
+	font-family: segoe UI;
+	text-align: left;
+  	/* padding-left: 15px; */
+  	/*font-weight: 700;*/
+}
+.topPanelGreyText{
+	font-size: 16px;
+	font-family: segoe UI;
+	text-align: left;
+  	/* padding-left: 15px; */
+  	font-weight: bold;
+  	color:#555555;
+}
+
+.historyButton{
+	text-decoration: underline;
+	font-size:14px;
+	cursor: pointer;
+}
+.subRequestBox{
+	background-color: #FFFFFF;
+	background-image: none;
+	background-repeat: none;
+	filter: none;
+	border-bottom:1px double #F0EFEF; 
+	margin-bottom:30px;
+	padding-bottom: 30px;
+}
+.subReqPanel{
+  text-align: left;
+  font-weight: bold;
+  font-size: 12px;
+  padding-top: 20px;	
+  width:60.666667%;
+}
+.approverActionbar{
+	min-height:40px;
+	background-color:#5C5C5C;
+	 margin-top: 10px; 
+	margin-left: 0px;
+  	margin-right: 0px;
+	text-align: right;
+	margin-left: 1%;
+  	margin-right: 1%;
+	/* padding-top: 3px; */
+
+}
+.amountPanel{
+  font-size: 12px;
+  padding-top: 20px;	
+}
+.collapsePanel{
+	width:4.333333%;
+	padding-top: 16px;
+}
+.collapsePanelIcon{
+	font-family:cursive;
+	font-size: 20px;
+	-webkit-transition: -webkit-transform .5s ease-in-out;
+	-ms-transition: -ms-transform .5s ease-in-out;
+	transition: transform .5s ease-in-out;
+	cursor:pointer;
+}
+.rotate180{
+-moz-transition: -moz-transform 0.5s;
+-webkit-transition: -webkit-transform 0.5s;
+transition: transform .5s;
+/* Safari */
+-webkit-transform: rotate(180deg);
+/* Firefox */
+-moz-transform: rotate(180deg);
+/* IE */
+-ms-transform: rotate(180deg);
+/* Opera */
+-o-transform: rotate(180deg);
+/* Internet Explorer */
+filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+}
+.amountText{
+	  font-size: 25px;
+}
+.amountlabel{
+	  font-weight: bold;
+}
+.actionButton,.actionButton:hover,.actionButtonText{
+	  color:  #eeeeee;
+	  cursor:default;
+	  text-decoration: none;
+	 
+}
+.actionButton .glyphicon{
+	cursor:pointer;
+}
+.requestBar{
+	/*min-height:70px;
+	background-color:#5C5C5C;
+	margin-top: 15px;*/
+	margin-left: 0px;
+  	margin-right: 0px;
+	text-align: left;
+	font-size:12px;
+	font-family:Segoe UI;
+}
+.orangeBar{
+	background-color: #db532d;
+    min-height: 49px;
+    width: 5.333333%;
+	/*background-image:  url("appResources/img/levReqDtlBar_icon.png");	*/
+	
+	
+}
+.whiteBar{
+	background-color: #fff;
+    min-height: 49px;
+    /* box-shadow: 3px 0px 5px -2px #898989, 2px 0px 2px -20px #898989; */
+    width: 94.66666667%;
+	
+}
+.actionIconSec{
+	  padding: 20px 0px 0px 20px;
+}
+.actionButtonText{
+	padding-left: 6px;
+}
+.leaveHeadClass{
+	color:#da532c;
+	font-size:20px;
+	font-family:Segoe UI;
+	font-weight:300;
+}
+.padTop10{
+	/*padding-top:1%;
+	padding-right:0px;
+	padding-bottom:1%;*/
+	
+	/*position: absolute;
+	top:50%*/
+	padding-top:1%;
+}
+.valueCss{
+	font-size:11px;
+}
+.approverCommentClass{
+	font-weight: bold;
+  	color: white;
+}
+.subRequestCommentClass{
+	font-weight: bold;
+  	color: #6e6e6e;
+  	text-align: left;
+  	float: left;
+  	font-size: 12px;
+  	font-family: Segoe UI;
+  	padding:0;
+}
+
+.asterisk{
+	font-size:12px;
+	font-weight: bold;
+	color:#f7425e;
+}
+
+.wrkflowStClass{
+	color:#05BA05;
+	font-weight: bold;
+	float: left;
+}
+.toaClass{
+	color:#797979;
+	font-size:16px;
+	float: left;
+}
+.subReqDataDetail{
+	text-align: left;
+	font-size: smaller;
+}
+.trackerBar{
+	min-height:30px;
+	margin-top: 30px;
+	/*margin-left: 15px;
+  	margin-right: 15px;*/
+	text-align: right;
+	padding-top: 3px;
+	color: black;
+	
+
+}
+.nav-tabs > li{
+	margin-bottom: 0;
+	float: left;
+}
+
+.nav-tabs {
+    border-bottom: 4px solid #044B90;
+}
+.nav-tabs > li > a{
+	padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 3px;
+	color: #fff;
+    background: transparent;
+    font-size: 11px;
+    font-weight: bold;
+    border: none;
+	
+}
+.nav-tabs > li > a:hover{
+	background: transparent;
+	color: #fff;
+	cursor:none;
+	border:none;
+}
+.nav-tabs > li {
+	background: #044B90;
+	border: none;
+	/*cursor:pointer;*/
+	
+	font-weight:bold;
+}
+
+.hideDiv{
+	display:none;
+}
+.activeTabTracker{
+	background-color:#4D4C51;
+	font-size:12px;
+	font-weight:bold;
+}
+.trackerBarDetail{
+	background-color: #FDF7EB;
+	/*margin-left: 15px;
+	margin-right: 15px;z*/
+	border-bottom: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+	
+}
+.disableLinkButton{
+	pointer-events: none;
+  	cursor: default;
+  	color: black;
+}
+.removePadding{
+	padding-top:0%;
+}
+
+.subRequestDtlsClass{
+	color: #6e6e6e;
+  	text-align: left;
+  	float: left;
+  	font-size: 12px;
+  	font-family: Segoe UI;
+  	padding:0;
+}
+
+.titleBar{
+	
+	background-color: #D0CECE;
+	min-height: 30px;
+	margin-top: 1%;
+	margin-left: 1%;
+  	margin-right: 1%;
+  	padding-bottom: 15px;
+}
+.titleColBar{
+	padding-top:1%;
+}
+a > .glyphicon-ok-sign:hover{
+	color:#95C501;
+}
+
+a > .glyphicon-remove-sign:hover{
+	color:#e2394c;
+}
+
+a > .glyphicon-exclamation-sign:hover{
+		color:#FECD16;
+}
+
+a > .glyphicon-share-alt:hover{
+	color:#00B0F0;
+}
+
+.approveColor{
+	color:#95C501;
+	 cursor:default;
+	  text-decoration: none;
+	  padding:9px 13px;
+	  font-size:16px;
+}
+
+
+.rejectColor{
+	color:#e2394c;
+	 cursor:default;
+	  text-decoration: none;
+	  padding:9px 13px;
+	  font-size:16px;
+}
+
+
+.seekClarifyColor{
+	color:#FECD16;
+	 cursor:default;
+	  text-decoration: none;
+	  padding:9px 13px;
+	  font-size:16px;
+}
+
+
+.reAssignColor{
+	color:#00B0F0;
+	 cursor:default;
+	  text-decoration: none;
+	  padding:9px 13px;
+	  font-size:16px;
+}
+
+
+.nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+	color: #555;
+	cursor: default;
+	background-color: #F3D07E;
+	border: none;
+	border-bottom: 2px solid black;
+	font-size:11px;
+	font-weight:bold;
+}
+.simHeadLeaveBar{
+	    width: 99%;
+    font-size: 11px;
+    font-weight: bold;
+    color: #fff;
+    font-family: Segoe UI;
+    background-color: #4F82B1;
+    min-height: 25px;
+   
+    box-shadow: 3px 0px 9px -2px #898989, 2px 0px 2px -20px #898989;
+    padding: 4px 0px;
+	
+}
+.simHeadLeaveBar > div {
+	text-align:left;
+	padding-top:3px;
+}
+.simDetlLeaveBar{
+	padding: 0;
+	max-height:150px;
+	overflow-y:scroll;
+    overflow-X:hidden;	
+}
+
+.simDetlLeaveBar > div{
+	font-size:12px;
+	color:#555555;
+	font-family:Segoe UI;
+	text-align:left;
+	padding-top:3px;
+	background-color: #FFF;
+	min-height: 30px;
+	/*margin: 1%;
+	box-shadow: 3px 0px 9px -2px #898989, 2px 0px 2px -20px #898989;*/
+}
+
+.simDetlLeaveBar > div:nth-child(odd){
+	font-size:12px;
+	color:#555555;
+	font-family:Segoe UI;
+	text-align:left;
+	padding-top:3px;
+    background-color: #F5F8FD;
+	min-height: 30px;
+	/*margin: 1%;
+	box-shadow: 3px 0px 9px -2px #898989, 2px 0px 2px -20px #898989;*/
+}
+
+.reassignBtn{
+	font-size: 10px;
+	font-weight: 500;
+	color: black;
+	background-color: #eeeeee;
+	border-color: #eeeeee;
+	
+}
+.disableAction{
+	pointer-events: none;
+  	cursor: default;
+}
+
+.empSearchLabel{
+	text-align:left;
+	font-weight:bold;
+	font-size:12px;
+}
+.empSearchBtn{
+	font-size: 12px;
+    color: white;
+    background-color: #1F84C8;
+    border-color: #1F84C8;
+    border-radius: 0px;
+    box-shadow: 5px 10px 0 2px #FFF;
+}
+.empResetBtn{
+	font-size: 12px;
+    color: #1F84C8;
+    background-color: #fff;
+    border-color: #1F84C8;
+    border-radius: 0px;
+    box-shadow: 5px 10px 0 2px #FFF;
+}
+
+
+.empHeadBar{
+	background-color:#BCCCD8;
+	height:30px;
+	text-align: left;
+	font-size: 11px;
+	font-weight:bold;
+	padding:7px 0;
+	font-family:Segoe UI;
+	
+}
+
+.empSearchDtls{
+	background-color:#F5F8FD;
+	height:30px;
+	text-align: left;
+	font-size: 12px;
+	font-family:Segoe UI;
+}
+
+.radioMod input[type='radio'] {
+  	margin: 7px 0 0;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 1px solid darkgray;
+    border-radius: 60%;
+    outline: none;
+    box-shadow: 0 0 3px 0px #428bca inset;
+}
+.radioMod input[type='radio']:hover {
+    box-shadow:0 0 5px 0px #428bca inset;
+    cursor:pointer;
+}
+.radioMod input[type='radio']:before {
+   content: '';
+    display: block;
+    width: 60%;
+    height: 60%;
+    margin: 17% 19% 5% 20%;
+    border-radius: 48%;   
+}
+.radioMod input[type='radio']:checked:before {
+    background:#428bca;
+}
+
+.whiteBarHeading{
+	font-size:11px;
+	font-weight:bold;
+	color:#555555;
+	font-family:Segoe UI;
+	padding: 10px 0px 8px;
+}
+
+.whiteBarDetails{
+	font-size:12px;
+	color:#555555;
+	font-family:Segoe UI;	
+}
+
+.wrap-text{
+	-o-text-overflow: ellipsis; /* Opera */
+	text-overflow: ellipsis; /* IE, Safari (WebKit) */
+	overflow: hidden; /* don't show excess chars */
+	white-space: nowrap; /* force single line */
+	width: 100px; /* fixed width */
+}
+
+.frontDiv{
+	display:none;
+	height:50px;
+	z-index:1;
+	position:absolute;
+	background-color:#ffffff;
+	margin-top:-15px;
+	padding:5px;
+	box-shadow: 0px 0px 5px #999999;
+}
+
+.wrap-text:hover .frontDiv{
+	display:block;
+}
+
+.messageDiv{ 
+	font-size:11px;
+	font-weight:bold;
+   	margin-right: 10%;
+    color: red;
+    text-align: left;
+}
+
+.btn1 {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.42857143;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    -ms-touch-action: manipulation;
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    background-image: none;
+    
+    border-radius: 0px;
+}
+.btn1-default {
+    color: #286090;
+    background-color: #ffffff;
+    border-color: #204d74;
+}
+.btn1-default:hover{
+	 background-color: #286090;
+	  color: #ffffff;
+}
+
+
+/*Modal box common*/
+.leave-modal {
+	overflow: visible;
+}
+
+.leave-modal-dialog {
+	padding-top: 130px;
+	padding-left: 0px;
+	padding-right: 0px;
+	width: auto;
+	padding-bottom: 119px;
+}
+
+.leave-modal-body {
+	min-height: 350px;
+	background-color: #135999;
+	padding-left: 80px;
+	padding-right: 80px;
+	padding-bottom: 0px;
+}
+
+.leave-modal-header {
+	height: 52px;
+	background-color: #427cb2;
+	color: #ffffff;
+	border: none;
+	padding-left: 30px;
+}
+
+.leave-modal-content {
+	width: 400px;
+	margin-left: 475px;
+	top: 0px;
+}
+
+.leave-modal-button {
+	width: 90px;
+	height: 32px;
+	border:none;
+	text-align: center;
+	background-color: #2084c9;
+	color: #ffffff;
+	font-size: 14px;
+	border-radius:0px;
+}
+.leave-modal-button:hover{
+	outline: 2px solid #59b7f8;
+	color: #ffffff;
+}
+.leave-modal-text {
+	font-family: Segoe UI;
+	color: #ffffff;
+	font-size: 12px;
+}
+
+/* VD Changes*/
+.btn {
+	color: #2084c9;
+	font-size: 11px;
+	background-color: #F5F8FD;
+	border-color: #F5F8FD;
+}
+
+.btn:focus,.btn:active:focus,.btn.active:focus,.btn.focus,.btn:active.focus,.btn.active.focus,.btn:hover,.btn:focus,.btn.focus
+	{
+	background-color: #F5F8FD /*#e7e7e7;*/
+	color: #185d8d;
+}
+
+.addPopover {
+	float: right;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 10px;
+    border: 1px solid #ccc;
+    z-index: 9999999;
+}
+
+.addPopover .triangle:before {
+	content: '';
+	display: block;
+	background-image: url("../../appResources/images/up_arrow.png");
+	width: 17px;
+	height: 13px;
+	position: absolute;
+	left: 88%;
+	top: -9px;
+	margin-left: -8px;
+}
+
+.teamLeavePopup {
+	border: 1px solid #BABABA;
+	float: right;
+	margin-left: 0px;
+	margin-right: 0px;
+	margin-top: 8px;
+	box-shadow: 0px 0px 2px #BABABA, 0px 0px 11px #BABABA;
+	z-index: 9999999;
+	background-color: #ffffff;
+}
+
+.teamLeavePopup .triangleTeamLeave:before {
+	content: '';
+	display: block;
+	background-image: url("../../appResources/img/up_arrow.png");
+	width: 17px;
+	height: 13px;
+	position: absolute;
+	left: 41%;
+	top: -9px;
+	margin-left: -8px;
+}
+.btn-primary {
+	height: 32px;
+	min-width: 90px;
+	color: #ffffff;
+	background-color: #2084c9;
+	border: 2px solid #2084C9;;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.btn-secondary {
+	height: 32px;
+	min-width: 90px;
+	border: none;
+	font-weight: bold;
+	border: 2px solid #6ec7ff;
+	font-size: 12px;
+	color: #2084c9;
+}
+
+.btn-primary:focus,.btn-primary:active:focus,.btn-primary.active:focus,.btn-primary.focus,.btn-primary:active.focus,.btn-primary.active.focus,.btn-primary:hover,.btn-primary:focus,.btn-primary.focus
+{
+	outline: #6ec7ff 2px;
+	color: #ffffff;
+	background-color: #2084c9;
+	border: 2px solid #6ec7ff;
+}
+
+.btn-secondary:focus,.btn-secondary:active:focus,.btn-secondary.active:focus,.btn-secondary.focus,.btn-secondary:active.focus,.btn-secondary.active.focus,.btn-secondary:hover,.btn-secondary:focus,.btn-secondary.focus
+	{
+	background-color: #6ec7ff;
+	color: #2084c9;
+	border: 2px solid #6ec7ff;
+}
+.btn-default {
+	height: 32px;
+	min-width: 90px;
+	color: #FFFFFF;
+	background-color: #2084c9;
+	border: 2px solid #2084C9;
+	font-weight: bold;
+	font-size: 11px;
+}
+
+.btn-default:focus,.btn-default:active:focus,.btn-default.active:focus,.btn-default.focus,.btn-default:active.focus,.btn-default.active.focus,.btn-default:hover,.btn-default:focus,.btn-default.focus
+	{ 
+	background-color: #2084c9;
+	border: 2px solid #2084C9;
+	outline: #6ec7ff 2px;
+	color: #ffffff;
+}
+
+
+.divHide{
+	display: none;
+}
+
+.doc-upload-body{
+	height: 70px;
+    border: 1px dashed #999999;
+    /* padding: 15px 10px 15px 10px; */
+    font-size: 14px;
+    color: #818181;
+    font-style: italic;
+    background-color: #ffffff;
+}
+
+.textarea {
+    font-family: Segoe UI;
+    font-size: 12px;
+    height: 60px;
+    width: 450px;
+}
+
+.finalBtn{
+	margin-left: 10px;
+    float: right;
+    margin-top: 9px;
+}
+
+.closeLevHistory {
+    -webkit-appearance: none;
+    padding: 10px 5px 5px;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    font-weight: 500;
+    color: #6e6e6e;
+    font-size: 14px;
+}
+
+.clm-icon-approve-all:before {
+    content: "\e934";
+    position: absolute;
+    top: 9px;
+    /* right: 77px; */
+}
+.pageTitle {
+    font-size: 22px;
+    color: #454545;
+    font-weight: normal;
+    padding-bottom: 10px;
+    float: left;
+}

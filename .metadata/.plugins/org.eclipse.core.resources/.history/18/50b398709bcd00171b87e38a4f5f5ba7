@@ -1,0 +1,333 @@
+package com.plagiarism.controller;
+
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.swing.text.MaskFormatter;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.plagiarism.leave.sessionbean.UserDetailsSessionBean;
+import com.ultimatix.gess.leave.dto.ApplyLeaveDTO;
+import com.ultimatix.gess.leave.dto.CommonDTO;
+import com.ultimatix.gess.leave.dto.EmployeeDTO;
+import com.ultimatix.gess.leave.dto.FyaDetail;
+import com.ultimatix.gess.leave.dto.FyaLeaveDTO;
+import com.ultimatix.gess.leave.dto.LeaveMailerDetail;
+import com.ultimatix.gess.leave.dto.LeaveMasterDetail;
+import com.ultimatix.gess.leave.dto.LeaveRequest;
+import com.ultimatix.gess.leave.dto.LerfDetailDTO;
+import com.ultimatix.gess.leave.dto.NominationDTO;
+import com.ultimatix.gess.leave.exception.LeaveValidationException;
+import com.ultimatix.gess.leave.message.FieldErrorResource;
+import com.ultimatix.gess.leave.message.ResponseResource;
+import com.ultimatix.gess.leave.service.FyaService;
+import com.ultimatix.gess.leave.service.LerfReassignService;
+import com.ultimatix.gess.leave.util.CollectionUtility;
+import com.ultimatix.gess.leave.util.DataFixUtils;
+import com.ultimatix.gess.leave.util.DateUtils;
+import com.ultimatix.gess.leave.util.LeaveSecurityUtility;
+import com.ultimatix.gess.leave.util.LeaveUtils;
+import com.ultimatix.gess.leave.util.ObjectUtility;
+import com.ultimatix.gess.leave.util.StringUtility;
+import com.utxfrmwk.util.logger.LoggerFactory;
+import com.utxfrmwk.util.logger.LoggerInterface;
+
+@Controller
+public class FyaController {
+	
+	private static final LoggerInterface LOG = LoggerFactory.getLogger(FyaController.class);
+	
+	@Autowired
+	private FyaService fyaService;
+	
+	@Autowired
+	private UserDetailsSessionBean userBean;
+	
+	@Autowired
+	private LerfReassignService lerfReassignService;
+	
+	@Autowired
+	private LeaveUtils leaveUtils;
+	
+	/**
+	 * rest/fyaLeaveDetail?levParentId=10&supervisorId=1020989
+	 **/
+	@RequestMapping(value={"/fyaLeaveDetail/{levParentId}/{supervisorId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<ResponseResource> getFyaLeaveRequestList(@PathVariable(value="levParentId") Integer levParentId, @PathVariable(value="supervisorId") String supervisorId) {
+		String loginId =(String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | getFyaLeaveRequestList | levParentId:"+levParentId+" | supervisorId:"+supervisorId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress());
+		List<ResponseResource> resource=new ArrayList<ResponseResource>();
+		ResponseResource response = new ResponseResource(String.valueOf(levParentId));
+		response.setCode("200");
+		resource.add(response);
+		List<CommonDTO> fyaLeaveRequestList = this.fyaService.getFyaLeaveRequestList(levParentId,  supervisorId, false);
+		this.fyaService.isBenSpec(fyaLeaveRequestList);
+		if(CollectionUtility.isNotEmpty(fyaLeaveRequestList)) {
+			response.setSuccess("fyaList", fyaLeaveRequestList.get(0));
+		}
+		return resource;
+	}
+		
+	
+	@RequestMapping(value={"/teamLeaves/{employeeId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public CommonDTO getFyaTeamLeave(@PathVariable(value="employeeId") String employeeId, HttpServletRequest request, HttpServletResponse response) throws SQLException {
+		String startDate = request.getParameter("startDate"), endDate = request.getParameter("endDate");
+		Date start = (ObjectUtility.isNullSafe(startDate) && Long.valueOf(startDate)>0)?DateUtils.getDate(Long.valueOf(startDate)):null;
+		Date end = (ObjectUtility.isNullSafe(endDate) && Long.valueOf(endDate)>0)?DateUtils.getDate(Long.valueOf(endDate)):null;
+		CommonDTO commonDTO = this.fyaService.getFyaTeamLeave(employeeId, start, end);
+		return commonDTO;
+	}
+	
+	/**
+	 * rest/leaveHistory/596399
+	 **/
+	@RequestMapping(value={"/leaveHistory/{employeeId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public CommonDTO getFyaLeaveHistory(@PathVariable(value="employeeId") String employeeId) throws SQLException {	
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | getEmployeeSearchCount | employeeId:"+employeeId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		Date start = null;
+		if(StringUtility.isNumberRegex(employeeId)) {		
+			CommonDTO commonDTO = this.fyaService.getFyaLeaveHistory(employeeId, start);
+			return commonDTO;
+		} else {
+			ResponseResource resource = resourceNotFound(employeeId, "404", "No Record Found");
+			throw new LeaveValidationException("No record found /leaveHistory/{employeeId}", resource);
+		}
+	}
+	
+	/**
+	 * rest/findEmployee?employeeCode=1254
+	 **/
+
+	
+	@RequestMapping(value={"/searchEmployeeCount"}, method={RequestMethod.POST})
+	@ResponseBody
+	public Map<String, Object> getEmployeeSearchCount(@RequestBody Map<String, String> details) throws SQLException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | getEmployeeSearchCount | Detail:"+details+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		Map<String, Object> empSrchCount = this.fyaService.searchEmployeeCount(details);
+		return empSrchCount;
+	}
+	
+	
+	@RequestMapping(value={"/searchEmployee"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<EmployeeDTO> findEmployeeForReassign(@RequestBody Map<String, String> details, @RequestParam(value="start", defaultValue="0", required=false) Integer start, @RequestParam(value="pageSize", defaultValue="50", required=false) Integer pageSize, @RequestParam(value="cd", required=false) Long cd) throws SQLException {
+		List<EmployeeDTO> employeeDTOs = this.fyaService.findEmployeeForReassign(details, start, pageSize);
+		return employeeDTOs;
+	}
+	
+	/**
+	 * rest/levWorkflow/1020989?levRequestNo=Lev_107547773
+	 **/
+	@RequestMapping(value={"/levWorkflow/{supervisorId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<CommonDTO> levWorkFlow(@PathVariable(value="supervisorId") String supervisorId, @RequestParam(value="levRequestNo") String levRequestNo) throws SQLException {
+		List<CommonDTO> commonDTOs = null;
+		if(LeaveSecurityUtility.isLeaveRequestNoRegex(levRequestNo)) {
+			FyaDetail detail = new FyaDetail();
+			detail.setEmployeeId(supervisorId);
+			detail.setLevRequestNo(levRequestNo);
+			commonDTOs = this.fyaService.levWorkFlow(detail);
+		}
+		return commonDTOs;
+	}
+	
+	@RequestMapping(value={"/levSeekSubmit/{levParentId}"}, method=RequestMethod.POST)
+	@ResponseBody
+	public List<ResponseResource> seekClarificationSubmitted(@PathVariable(value="levParentId") String levParentId, @RequestBody List<LeaveRequest> requests) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | seekClarificationSubmitted | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		FyaLeaveDTO dto = new FyaLeaveDTO();
+		dto.setCategory(userBean.getCategory());
+		dto.setLevParentId(Integer.valueOf(levParentId));
+		dto.setLeaveRequests(requests);
+		
+		List<ResponseResource> seekSubmit = fyaService.updateSeekClarificationSubmitted(new ArrayList<ApplyLeaveDTO>(), dto);
+		LOG.info("FyaController | seekClarificationSubmitted | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		return seekSubmit;
+	}
+	
+	@RequestMapping(value={"/levSeekClarificationDetail/{levParentId}"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<LeaveRequest> levSeekClarificationDetails(@PathVariable(value="levParentId") String levParentId, HttpServletRequest request, HttpServletResponse response) {
+		String supervisorId = request.getParameter("supervisorId");
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | levSeekClarificationDetails | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		supervisorId = ObjectUtility.isNullSafe(supervisorId)?supervisorId:loginId;
+		LOG.info(supervisorId);
+		String levRequestNo = request.getParameter("levRequestNo");
+		levRequestNo = ObjectUtility.isNullSafe(levRequestNo)?levRequestNo:null;
+		List<LeaveRequest> leaveRequests = this.fyaService.levSeekClarificationDetail(levParentId, levRequestNo);
+		LOG.info("FyaController | levSeekClarificationDetails | levParentId:"+levParentId+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return leaveRequests;
+	}
+	
+	@RequestMapping(value={"/nominationDetail"}, method={RequestMethod.GET, RequestMethod.POST})
+	@ResponseBody
+	public NominationDTO getNominationDetail(@RequestParam(value="levRequestNo") String levRequestNo, HttpServletRequest request, HttpServletResponse response) {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | getNominationDetail | levRequestNo:"+levRequestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+		NominationDTO nominationDTO = null;
+		if(LeaveSecurityUtility.isLeaveRequestNoRegex(levRequestNo)) {
+			nominationDTO = this.fyaService.getNominationDetail(levRequestNo);
+		}
+		return nominationDTO;
+	}
+	
+	private ResponseResource resourceNotFound(String uniqueId, String code, String message) {
+		ResponseResource errors =  new ResponseResource(uniqueId);
+		errors.setCode(code);
+		errors.setMessage(message);
+		return errors;
+	}
+	
+	@RequestMapping(value = "/fetchReassignOnBehalfDetails", method = {RequestMethod.POST, RequestMethod.GET})
+	@ResponseBody 
+	public Map<String,Object> fetchReassignOnBehalfDetails(@RequestParam(value="employeeId", required=false) String empNo, HttpServletRequest request, HttpServletResponse response) throws SQLException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | fetchReassignOnBehalfDetails | employeeId:"+empNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+			
+		String empId = request.getParameter("employeeId");
+		String requestId=request.getParameter("requestId");
+				
+		Map<String, Object> requestList = fyaService.fetchReassignOnBehalf(loginId,empId,requestId);
+		LOG.info("FyaController | fetchReassignOnBehalfDetails | employeeId:"+empNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return requestList;
+	
+	/*if(ObjectUtility.isNullSafe(empId)) {
+		Map<String, Object> requestList = fyaService.fetchReassignOnBehalf(superVisorId,empId);
+		return requestList;
+	} else {
+		ResponseResource resource = resourceNotFound(empId, "404", "No Record Found");
+		throw new LeaveValidationException("No record found /fetchReassignOnBehalf", resource);
+	}*/
+	
+	}
+	
+	@RequestMapping(value={"/reassignOnBehalfLeave"}, method={RequestMethod.POST})
+	@ResponseBody
+	public List<ResponseResource> reassignOnBehalfLeave( @RequestParam(value="reassignTo", required=false) String reassignTo, @RequestBody List<LeaveRequest> details) throws SQLException {
+		String loginId = (String)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		
+		FyaLeaveDTO dto = new FyaLeaveDTO();
+		dto.setSupervisorId(loginId);
+		dto.setLeaveRequests(details);
+		dto.setCategory(userBean.getCategory());
+		dto.setReassignTo(reassignTo);
+		List<ResponseResource> resource = dto.getResource();
+		for(LeaveRequest detail:dto.getLeaveRequests()) {
+			ResponseResource responseResource = new ResponseResource(detail.getLevRequestNo());
+			LOG.info("FyaServiceImpl | updateReassignOnBehalf | LevRequestNo"+detail.getLevRequestNo());
+			String requestNo=detail.getLevRequestNo();
+			String requestType=requestNo.substring(0,requestNo.indexOf("_"));
+			boolean approverFlag=false;
+			boolean validFlag=false;
+			if("Lev".equalsIgnoreCase(requestType)){
+				if(fyaService.checkParallelApprover(detail,dto)){ //parallelApprover
+					if(fyaService.validateBehalfReassign(detail,dto)){ //can Reassign
+						 Map<String, Object> reassignData=fyaService.getReassignOnBehalfData(detail,dto); //get ReassignData
+						 LeaveMasterDetail masterDetail = new LeaveMasterDetail();
+						 masterDetail.setLevParentId(detail.getParentReqNo());
+						 masterDetail.setInLeaveRequests(detail);
+						 FyaLeaveDTO fyaLeaveDTO = (FyaLeaveDTO)reassignData.get("reassignObject");
+						 fyaLeaveDTO.setInDetails(masterDetail);
+						 List<ResponseResource> resource1=fyaService.updateReassignOnBehalf((FyaLeaveDTO)reassignData.get("reassignObject"),reassignData.get("approverEmpId").toString());
+						 FieldErrorResource fieldErrorResource = new FieldErrorResource();
+						 fieldErrorResource.setCode("200");
+					     fieldErrorResource.setMessage("Request  has been assigned succesfully");
+					     responseResource.setFieldErrors(fieldErrorResource);
+						 resource.add(responseResource);
+					}else{
+						validFlag=true;
+					}				
+				}else{
+					approverFlag=true;
+				}
+			}else if("Lerf".equalsIgnoreCase(requestType)){
+				if(fyaService.checkLerfApprover(detail,dto)){
+					if(fyaService.validateBehalfReassign(detail,dto)){
+						LerfDetailDTO lerfDetailDTO=new LerfDetailDTO();
+						lerfDetailDTO.setLerfId(detail.getLevRequestNo());
+						lerfDetailDTO.setReassignTo(dto.getReassignTo());
+						lerfDetailDTO.setInHeader("OnBehalf", true);
+						String approverEmpId=fyaService.getLERFApproverEmpId(detail.getLevRequestNo());
+						lerfDetailDTO.setApprovalEmpNo(approverEmpId);
+						ResponseResource resource1=lerfReassignService.validLERFReassign(lerfDetailDTO, leaveUtils);
+						lerfReassignService.reassignLerf(lerfDetailDTO);
+					}else{
+						validFlag=true;
+					}
+				}
+				else{
+					approverFlag=true;
+				}
+			}
+			if(approverFlag){
+				FieldErrorResource fieldErrorResource = new FieldErrorResource();
+				 fieldErrorResource.setCode("422");
+			     fieldErrorResource.setMessage("Request is pending with the same approver");
+			     responseResource.setFieldErrors(fieldErrorResource);
+				 resource.add(responseResource);
+			}else if(validFlag){
+				FieldErrorResource fieldErrorResource = new FieldErrorResource();
+				 fieldErrorResource.setCode("422");
+			     fieldErrorResource.setMessage("You are not authorized to reassign the Request");
+			     responseResource.setFieldErrors(fieldErrorResource);
+				 resource.add(responseResource);
+			}
+		}
+		return resource;
+	}
+	
+	@RequestMapping(value = "/fetchDeleteOnBehalf", method = {RequestMethod.POST, RequestMethod.GET})
+	@ResponseBody 
+	public Map<String,Object> fetchDeleteOnBehalf(@RequestParam(value="employeeId", required=false) String empNo, @RequestParam(value="requestId", required=false) String requestNo, HttpServletRequest request, HttpServletResponse response) throws SQLException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | fetchDeleteOnBehalf | requestNo:"+requestNo+" | LevRequestNo.:"+requestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");			
+		String empId = request.getParameter("employeeId");
+		String requestId=request.getParameter("requestId");
+		
+		Map<String, Object> requestList = fyaService.fetchDeleteOnBehalf(loginId, empId, requestId);
+		LOG.info("FyaController | fetchDeleteOnBehalf | requestNo:"+requestNo+" | LevRequestNo.:"+requestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | END");
+		return requestList;
+	
+	}
+	
+	@RequestMapping(value = "/fetchEmpDetailsByRequestNo", method = {RequestMethod.POST, RequestMethod.GET})
+	@ResponseBody 
+	public Map<String,Object> fetchEmpDetailsByRequestNo( @RequestParam(value="requestId", required=false) String requestNo,HttpServletRequest request, HttpServletResponse response) throws SQLException {
+		String loginId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		LOG.info("FyaController | fetchEmpDetailsByRequestNo | requestNo:"+requestNo+" | loginId:"+loginId+" | IpAddress:"+DataFixUtils.getIpAddress()+" | START");
+			
+		String requestId=request.getParameter("requestId");
+		
+		LOG.info("FyaController | fetchEmpDetailsByRequestNo request Id "+requestId);	
+						
+		if(ObjectUtility.isNullSafe(requestId)) {
+			Map<String, Object> requestList = fyaService.fetchEmpDetailsByRequestNo(requestId);
+			return requestList;
+		} else {
+			ResponseResource resource = resourceNotFound(requestId, "404", "No Record Found");
+			throw new LeaveValidationException("No record found /fetchEmpDetailsByRequestNo", resource);
+		}
+	}	
+	
+}

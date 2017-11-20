@@ -1,0 +1,203 @@
+
+<link href="appResources/css/balanceReport.css" rel="stylesheet" />
+<style>
+.doc-upload-body {
+    height: 70px;
+    border: 1px dashed #999999;
+    background-color: #fff;
+    padding: 22px 10px 22px 10px;
+    font-size: 14px;
+    color: #818181;
+    font-style: italic;
+}
+
+</style>
+<link href="appResources/css/clm-icons.css" rel="stylesheet" />
+<!-- Force latest IE rendering engine or ChromeFrame if installed -->
+<!--[if IE]>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<![endif]-->
+<div data-ng-controller="entitlementController">
+
+	<div class="row header-main-row">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 header-main-column text-left">
+			 <div class="row header-childrow">
+			
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<!-- <span><img data-ng-src="appResources/img/Icon-home.png" data-ng-click="redirectToMenuEar('');" style="cursor:pointer;" src="appResources/img/Icon-home.png"><span class="header-breadcrumb" translate=""><span class="ng-scope"> &gt;
+		 		Leave &gt; My Leave Balance Report</span></span></span> -->
+				</div> 
+			</div>  
+			<div class="row header-childrow">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<span class="header-bal" translate="">
+				<span class="ng-scope">Sick Leave Entitlement </span>
+				</span>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+	<div class="row content-main-row" >
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-bottom: 5px;">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 header-main-column text-left">
+				
+				<ul class="nav nav-tabs ng-scope">
+					<li class="active" id="balanceReportTab">
+					<a href="" data-toggle="tab" data-ng-click="tabClick(1);" translate="">
+						<span class="ng-scope">EXPORT RECORD</span></a></li>
+						
+					<li id="lopTab" >
+					<a href="" data-toggle="tab" data-ng-click="tabClick(2);" translate="">
+						<span class="ng-scope">IMPORT RECORD</span></a></li>
+				</ul>
+				<div style="border-top:3px solid #044B90;padding-bottom:10px;"></div>		
+			
+				<div class="row content-main-row" data-ng-if="exportFlag">
+					<div clas="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+						<div class="col-xs-5 col-sm-5  col-md-5 col-lg-5 text-left">
+			         		 <label class="applylev-form-header" translate=""><span
+							class="ng-scope">Country Type</span></label>
+							<span class="asterisk">*</span> 
+							
+							
+							<select data-ng-model="countryDetails.countryCode"
+					class="pull-right ng-pristine ng-untouched ng-valid ng-valid-required"
+					style="padding: 1px 0px 2px 0px;width:58%;"
+					data-ng-options="option.lookUpDesc for option in countryList"
+					data-ng-change="closeViewHistory();	onFliterTextChange();">
+					<!-- By prito -->
+				</select>
+				
+						
+         				</div>
+         				
+         				
+         			</div>
+         			
+         			
+         			
+					</div>
+				
+				 <br>
+         		<div style="text-align: right;" class="col-xs-5 col-sm-5  col-md-5 col-lg-5 text-left" data-ng-if="exportFlag">
+			
+					<span>
+						<a data-ng-click="downloadSickEntlReport(activeInactiveModel);">
+						<span class="clm-icon-excel-download" style="font-size: 19px;vertical-align: baseline;"></span>
+						<span style="font-weight: bold;font-size: 11px;vertical-align: super;" >DOWNLOAD REPORT</span>
+						</a>
+					</span>
+				</div>
+         		
+         		
+				
+				</div>
+				
+					
+				
+         		
+         			
+         		
+         		
+         		
+         		<div class="panel  col-lg-11 col-xs-12 "
+				id="add_delete_tab" data-ng-if="importFlag" data-ng-controller="entitlementdragDrop"
+					>
+					
+
+							<span class="font2" >Please export file and upload the same after editing</span>
+						
+
+					<div class="triangle" >
+						<div class="col-xs-12" style="margin-top: 13px;">
+
+							<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+								<div class="pull-left" id="errorMessageForFile"></div>
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+								style="padding-left: 0px; margin-top: 8px; text-align: left;">
+								
+								<div class="row">
+									<div id="dragandrophandler"
+										style="vertical-align: middle; font-size: 12px; text-align: center;"
+										class="doc-upload-body col-md-12">
+										<span>Drag &amp; Drop Documents Here</span>
+									</div>
+									<div
+										style="text-align: left; word-wrap: break-word; font-size: 10px; font-weight: bold; padding-left: 0px;"
+										class="col-md-11">
+										<span>Supported file type :  xlsx, xls</span> <br> <span>File
+											size limit : 5 MB</span>
+									</div>
+									<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"
+										style="padding-top: 5px;" >
+										<label> <input name="file" type="file" id="singleFile"
+											class="span4"
+											style="width: 85px; max-height: 23px; overflow: hidden; display: none;"
+											multiple=""> <img
+											src="appResources/img/AttachmentIcon.png"
+											style="width: 24px; height: 24px; align: left; cursor: pointer;"
+											tooltip="Browse documents..." tooltip-placement="top"
+											tooltip-trigger="mouseenter" class="ng-scope">
+										</label>
+									</div>
+								</div>
+
+							</div>
+
+							<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6"
+								style="padding-left: 10px; text-align: left;">
+								<div id="uploadedDivName"></div>
+								<div id="uploadedFileDiv"></div>
+								<div id="uploadedDocDiv"></div>
+							</div>
+						</div>
+						<span class="text-left lev-field-error"  data-ng-bind="serverErrMsg"></span>	
+						<span>
+						<a data-ng-click="uploadSickEntlReport(activeInactiveModel);">
+						<span class="clm-icon-excel-download" style="font-size: 19px;vertical-align: baseline;"></span>
+						<span style="font-weight: bold;font-size: 11px;vertical-align: super;" >UPLOAD REPORT</span>
+						</a>
+					</span>
+					</div>
+				</div>
+		
+         		
+				</div>
+			</div>
+		
+		
+
+	
+	<!-- sucess MOdel -->
+	<div data-ng-controller="entitlementdragDrop">
+<div id="messageModal" class="modal fade leave-modal" data-backdrop="static" data-keyboard="false" style="max-width:1366px;margin:auto;">
+				<div class="modal-dialog leave-modal-dialog">
+					<div class="modal-content leave-modal-content">
+					<div class="modal-header ng-scope" style="background-color: #427cb2; text-align: left; color: white;padding-left:30px">
+	            <h3 class="modal-title">
+		        <img src="appResources/img/please_note_icon_success.png" style="vertical-align: middle;"> 
+		        <span style="vertical-align: middle;">Please Note!</span>
+		        </h3>
+                </div>
+						<div class="modal-body success-modal-body success-modal-text" style="padding:30px; background-color: #135999; text-align: left; color: #E9FCFF; font-size: 16px">
+							<div>
+								<div style="min-height:22px;">
+								{{outMsg}}
+								</div>
+								
+							</div>
+							<div style="padding-top: 30px;">
+							<button class="leave-modal-button"
+									ng-click="redirectToHomePage();">OK</button>
+								
+						</div>
+						</div>
+					</div>
+				</div>
+			</div>	
+	</div>
+</div>

@@ -1,0 +1,8 @@
+define([ 'angular', 'app' ], function(angular, app) {
+
+	app.controller("postponementReqCtrl", [ '$scope', '$compile',
+			function($scope, $compile) {
+				$scope.ispostponementDetails = true;
+			} ]);
+	return app;
+});

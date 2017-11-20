@@ -1,0 +1,179 @@
+define([], function() {
+	var routesConfig = {
+		defaultRoutePath : '/',
+		routes : {
+			'/' : {
+				templateUrl : 'pages/gess/SiteMap.html',
+				dependencies : []
+			},
+			'/FYA':{
+				templateUrl : 'pages/leave/parentLeave.html',
+				dependencies : [ 'leaveApproverController']
+			},
+			'/applyleave' : {
+				templateUrl : 'pages/leave/ApplyLev.html',
+				dependencies : ['applyLevController','dragDropController','angularIntro']
+			},
+			'/approveleave/:parentReqNo/:isBackup' : {
+				templateUrl : 'pages/leave/LeaveApproverHome.html',
+				dependencies : [ 'leaveApproverController' ]
+			},
+			'/empSearch' : {
+				templateUrl : 'pages/leave/EmployeeSearch.html',
+				dependencies : [ 'cmnEmpSearchCtrl','leaveApproverController']
+			},
+			
+			'/levReqList' : {
+				templateUrl : 'pages/leave/LeaveReqList.html',
+				dependencies : [ 'myReqListController',
+						'commonReqListController' ]
+			},
+			'/levReqDetails/:parentReqNo' : {
+				templateUrl : 'pages/leave/LeaveReqDetails.html',
+				dependencies : [ 'reqDetailsController',
+						'commonReqDetailsController' ]
+			},
+			'/myTeamCal' : {
+				templateUrl : 'pages/leave/MyTeamCalendar.html',
+				dependencies : [ 'myTeamCalendarController' ]
+			},
+			'/onBehalfBalReport' : {
+				templateUrl : 'pages/leave/balanceReport_onBehalfHome.html',
+				dependencies : [ 'balReportHomeController','empSearchController' ]
+			},
+			'/balReportHome' : {
+				templateUrl : 'pages/leave/balanceReport_Home.html',
+				dependencies : [ 'balReportHomeController' ]
+			},
+			'/lerfHistory' : {
+				templateUrl : 'pages/leave/lerfHistory.html',
+				dependencies : [ 'lerfHistoryController' ]
+			},
+			'/rtt' : {
+				templateUrl : 'pages/leave/RTT.html',
+				dependencies : [ 'commonCtrl' ]
+			},
+			'/empReqList' : {
+				templateUrl : 'pages/leave/EmpLevReqList.html',
+				dependencies : [ 'empReqListController',
+						'commonReqListController', 'empSearchController' ]
+			},
+			'/empReqDetails/:parentReqNo/:employeeNo' : {
+				templateUrl : 'pages/leave/EmpReqDetails.html',
+				dependencies : [ 'empDetailsController',
+						'commonReqDetailsController' ]
+			},
+			
+			'/empLerfReqDetails/:requestNo/:employeeNo' : {
+				templateUrl : 'pages/leave/EmpLerfReqDetails.html',
+				dependencies : [ 'empLerfReqDtlsCtrl',
+						'cmnLerfReqDtlsCtrl' ]
+			},
+			'/reqLerfReqDetails/:requestNo' : {
+				templateUrl : 'pages/leave/ReqLerfReqDetails.html',
+				dependencies : [ 'reqLerfReqDtlsCtrl',
+						'cmnLerfReqDtlsCtrl' ]
+			},
+			'/levTypeErr' : {
+				templateUrl : 'pages/error/levTypeErr.html'
+			},'/levCalErr' : {
+				templateUrl : 'pages/error/appCalErr.html'
+			},'/amendLevErr' : {
+				templateUrl : 'pages/error/amendLevErr.html'
+			},
+			'/cmnError':{
+				templateUrl : 'pages/leave/cmnErrorPage.html'
+			},
+			'/empPostponeMentDetails/:requestNo/:employeeNo' : {
+				templateUrl : 'pages/leave/empPostponementReqDtls.html',
+				dependencies : [ 'empPostponementReqCtrl',
+						'cmnPostponementReqCtrl' ]
+			},
+			'/postponementDetails/:requestNo' : {
+				templateUrl : 'pages/leave/postponementReqDtls.html',
+				dependencies : [ 'postponementReqCtrl',
+						'cmnPostponementReqCtrl' ]
+			},
+			'/trackReqWorkFlow/:parentReqNo/:employeeNo' : {
+				templateUrl : 'pages/leave/trackReqDtls.html',
+				dependencies : [ 'trackReqDtlsCtrl',
+						'commonReqDetailsController' ]
+			},
+			'/leaveAccessProblem' : {
+				templateUrl : 'pages/leave/leave_accessProblem.html',
+			},
+			'/dataFix':{
+				templateUrl:'pages/gess/dataFix.html',
+				dependencies : ['dataFixCtrl']				
+			},
+			'/colEncash' : {
+				templateUrl : 'pages/leave/ColLevEncash.html',
+				dependencies : ['columbiaEncashCtrl']
+			},
+			'/applyLERF':{
+				templateUrl : 'pages/leave/applyLERFHome.html',
+				dependencies : [ 'lerfController' ]
+			},
+			'/approveLERF/:requestNo/:employeeNo':{
+				templateUrl : 'pages/leave/approveLERFHome.html',
+				dependencies : [ 'approveLerfCtrl','cmnLerfReqDtlsCtrl' ]
+			},
+			'/approveLERFPage':{
+				templateUrl : 'pages/leave/approveLERFPage.html',
+				dependencies : [ 'approveLerfCtrl','cmnLerfReqDtlsCtrl' ]
+			},
+			'/onBehalfApplyLeave':{
+				templateUrl : 'pages/leave/applyLeave_onBehalfHome.html',
+				dependencies : [ 'onBehalfApplyLeaveCtrl','dragDropController','angularIntro','empSearchController']
+			},
+			'/onBehalfReassignLeave':{
+				templateUrl : 'pages/leave/OnBehalf_reassignLeaveHome.html',
+				dependencies : [ 'reAssignOnBehalfCtrl','commonReqListController', 'onBehalfSearchController' ]
+			},
+			'/reassignReqDetails/:parentReqNo/:employeeNo' : {
+				templateUrl : 'pages/leave/ReassignReqDetails.html',
+				dependencies : [ 'empDetailsController',
+						'commonReqDetailsController' ]
+			},
+			'/onBehalfDeleteLeave':{
+				templateUrl : 'pages/leave/OnBehalf_deleteLeaveHome.html',
+				dependencies : [ 'DeleteLeaveCtrl','commonReqListController', 'onBehalfSearchController' ]
+			},
+			'/delReqDetails/:parentReqNo/:employeeNo' : {
+				templateUrl : 'pages/leave/DeleteReqDetails.html',
+				dependencies : [ 'empDetailsController',
+						'commonReqDetailsController' ]
+			},
+			'/sickLeaveEntitlement':{
+				templateUrl : 'pages/leave/SickLeaveforUKEntitlement.html',
+				dependencies : [ 'entTitlemntCtrl']
+			},
+			'/creditEntitlement':{
+				templateUrl : 'pages/leave/CreditEntitlement.html',
+				dependencies : [ 'creditEntController' ]
+			},
+			'/amendReqList' : {
+				templateUrl : 'pages/leave/AmendLevReqList.html',
+				dependencies : [ 'amendReqListCtrl',
+						'commonReqListController', 'empSearchController' ]
+			},
+			'/onBehalfLERF' : {
+				templateUrl : 'pages/leave/applyLerfBehalfHome.html',
+				dependencies : ['empSearchController', 'lerfBehalfController']
+			},
+			'/approveleaveCmnt/N':{
+				templateUrl : 'pages/leave/approveLeaveCommentHome.html',
+				dependencies : ['bulkAppController']
+			},
+			'/onBehalfLeaveApp':{
+				templateUrl : 'pages/leave/applyLeave_onBehalfPage.html',
+				dependencies : ['onBehalfApplyLeaveCtrl']
+			},
+			'/empSearch/:bulkAction/N' : {
+				templateUrl : 'pages/leave/EmployeeSearch.html',
+				dependencies : [ 'cmnEmpSearchCtrl']
+			},
+		}
+	};
+	return routesConfig;
+});

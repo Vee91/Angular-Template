@@ -1,0 +1,523 @@
+
+<link href="appResources/css/approverHome.css" rel="stylesheet" />
+<link href="appResources/css/LeaveTeamCal.css" rel="stylesheet" />
+
+
+
+<div ng-controller="LeaveApproverController">
+	<div class="row topPanel" style="padding-bottom: 30px;margin-top: 1px;">
+	
+		<span><img data-ng-src="appResources/img/Icon-home.png"  style="cursor:pointer;float: left;margin-top: 9px;"></img>
+		<span class="breadcrumb"> >  Track Request Workflow > Leave Request Details</span></span>
+		<div class="col-md-12">
+
+		<div ng-if="showFYADtls">
+			<!-- addded as per VD -->
+			<div class="row">
+			<div class="col-md-12 col-xs-12"
+				style="text-align: left; font-size: 12px; border: 1px solid #BABABA;">
+				<div class="col-lg-2"
+					style="padding-top: 15px; padding-bottom: 15px;">
+					<label>Raised By</label><br>{{leaveApprObj.fyaData[0].fullName}}({{leaveApprObj.fyaData[0].employeeNo}})
+				</div>
+				<div class="col-lg-1"
+					style="padding-top: 15px; padding-bottom: 15px;">
+					<label>Submit Date</label><br>
+					{{leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].appliedDate | date:'dd-MMM-yyyy'}}
+				</div>
+				<div class="col-lg-3"
+					style="padding-top: 15px; padding-bottom: 15px;">
+					<label>Address</label><br>
+					{{leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].contactDTO.contactAddress}}
+				</div>
+				<div class="col-lg-2" style="padding-top: 15px; padding-bottom: 15px;">
+					<label>Contact Number</label><br>
+					{{leaveApprObj.fyaData[0].leaveDetails[0].leaveRequests[0].contactDTO.contactNumberCell}}
+				</div>
+				
+				<div class="col-lg-3"
+					style="padding-top: 15px; padding-bottom: 15px; border-left: 1px solid #FFFFFF">
+					
+					<div class="col-lg-4"
+						<label><b>Documents</b></label><br> {{}}
+					</div>
+					<div class="col-lg-8">
+						<button class="btn" id="add" ng-click="uploadClick();">
+							<img src="appResources/img/Edit.png"
+								style="width: 14px; height: 14px; margin-right: 8px;"><label>DOWNLOAD</label>
+
+						</button>
+					</div>
+				</div>
+			</div>
+
+		</div>
+		
+	<!-- 	upload part-viji -->
+		<div class="container-fluid row " id="add_delete_tab" ng-if="uploadSec">
+			<div class="addPopover col-lg-6 col-xs-12 ">
+				<div class="triangle">
+					<!-- Div class="col-lg-6 col-xs-12"
+						style="color: #BABABA; margin-top: 25px">
+						<div class="col-lg-7 col-xs-7">
+							<label style="margin-right: 15px;">1.Doctor Certificate</label>
+						</div>
+						<div class="col-lg-1 col-xs-1"></div>
+						<div class="col-lg-2 col-xs-2">
+							<button class="btn">
+								<span style="color: #2084c9; width: 14px; height: 14px;"
+									class="glyphicon glyphicon-inbox"></span>
+							</button>
+						</div>
+						<div class="col-lg-2 col-xs-2">
+							<button class="btn">
+								<span style="color: #2084c9; width: 14px; height: 14px;"
+									class="glyphicon glyphicon-trash"></span>
+							</button>
+						</div>
+
+						<div class="col-lg-7 col-xs-7">
+							<label>2.Child Delivery Proof</label>
+						</div>
+						<div class="col-lg-1 col-xs-1"></div>
+						<div class="col-lg-2 col-xs-2">
+							<button class="btn">
+								<span style="color: #2084c9; width: 14px; height: 14px;"
+									class="glyphicon glyphicon-inbox"></span>
+							</button>
+						</div>
+						<div class="col-lg-2 col-xs-2">
+							<button class="btn">
+								<span style="color: #2084c9; width: 14px; height: 14px;"
+									class="glyphicon glyphicon-trash"></span>
+							</button>
+						</div>
+					</div-->
+					<div class="col-lg-12 col-xs-12">
+						<button class="btn" style="float: left; margin-top: 10px;">
+							<img src="appResources/img/AttachmentIcon.png"
+								style="width: 40px; height: 40px; align: left">
+						</button>
+					</div>
+
+					<div class="col-lg-12 col-xs-12"
+						style="text-align: right; padding-bottom: 10px;">
+						<button class="btn btn-secondary" style="padding-left: 10px;"
+							 data-toggle="modal" data-target="#add_delete_tab" ng-click="canceldd();">Close</button>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12">
+				<div class="reqDetails"
+					data-ng-repeat="data in leaveApprObj.fyaData">
+					<span data-ng-repeat="subData in data.leaveDetails"> <span
+						data-ng-repeat="leaveDet in subData.leaveRequests">
+							<div class="row requestBar">
+								<div class="col-md-1 orangeBar padTop10" id="orngBar{{$index}}">
+									<span></span>
+								</div>
+
+
+								<div class="col-md-11 whiteBar" 
+									data-aria-expanded="false"
+									padding-right: 0px;"
+									id="whitebar{{$parent.$index}}{{$index}}"
+									ng-click="getWorkflow(leaveDet.levRequestNo, $index)">
+									<div class="col-md-3 padTop10" id="headClass{{$index}}">
+										<span class="leaveHeadClass">{{leaveDet.leaveType.name}}</span>
+									</div>
+									<div class="in padTop10"
+										id="whitebarHideSec{{$parent.$index}}{{$index}}">
+										<div class="col-md-2 ">
+											
+											<div class="whiteBarHeading"></div>
+											<div class="whiteBarDetails"></div>
+										</div>
+										<div class="col-md-2 ">
+											<div class="whiteBarHeading"></div>
+											<div class="whiteBarDetails"></div>
+										</div>
+										<div class="col-md-2 ">
+											<div class="whiteBarHeading"></div>
+											 <div class="whiteBarDetails"></div>
+										</div>
+										<div class="col-md-1 " style="padding-left: 0%">
+											<div class="whiteBarHeading"></div>
+											 <div class="whiteBarDetails"></div>
+										</div>
+										<div class="col-md-2"
+											style="margin-top: -9px; padding-right: 0px;">
+
+											<div class="whiteBarHeading" style="margin-top: 10px;"></div>
+											<div style="float: right; margin-top: -38px; margin-right:3px"
+												ng-style="bgColorforMsg(leaveDet.message)">
+												<span style="padding: 3px;"></span>
+											</div>
+											<div class="whiteBarDetails wrap-text">
+											
+											<div class="frontDiv"></div></div>
+										</div>
+
+
+										<!-- <div class="col-md-1 " style="width: 4%; padding-top: 20px;">
+										<a class="btn btn-link"><span
+											class="glyphicon glyphicon-paperclip"></span></a>
+									</div> -->
+									</div>
+								</div>
+
+								<div class="col-md-2 row actionIconSec" ng-if="showActionBar"
+									id="actionIconSec{{$parent.$index}}{{$index}}">
+									<div class="col-md-8 collapse"
+										id="actionShowSec{{$parent.$index}}{{$index}}"
+										style="margin-top: -10px;margin-right: 12%;">
+										<div ng-show="leaveApprObj.showApproverCmntSec">
+											<span class="approverCommentClass">Approver Comments:</span>
+											<textarea ng-model="leaveApprObj.approverComment" class="col-md-12" style="resize: none;
+											font-size: 14px;height: 28px;font-family: Segoe UI;"></textarea>
+										</div>
+										<div ng-show="leaveApprObj.showreassignSec">
+											<div style="margin-top: 12px;">
+												<input class="col-md-6"
+													placeholder="Enter name or Employee ID"
+													style="resize: none; font-size: 14px;height: 35px;font-family: Segoe UI;"
+													ng-model="leaveApprObj.searchValue"></input>
+											</div>
+											<div class="col-md-1">
+												<a class="btn btn-link actionButton"
+													style="margin-left: -20px;"><span
+													class="glyphicon glyphicon-search"
+													ng-click="empSearchFYA(leaveDet.levRequestNo,leaveDet.leaveRequestStatus.id)"></span></a>
+											</div>
+											<button class="btn btn-default col-md-2"
+												ng-click="reassignReq(leaveDet.levRequestNo,leaveApprObj.searchValue)">Reassign</button>
+											<button class="btn btn-default col-md-2"
+												style="margin-left: 5px;">Cancel</button>
+
+
+										</div>
+
+
+									</div>
+
+
+									<a class="btn btn-link actionButton"
+										id="approveButton{{$index}}" data-toggle="collapse"
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false"
+										ng-click="approveClick($parent.$index,$index, leaveApprObj.approverComment)"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'approved',$index,leaveDet.disable)"
+										>
+										<span class="glyphicon glyphicon-ok-sign"> </span>
+									</a> 
+									<a class="btn btn-link actionButton"
+										id="rejectButton{{$index}}" data-toggle="collapse"
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'rejected',$index,leaveDet.disable)"
+										ng-click="rejectClick($parent.$index,$index, leaveApprObj.approverComment)"
+										>
+										<span
+										class="glyphicon glyphicon-remove-sign"> 
+										</span></a> 
+									<a
+										class="btn btn-link actionButton" data-toggle="collapse" 
+										id="clarifyButton{{$index}}"										
+										ng-click="clarifyClick($parent.$index,$index, leaveApprObj.approverComment)"
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'seekClr',$index,leaveDet.disable)"
+										>
+										<span class="glyphicon glyphicon-exclamation-sign"> </span>
+									</a> 
+									<a class="btn btn-link actionButton" data-toggle="collapse" 
+										data-target="#whitebarHideSec{{$parent.$index}}{{$index}}"
+										data-aria-expanded="false" id="reassignButton{{$index}}"
+										ng-click="reAssignClick($parent.$index,$index)"
+										ng-style="changeBgColor(leaveDet.leaveStatus.id,'reassign',$index,leaveDet.disable)"
+										>
+										<span class="glyphicon glyphicon-share-alt"></span>
+									</a>
+								</div>
+
+								{{expandActionSection(("headClass"+$index),("orngBar"+$index),("whitebar"+$parent.$index+$index),("whitebarHideSec"+$parent.$index+$index),
+								("actionIconSec"+$parent.$index+$index),("actionShowSec"+$parent.$index+$index),$parent.$index,$index);}}
+
+
+							</div>
+							<div  id="subRequestDetails{{$index}}"
+								style="background-color: white; padding-top: 1px;">
+								<div class="row" style="margin: 15px 0px 20px 0px;"
+									id="subRequestDetails{{$index}}">
+									<div class="row">
+									<div class="col-md-2 ">
+											
+											<div class="subRequestCommentClass">Sub-Request</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.levRequestNo}}</div>
+									</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">Leave Start Date</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.startDate | date:'dd-MMM-yyyy'}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">Start Duration</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.startDuration}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">Leave End Date</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.endDate | date:'dd-MMM-yyyy'}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">End Duration</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.endDuration}}</div>
+										</div>
+										<div class="col-md-1 " style="padding-left: 0%">
+											<div class="subRequestCommentClass">No of Days</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.nosDay}}</div>
+										</div>
+										<div class="col-md-1"
+											style="margin-top: -9px; padding-right: 0px;">
+
+											<div class="subRequestCommentClass" style="margin-top: 10px;">Remarks</div><br>
+											<div class="subRequestDtlsClass wrap-text">{{leaveDet.reasonForLeave}}
+											<div class="frontDiv">{{leaveDet.reasonForLeave}}</div></div>
+										</div>
+										
+
+									</div>
+									
+									<div class="row" style="margin-top:15px;">
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">{{leaveDet.attributeName_1}}</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.attributeValue_1}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">{{leaveDet.attributeName_2}}</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.attributeValue_2}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">{{leaveDet.attributeName_3}}</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.attributeValue_3}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">{{leaveDet.attributeName_4}}</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.attributeValue_4}}</div>
+										</div>
+										<div class="col-md-2">
+											<div class="subRequestCommentClass">{{leaveDet.attributeName_5}}</div><br>
+											<div class="subRequestDtlsClass">{{leaveDet.attributeValue_5}}</div>
+										</div>
+
+									</div>
+
+
+								</div>
+								<div class="row">
+									<ul class="nav nav-tabs trackerBar">
+										<li id="leaveHist{{$index}}" class="activeTabTracker"><a
+											ng-click="trackDetails('LeaveHist',$index,leaveDet.startDate,leaveDet.endDate)">Workflow
+												Details</a></li>
+										<!-- <li ng-click="getLeaveHistory"><a href="/#2{{$index}}" data-toggle="tab">Leave History</a></li> -->
+										<!--<li id="teamLeave{{$index}}"><a
+											ng-click="trackDetails('TeamLeave',$index, leaveDet.startDate,leaveDet.endDate)">Team
+												Leave</a></li>-->
+									</ul>
+									<div class="tab-content trackerBarDetail">
+										<div id="divLevHist{{$index}}"
+											style="min-height: 230px; padding-bottom: 1px; margin-top: -20px">
+											
+											<h3></h3>
+											<!--
+											<br> <br>
+											
+											  
+											<div
+												style="width: 4%; float: left; height: 180px; background-color: #F5EFE1;">
+												<a class="btn btn-link actionButton" ng-click="leftClick()"><span
+													class="scrollButton glyphicon glyphicon-chevron-left"></span></a>
+											</div>
+											<div
+												style="width: 92%; float: left; background-color: #F5EFE1;">
+												<div class="timelineHeader">
+													<div class="dateField"
+														ng-repeat="obj in leaveApprObj.workFlowData[$index]">
+														<div>{{obj.levWorkflow[0].appliedDate | date:'dd-MMM-yyyy'}}</div>
+														
+													</div>
+												</div>
+
+												<div style="height: 140px;">
+													<div class="bar"></div>
+													<div class="timeline">
+													<div class="entry"
+															ng-repeat="obj in leaveApprObj.workFlowData[$index]">
+														
+															<div class="apprWorkFlow">
+																<span>{{obj.levWorkflow[0].employeeRole}}</span><br>
+																<span>{{obj.levWorkflow[0].fullName}} |
+																	{{obj.levWorkflow[0].employeeNo}} |</span><br> <span>{{obj.levWorkflow[0].contactDTO.emailId}}
+																	| {{obj.levWorkflow[0].contactDTO.contactNumberCell}} </span>
+																<br> <span>Status:</span><span>{{obj.levWorkflow[0].leaveStatus.name}}</span>
+
+															</div>
+															<div ng-if="obj.levWorkflow.length > 1">
+																<a class="workFlowModal"
+																	ng-click="showWorkFlowData(obj)">Others +
+																	{{obj.levWorkflow.length - 1}}</a>
+															</div>
+
+
+														</div>
+													</div>
+													
+													{{changeWidth(leaveApprObj.workFlowData[$index].length)}}
+												</div>
+											</div>
+
+											<div
+												style="width: 4%; float: left; height: 180px; background-color: #F5EFE1;">
+												<a class="btn btn-link actionButton" id="upClick"
+													ng-click="rightClick()"><span
+													class="glyphicon glyphicon-chevron-right scrollButton"></span></a>
+											</div>
+												-->
+											<div class="col-md-12">
+												<div basic-tracker="leaveApprObj.basicWorkFlowData" tracker-status-color="" ng-model="leaveApprObj"></div>
+								
+											</div>
+											
+										</div>
+
+
+
+
+										<div class="hideDiv row" id="divTeamLeave{{$index}}">
+											
+											<div class="col-md-4">
+												<div class="header">
+													<span>{{months[0].format("MMM, YYYY")}}</span>
+												</div>
+												<div class="week names" style="background-color:wheat">
+													<span class="day" >Sun</span> <span class="day" >Mon</span> <span
+														class="day" >Tue</span> <span class="day" >Wed</span> <span
+														class="day" >Thu</span> <span class="day" >Fri</span> <span
+														class="day" >Sat</span>
+												</div>
+
+												<div id="calenderdiv">
+													<div class="week" ng-repeat="week in months[0]">
+														<span id="day{{day.date._d.getTime()}}"
+															class="day"
+															ng-class="{ today: day.isToday, 'prevMonth' : !day.isCurrentMonth}"
+															ng-repeat="day in week.days">{{day.number}}&nbsp;<span ng-style="applyBgColorTeamLeave(day.teamLeave)">{{day.teamLeave!==null?day.teamLeave:''}}</span></span>
+													</div>
+												</div>
+
+												
+
+											</div>
+											<div class="col-md-8">
+												<div class="row simHeadLeaveBar">
+
+													<div class="col-md-2">
+														<span>Employee Name</span>
+													</div>
+													<div class="col-md-2">
+														<span>Employee ID</span>
+													</div>
+													<div class="col-md-2">
+														<span>Leave Start Date</span>
+													</div>
+													<div class="col-md-2">
+														<span>Leave End Date</span>
+													</div>
+													<div class="col-md-2">
+														<span>No. of Days </span>
+													</div>
+													<div class="col-md-1">
+														<span>Status</span>
+													</div>
+
+												</div>
+
+												<div class="simDetlLeaveBar">
+													<div class="row "
+														ng-repeat="data in leaveApprObj.teamLeaveData.leaveRequests">
+														<div class="col-md-2">
+															<span>{{data.fullName}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.employeeNo}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.startDate | date:'dd-MMM-yyyy'}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.endDate | date:'dd-MMM-yyyy'}}</span>
+														</div>
+														<div class="col-md-2" style="padding-left: 4%;">
+															<span>{{data.nosDay}}</span>
+														</div>
+														<div class="col-md-2">
+															<span>{{data.leaveStatus.name}}</span>
+														</div>
+													</div>
+												</div>
+
+											</div>
+										</div>
+									</div>
+								</div>
+
+							</div>
+				</div>
+
+
+				</span> </span>
+			</div>
+
+
+			<!-- 	<div class="row subRequestBox" style="margin: 15px;">
+			<div class="col-md-12" style="padding-top: 15px;">
+				<div class="toaClass">Terms of Agreements</div>
+			</div>
+			<div class="col-md-12" style="margin-top: 30px; padding-left: 20px;">
+				<ul>
+					<li style="text-align: left;">There will be no change to your
+						User ID, Password and PIN due to this activity.</li>
+					<li style="text-align: left;">Only a limited number of
+						services will be impacted during this activity. Please click here
+						to know more about these services.</li>
+					<li style="text-align: left; list-style: none;"><input
+						type="checkbox">There will be no change to your User ID,
+						Password and PIN due to this activity.</li>
+				</ul>
+			</div>
+		</div> -->
+
+		<div class="row">
+			<div class="col-md-12" style="margin: 15px 0px 20px 0px;">
+				<button class="btn1 btn1-default col-md-1" style="float: right;" ng-Click="trackReqBack();">Back</button>
+			</div>
+		</div>
+		</div>
+		
+		
+			
+			
+			
+		
+	</div>
+
+	
+
+
+
+
+</div>
+
+
+
+
